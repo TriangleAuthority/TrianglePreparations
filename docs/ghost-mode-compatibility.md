@@ -16,23 +16,36 @@ State on 2026-11-13 (Ghost Mode's `master`), read from both repositories (**unve
 
 | Method or system | Ghost Mode (`master`) | Preparations (planned) | Risk |
 |---|---|---|---|
-| `W3AlchemyManager.CookItem` | `@replaceMethod` (FOOD-07 cooking; 5.x's oil re-apply kept) | wrapper taking over refills | Wrapper over another blob's replacement: chaining unverified |
-| `CInventoryComponent.SingletonItemGetMaxAmmo` | `@replaceMethod` (SKL-18 Efficiency, Heavy Artillery) | wrapper (oil max, table +1) | Same; table +1 after Heavy Artillery's multiplier (deviation) |
+| `W3AlchemyManager.CookItem` | `@replaceMethod` (FOOD-07 cooking; 5.x's oil re-apply kept) | wrapper taking over refills | **Wrapper dropped** at the default order (below) |
+| `CInventoryComponent.SingletonItemGetMaxAmmo` | `@replaceMethod` (SKL-18 Efficiency, Heavy Artillery) | wrapper (oil max, table +1) | Same; if it runs, table +1 after Heavy Artillery's multiplier (deviation) |
 | `CR4Player.ApplyOil` | `@replaceMethod` (SKL-14 oil decay) | wrapper (jar charges) | Same |
 | `CR4Player.ConsumeItem` | `@replaceMethod` (FOOD-05 toxicity) | wrapper (combat refusal) | Same |
 | `CR4InventoryMenu.ApplyRepairKit` | `@replaceMethod` (ITEM-11 kits) | wrapper (gate, time) | Same |
 | `CR4CharacterDupeMenu.OnSwapSkill` | `@replaceMethod` (skill slots); `OnConfigUI` wrapped | wrapper (gate) | Same |
 | `CR4CharacterDupeMenu` as the only skill menu | draws both trees there (SKL-02); classic `CR4CharacterMenu` unused | wraps both menus | None if both menus are wrapped |
-| `W3PlayerWitcher.MeditationRestoring` | wrapper (exhaustion cleared) | `@replaceMethod` | Ghost Mode's wrapper on Preparations' replacement: chaining unverified; with Preparations it also runs on the quest/replenish path |
+| `W3PlayerWitcher.MeditationRestoring` | wrapper (exhaustion cleared) | `@replaceMethod` | Works at the default order: Ghost Mode's wrapper runs around Preparations' replacement (below); with Preparations it also runs on the quest/replenish path |
 | `W3PlayerWitcher.OnSpawned`, `NewGamePlusInitialize`, `OnCombatStart/Finished`, `CR4IngameMenu.SaveChangedSettings`, `W3TooltipComponent.GetBaseItemData`, `W3GameEffectManager` registration | wrappers (many) | wrappers | Low (several wrappers per method) |
 | Refill by meditation | 5.x's, unchanged; its test `gmtest_craft07_refill` calls `SingletonItemsRefillAmmo` and expects a potion refilled | filtered by type (default: no potion autorefill) | **Ghost Mode's regression fails with Preparations installed** unless the test sets potions to Autorefill or skips the filter |
 | Recipes | CRAFT-06 whole-file recipe overrides | reads each recipe's base | Checked: every potion, decoction, bomb and oil recipe on `master` has a base except Alraune Reagent, Sleeping Potion, Mutation Serum (as in 5.x) |
 | Tawny Owl recipe | granted once (fact `gm_craft_recipes_added`) | granted once (fact `MissingTawnyOwlRecipeAdded`) | None |
 | Options, strings | `modGhostMode.xml`, ids 2110992xxx | `modPreparationsConfig.xml`, ids 2110750xxx | None |
-| Effect types | enum extension, array grown to `GMLastEffectType()` | enum extension, array grown to its own last | Both grow only when too small: compatible; numbering across blobs unknown |
+| Effect types | enum extension, array grown to `GMLastEffectType()` | enum extension, array grown to its own last | Both grow only when too small: compatible; numbering across blobs untested |
 | Character reset | `GMResetCharacter` (also switches the tree) | not gated | Decision: gate it like buying skills, or not (legacy had no reset) |
 
-**The deciding unknown** is TriangleGhostMode's open question "How does the game merge the script blobs of several mods?": two blobs' `@replaceMethod`s of one method are winner-take-all (seen), but whether one blob's `@wrapMethod` wraps another blob's `@replaceMethod` is not tested. Six of Preparations' wrappers sit on Ghost Mode replacements, and Ghost Mode wraps one of Preparations'. **Plan:** answer it in slice 0 with a probe (Preparations' blob wraps `ConsumeItem`, Ghost Mode's replaces it: both effects seen in one run, at both priority orders). If wrappers do not chain across blobs, fall back to a merged build for the combined install (Preparations' changes as a compile-time option inside Ghost Mode's replaced bodies), as Gwent Improvements plans to merge later.
+**How two blobs combine** (**verified** 2026-11-13 with throwaway blobs, TriangleGhostMode `docs/development.md`, "How the game loads mod scripts"): the mod whose folder sorts first takes precedence. Its `@replaceMethod` drops the other mod's replacement **and its wrappers**, silently. Its `@wrapMethod` runs around the other mod's replacement, and wrappers from both chain. `modGhostMode` sorts before `modPreparations`, so at the default order:
+
+- Preparations' six wrappers on Ghost Mode's replacements (the first six rows) **never run**.
+- Ghost Mode's wrapper of `MeditationRestoring` runs around Preparations' replacement (fine).
+- Reordering with a `mods.settings` priority is no way out: a priority against the folder-name order crashed the game at startup.
+
+Ways to combine them, for the owner to choose ([port-plan.md](port-plan.md#decisions-to-make)):
+
+1. **Avoid the six methods.** Preparations hooks somewhere Ghost Mode does not replace: the callers, a check called from them, or the menus. Works at any folder order and with any other mod; costs a different design per method, and some may have no good alternative.
+2. **Ship Preparations under a folder name that sorts before `modGhostMode`** (e.g. `modAPreparations`). Its six wrappers then wrap Ghost Mode's replacements. But anything Preparations *replaces* drops Ghost Mode's change of it: `MeditationRestoring` would lose Ghost Mode's exhaustion clear (Preparations would have to wrap it instead, or Ghost Mode clear elsewhere). Fragile: a player renaming the folder breaks it silently.
+3. **A merged build** for the combined install: Script Merger Remastered v3 can rebuild both blobs' changes as source and merge them into one blob (GUI only, untested for this case), or the two repos build a combined blob themselves (Preparations' changes inside Ghost Mode's replaced bodies). Exact, but every Ghost Mode or Preparations release needs a new merge.
+4. **Ghost Mode turns its six replacements into wrappers** where its change allows it (it prefers wrappers anyway). Then Preparations' wrappers chain with Ghost Mode's at either order. Each of the six was a replacement for a reason (a changed body), so this is per method too.
+
+Proposed: 1 or 4 per method (whichever is smaller), 3 for whatever is left. That keeps the default folder names and needs no merge for players.
 
 ## Friendly Meditation interaction
 

@@ -2,7 +2,7 @@
 
 Only the game can answer:
 
-- **Blob merging:** does Preparations' wrapper run on Ghost Mode's replaced method (and the reverse), at either priority? Can two blobs add a field or method of the same name to one class? (Slice 0 probe; also Ghost Mode's open question.)
+- **Two blobs adding the same name:** can two blobs add a field or method of the same name to one class? (How wrappers and replacements from two blobs combine is answered in [ghost-mode-compatibility.md](ghost-mode-compatibility.md#ghost-mode).)
 - **Enum extensions in saves:** does a saved `EET_PrepAlchemyTable` effect survive adding or removing Ghost Mode (renumbering), and removing Preparations?
 - **Fire detection in 5.x:** are the world's campfires and fireplaces still `W3Campfire` / `W3FireSource`; does an unlit campfire count (legacy does not check); which entities have a `CGameplayLightComponent`?
 - **Meditation state and menus:** in vanilla 5.x, is Geralt in the `Meditation` state while the clock menu is open, and can he reach the character, alchemy and inventory menus from there?

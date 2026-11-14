@@ -30,7 +30,7 @@ Not carried: Friendly HUD's and Friendly Stash's code inside legacy's scripts (5
 
 ## Slices
 
-0. **Tooling and probes:** the tools and the compile check (done 2026-11-13); PREP-MENU: the menu shows under Options → Mods with labels in game, `autoconfig` reads every group, defaults apply on an empty settings file; the DLC mounts (`IsDLCEnabled('dlc_preparations')`). Install side by side with Ghost Mode on the shared game slot.
+0. **Tooling and probes:** the tools and the compile check (done 2026-11-13); PREP-MENU: the menu shows under Options → Mods with labels in game, `autoconfig` reads every group, defaults apply on an empty settings file; the DLC mounts (`IsDLCEnabled('dlc_preparations')`). Install side by side with Ghost Mode on the shared game slot. The blob-combination probe is done (2026-11-13, [ghost-mode-compatibility.md](ghost-mode-compatibility.md#ghost-mode)).
 1. **PREP-MED** fire detection and requirements (every later gate uses `PrepHasCampfire`), silent checks, reasons shown; **PREP-COMBAT**; **PREP-INV**.
 2. **PREP-TIME** and **PREP-SKILL** in both menus, both trees (classic by 5.x's hidden setting and by Ghost Mode's option).
 3. **PREP-ALCH** and **PREP-REFILL** (all modes, one-charge option, the autorefill filter, the UI).
@@ -40,6 +40,7 @@ Not carried: Friendly HUD's and Friendly Stash's code inside legacy's scripts (5
 
 ## Decisions to make
 
+- **How to combine with Ghost Mode's six replaced methods** (`CookItem`, `SingletonItemGetMaxAmmo`, `ApplyOil`, `ConsumeItem`, `ApplyRepairKit`, `OnSwapSkill`): Ghost Mode's replacements drop Preparations' wrappers at the default folder order (verified). Options and a proposal in [ghost-mode-compatibility.md](ghost-mode-compatibility.md#ghost-mode).
 - **Notifications from the meditation checks** (PREP-MED): show them only when meditation is attempted (proposed), since 5.x polls `CanMeditate`.
 - **Replenish without meditating** (5.x radial, when waiting is blocked): keep it as 5.x's (with Preparations' filtered refill, heal per option), or close it as legacy's checks would.
 - **5.x's auto-apply oils**: costs a jar charge per application and works in combat. Options: allowed (charges apply), refused in combat when "no oils in combat" is on, or the option ignored while oil charges are on.
