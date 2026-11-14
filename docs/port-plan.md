@@ -30,7 +30,7 @@ Not carried: Friendly HUD's and Friendly Stash's code inside legacy's scripts (5
 
 ## Slices
 
-0. **Tooling and probes:** copy TriangleGhostMode's `build_mod.py` (as Gwent Improvements did), `w3strings.py`, `make_reddlc.py`; the compile check; PREP-MENU: the menu shows under Options → Mods with labels in game, `autoconfig` reads every group, defaults apply on an empty settings file; the DLC mounts (`IsDLCEnabled('dlc_preparations')`). Install side by side with Ghost Mode on the shared game slot.
+0. **Tooling and probes:** the tools and the compile check (done 2026-11-13); PREP-MENU: the menu shows under Options → Mods with labels in game, `autoconfig` reads every group, defaults apply on an empty settings file; the DLC mounts (`IsDLCEnabled('dlc_preparations')`). Install side by side with Ghost Mode on the shared game slot.
 1. **PREP-MED** fire detection and requirements (every later gate uses `PrepHasCampfire`), silent checks, reasons shown; **PREP-COMBAT**; **PREP-INV**.
 2. **PREP-TIME** and **PREP-SKILL** in both menus, both trees (classic by 5.x's hidden setting and by Ghost Mode's option).
 3. **PREP-ALCH** and **PREP-REFILL** (all modes, one-charge option, the autorefill filter, the UI).
