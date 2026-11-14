@@ -40,7 +40,7 @@ Not carried: Friendly HUD's and Friendly Stash's code inside legacy's scripts (5
 
 ## Decisions to make
 
-- **How to combine with Ghost Mode's six replaced methods** (`CookItem`, `SingletonItemGetMaxAmmo`, `ApplyOil`, `ConsumeItem`, `ApplyRepairKit`, `OnSwapSkill`): Ghost Mode's replacements drop Preparations' wrappers at the default folder order (verified). Options and a proposal in [ghost-mode-compatibility.md](ghost-mode-compatibility.md#ghost-mode).
+- **Combining with Ghost Mode without a patch:** go ahead with the fixes in [ghost-mode-compatibility.md](ghost-mode-compatibility.md#combining-cleanly-without-a-patch-analysis-2026-11-13) (Preparations' four relocations, no new effect type, and Ghost Mode's three refactors, which need the owner's go-ahead)?
 - **Notifications from the meditation checks** (PREP-MED): show them only when meditation is attempted (proposed), since 5.x polls `CanMeditate`.
 - **Replenish without meditating** (5.x radial, when waiting is blocked): keep it as 5.x's (with Preparations' filtered refill, heal per option), or close it as legacy's checks would.
 - **5.x's auto-apply oils**: costs a jar charge per application and works in combat. Options: allowed (charges apply), refused in combat when "no oils in combat" is on, or the option ignored while oil charges are on.
