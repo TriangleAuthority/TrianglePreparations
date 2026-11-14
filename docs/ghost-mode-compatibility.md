@@ -45,7 +45,18 @@ Ways to combine them, for the owner to choose ([port-plan.md](port-plan.md#decis
 3. **A merged build** for the combined install. **Script Merger Remastered v3 merges this case correctly** (verified 2026-11-13 by the owner's merge of two throwaway blobs with the same pattern: a replacement in one and a wrapper in the other, both directions; the merged mod ran every change). But a second test with blob-only features (scope-based overrides with a `default`, an enum member, an annotation-added event, a wrapped native) went wrong: the default was lost, the enum collision stayed, and the earlier merge's loose replacements stopped working (TriangleGhostMode `docs/development.md`). Ghost Mode has all of these, so Script Merger v3.01 cannot be relied on for Ghost Mode with Preparations. Or the two repos build a combined blob themselves. Every Ghost Mode or Preparations release needs a new merge either way.
 4. **Ghost Mode turns its six replacements into wrappers** where its change allows it (it prefers wrappers anyway). Then Preparations' wrappers chain with Ghost Mode's at either order. Each of the six was a replacement for a reason (a changed body), so this is per method too.
 
-Proposed: 1 or 4 per method (whichever is smaller); 3 only as a combined blob built from both repos, not through Script Merger. That keeps the default folder names and needs no merge for players.
+Chosen (owner, 2026-11-13): 3, as our own compatibility patch built from the repos ([below](#compatibility-patch-planned)); 1 or 4 where a method is easy to avoid or to turn into a wrapper. That keeps the default folder names and needs no merge for players.
+
+## Compatibility patch (planned)
+
+**Decision** (owner, 2026-11-13): conflicts that do not combine cleanly are fixed by **our own compatibility patch mod**, shipped on top of Ghost Mode, Preparations and Friendly Meditation, not by Script Merger (v3.01 loses `default` lines and loose replacements on blobs like Ghost Mode's; TriangleGhostMode `docs/development.md`). How it works, from the verified blob rules:
+
+- **A blob of its own whose folder sorts before `modGhostMode`** (e.g. `mod0TriangleCompat`; digits sort before letters), so its `@replaceMethod` of a method wins over both mods' changes of it. Precedence by folder name needs nothing from the player; a `mods.settings` priority would work too but is easy to lose.
+- **For each clashing method, one `@replaceMethod` whose body is the combined code**: Ghost Mode's replaced body with the other mod's change worked in (e.g. `ConsumeItem` with Ghost Mode's toxicity rule and Preparations' combat refusal). Wrappers of mods that sort after the patch are dropped by its replacement, so the patch also carries those mods' wrappers of that method, folded into the body.
+- **Only the methods that clash**: Preparations' six wrappers on Ghost Mode's replacements (`CookItem`, `SingletonItemGetMaxAmmo`, `ApplyOil`, `ConsumeItem`, `ApplyRepairKit`, `OnSwapSkill`), and whatever Friendly Meditation and the other two turn out to share. Everything that already combines (wrappers on both sides, wrapper over replacement in the right order) stays in the mods.
+- **What it cannot fix: enum members.** Each blob numbers its new enum members as if it were alone, so Ghost Mode's and Preparations' new effect types get the same number, and the values are compiled into each blob. Preparations must manage without a new `EEffectType` member (see the effect-types row above).
+- **Upkeep:** the patch copies Ghost Mode's bodies of those methods, so a Ghost Mode change to one of them needs a patch release; the patch's build should compare its copies with Ghost Mode's sources and fail when they drift. The patch is needed only when Ghost Mode and the other mod are both installed.
+- **Where it lives:** to decide (its own repository next to the others, or inside one of them).
 
 ## Friendly Meditation interaction
 
