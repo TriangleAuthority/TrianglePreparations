@@ -1,1 +1,14 @@
+# Auto detect text files and perform LF normalization
 * text=auto
+
+# Binary game resources (CR2W): show them as text in diffs via tools/cr2w_dump.py.
+# Enable per clone with:
+#   git config diff.cr2w.textconv "python tools/cr2w_dump.py"
+#   git config diff.cr2w.cachetextconv true
+*.w2ent     diff=cr2w
+*.journal   diff=cr2w
+*.w2scene   diff=cr2w
+*.w2phase   diff=cr2w
+*.w2beh     diff=cr2w
+*.w2behtree diff=cr2w
+*.w2comm    diff=cr2w
