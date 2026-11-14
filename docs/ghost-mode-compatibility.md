@@ -36,13 +36,13 @@ State on 2026-11-13 (Ghost Mode's `master`), read from both repositories (**unve
 
 - Preparations' six wrappers on Ghost Mode's replacements (the first six rows) **never run**.
 - Ghost Mode's wrapper of `MeditationRestoring` runs around Preparations' replacement (fine).
-- Reordering with a `mods.settings` priority is no way out: a priority against the folder-name order crashed the game at startup.
+- A lower `Priority` for `modPreparations` in `mods.settings` reverses this (verified; the startup crashes first blamed on it were ReShade's).
 
 Ways to combine them, for the owner to choose ([port-plan.md](port-plan.md#decisions-to-make)):
 
 1. **Avoid the six methods.** Preparations hooks somewhere Ghost Mode does not replace: the callers, a check called from them, or the menus. Works at any folder order and with any other mod; costs a different design per method, and some may have no good alternative.
-2. **Ship Preparations under a folder name that sorts before `modGhostMode`** (e.g. `modAPreparations`). Its six wrappers then wrap Ghost Mode's replacements. But anything Preparations *replaces* drops Ghost Mode's change of it: `MeditationRestoring` would lose Ghost Mode's exhaustion clear (Preparations would have to wrap it instead, or Ghost Mode clear elsewhere). Fragile: a player renaming the folder breaks it silently.
-3. **A merged build** for the combined install: Script Merger Remastered v3 can rebuild both blobs' changes as source and merge them into one blob (GUI only, untested for this case), or the two repos build a combined blob themselves (Preparations' changes inside Ghost Mode's replaced bodies). Exact, but every Ghost Mode or Preparations release needs a new merge.
+2. **Give Preparations precedence**: a folder name that sorts before `modGhostMode` (e.g. `modAPreparations`) or a lower `Priority` in `mods.settings`. Its six wrappers then wrap Ghost Mode's replacements. But anything Preparations *replaces* drops Ghost Mode's change of it: `MeditationRestoring` would lose Ghost Mode's exhaustion clear (Preparations would have to wrap it instead). Fragile: a renamed folder or a reset `mods.settings` breaks it silently.
+3. **A merged build** for the combined install. **Script Merger Remastered v3 merges this case correctly** (verified 2026-11-13 by the owner's merge of two throwaway blobs with the same pattern: a replacement in one and a wrapper in the other, both directions; the merged mod ran every change). Its output is loose scripts, so it cannot carry what only blobs can (scope-based overrides, enum extensions); Ghost Mode uses both, and Preparations' effect type is an enum extension, so whether it can merge the two real mods is still open. Or the two repos build a combined blob themselves. Every Ghost Mode or Preparations release needs a new merge either way.
 4. **Ghost Mode turns its six replacements into wrappers** where its change allows it (it prefers wrappers anyway). Then Preparations' wrappers chain with Ghost Mode's at either order. Each of the six was a replacement for a reason (a changed body), so this is per method too.
 
 Proposed: 1 or 4 per method (whichever is smaller), 3 for whatever is left. That keeps the default folder names and needs no merge for players.
