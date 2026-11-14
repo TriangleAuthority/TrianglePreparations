@@ -55,7 +55,7 @@ Every hunk of legacy Preparations was mapped to its function (about 75 functions
 
 Also: Preparations' wrapper of `CR4Player.DisallowedActionDontShowHack` must call `wrappedMethod` (Friendly Meditation wraps it too); its planned unprefixed `@addField bHerbalist` gets the `prep` prefix. Contracts both repos record: Preparations' `MeditationRestoring` always ends with `ApplyWitcherHouseBuffs()`.
 
-**Ghost Mode's three refactors** (`SingletonItemGetMaxAmmo`, `OnSwapSkill`, the exhaustion clear) change verified Ghost Mode code; they are listed in TriangleGhostMode `docs/development.md` ("Other mods and vanilla code") and need the owner's go-ahead and GM retests.
+**Ghost Mode's three refactors** (`SingletonItemGetMaxAmmo`, `OnSwapSkill`, the exhaustion clear) are done and **verified** in Ghost Mode (owner's go-ahead 2026-11-13; in game 2026-11-14, both trees; TriangleGhostMode `docs/development.md`, "Other mods and vanilla code").
 
 ## Compatibility patch (fallback)
 

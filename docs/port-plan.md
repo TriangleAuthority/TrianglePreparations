@@ -40,7 +40,7 @@ Not carried: Friendly HUD's and Friendly Stash's code inside legacy's scripts (5
 
 ## Decisions to make
 
-- **Combining with Ghost Mode without a patch:** go ahead with the fixes in [ghost-mode-compatibility.md](ghost-mode-compatibility.md#combining-cleanly-without-a-patch-analysis-2026-11-13) (Preparations' four relocations, no new effect type, and Ghost Mode's three refactors, which need the owner's go-ahead)?
+- **Preparations' alchemy-table effect type** (the last open part of combining without a patch): no new `EEffectType` member (no HUD buff icon, a deviation), or a member that cannot collide with Ghost Mode's (reserved dummy members or an explicit value; untested), see [ghost-mode-compatibility.md](ghost-mode-compatibility.md#combining-cleanly-without-a-patch-analysis-2026-11-13). The other fixes there are decided (owner, 2026-11-13).
 - **Notifications from the meditation checks** (PREP-MED): show them only when meditation is attempted (proposed), since 5.x polls `CanMeditate`.
 - **Replenish without meditating** (5.x radial, when waiting is blocked): keep it as 5.x's (with Preparations' filtered refill, heal per option), or close it as legacy's checks would.
 - **5.x's auto-apply oils**: costs a jar charge per application and works in combat. Options: allowed (charges apply), refused in combat when "no oils in combat" is on, or the option ignored while oil charges are on.
