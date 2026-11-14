@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 class W3QuestCond_IsItemEquipped_Listener extends IGlobalEventScriptedListener
 {
 	public var condition : W3QuestCond_IsItemEquipped;
@@ -75,6 +72,9 @@ class W3QuestCond_IsItemEquipped extends CQuestScriptedCondition
 	{
 		var player : W3PlayerWitcher;
 		var itemEquipped : bool;
+		var equippedItems : array<SItemUniqueId>;
+		var inv : CInventoryComponent;
+		var i : int;
 		
 		player = GetWitcherPlayer();
 		if ( player )
@@ -82,6 +82,23 @@ class W3QuestCond_IsItemEquipped extends CQuestScriptedCondition
 			if ( IsNameValid( itemName ) )
 			{			
 				itemEquipped = player.IsItemEquippedByName( itemName );
+				if(!itemEquipped)
+				{
+					inv = player.GetInventory();
+					if(inv)
+					{
+						equippedItems = player.GetEquippedItems();
+						for(i = 0; i < equippedItems.Size(); i+=1)
+						{
+							if(inv.GetItemTemplateOverride(equippedItems[i]) == itemName)
+							{
+								itemEquipped = true;
+								break;
+							}
+						}
+					}
+				}
+
 			}
 			else if ( IsNameValid( categoryName ) )
 			{

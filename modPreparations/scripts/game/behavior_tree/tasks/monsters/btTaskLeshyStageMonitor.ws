@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CBTTaskLeshyStageMonitor extends IBehTreeTask
 {
 	latent function Main() : EBTNodeStatus
@@ -18,7 +14,7 @@ class CBTTaskLeshyStageMonitor extends IBehTreeTask
 		
 		while ( true )
 		{
-			if ( MinionNumberCheck() && owner.GetStatPercents( BCS_Essence ) > 0.2 )
+			if ( NoMinionCheck() && owner.GetStatPercents( BCS_Essence ) > 0.2 )
 			{
 				owner.ChangeFightStage( NFS_Stage1 );
 				
@@ -33,7 +29,7 @@ class CBTTaskLeshyStageMonitor extends IBehTreeTask
 		return BTNS_Active;
 	}
 	
-	function MinionNumberCheck() : bool
+	function NoMinionCheck() : bool
 	{
 		var npc : CNewNPC = GetNPC();
 		var i : int;

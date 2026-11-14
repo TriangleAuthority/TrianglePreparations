@@ -1,26 +1,28 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
 class W3LadderInteraction extends CGameplayEntity
 {
 	public editable var associatedDoorTag : name;
+	public editable var isRootLadder : bool;
+
+	private var expComp : CExplorationComponent;
+
 	default associatedDoorTag = '';
+	default isRootLadder = false;
 	var associatedDoor : W3NewDoor;
+
+	var canJumpOnLadder : bool; 				default canJumpOnLadder = false;
 
 	event OnSpawned( spawnData : SEntitySpawnData )
 	{
 		var components : array< CComponent >;
 		var ic : CInteractionComponent;
 		var i, size : int;
-		
+		var expComponent : CExplorationComponent;
+
 		
 		
 		
@@ -44,6 +46,13 @@ class W3LadderInteraction extends CGameplayEntity
 				}
 			}
 		}
+
+		expComp = ( CExplorationComponent )GetComponentByClassName( 'CExplorationComponent' );
+	}
+
+	public function GetExpComp() : CExplorationComponent
+	{
+		return expComp;
 	}
 
 	event OnInteractionActivationTest( interactionComponentName : string, activator : CEntity )
@@ -79,4 +88,27 @@ class W3LadderInteraction extends CGameplayEntity
 		
 		return true;
 	}
+
+	event OnEnterTrigger( object : CObject, physicalActorindex : int, shapeIndex : int )
+	{
+		var player : CR4Player;
+		player = (CR4Player)object.GetParent();
+		
+		if( player )
+		{
+			thePlayer.substateManager.m_SharedDataO.m_activeLadders.PushBack( this );
+		}
+	}	
+
+	event OnExitTrigger( object : CObject, physicalActorindex : int, shapeIndex : int ) 
+	{
+		var player : CR4Player;
+		player = (CR4Player)object.GetParent();
+		
+		if( player )
+		{
+			thePlayer.substateManager.m_SharedDataO.m_activeLadders.Remove(this);
+		}
+	}
+
 }

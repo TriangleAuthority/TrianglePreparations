@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 import class CDLCManager extends CObject
 {
 	import final function GetDLCs(names : array<name>) : void;
@@ -40,8 +36,10 @@ import class CDLCManager extends CObject
 	public function IsEP2Enabled():bool
 	{
 		return IsDLCEnabled('abob_001_001');
-	}			
-	
+	}
+
+
+
 	public function IsAnyDLCAvailable():bool
 	{
 		var dlcList : array<name>;
@@ -57,19 +55,6 @@ import class CDLCManager extends CObject
 			}
 		}
 		
-		return false;
-	}
-	
-	public function IsAllDLCsAvailable():bool
-	{
-		var dlcList : array<name>;
-		var i:int;
-		
-		GetDLCs(dlcList);
-		if(dlcList.Size() >= 20)
-		{
-			return true;
-		}
 		return false;
 	}
 }

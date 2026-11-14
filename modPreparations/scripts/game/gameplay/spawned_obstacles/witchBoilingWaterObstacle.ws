@@ -1,16 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
-
 class W3WitchBoilingWaterObstacle extends W3DurationObstacle
 {
 	
@@ -66,6 +58,7 @@ class W3WitchBoilingWaterObstacle extends W3DurationObstacle
 		var i						: int;
 		var l_entitiesInRange		: array <CGameplayEntity>;
 		var l_damage				: W3DamageAction;
+		var l_action 				: W3Action_Attack; 
 		var l_actor					: CActor;
 		var none					: SAbilityAttributeValue;
 		var l_tempBool				: bool;
@@ -75,7 +68,6 @@ class W3WitchBoilingWaterObstacle extends W3DurationObstacle
 			if ( !SetParams() ) return;
 			l_tempBool = true;
 		}
-		
 		
 		if ( IsNameValid(attackEffectName) && !playAttackEffectOnlyWhenHit )
 		{
@@ -109,7 +101,43 @@ class W3WitchBoilingWaterObstacle extends W3DurationObstacle
 			
 			if ( !l_actor.IsCurrentlyDodging() )
 			{
-				if ( damageValue > 0 )
+				
+				if( damageValue < 101 && !summoner.HasTag( 'q111_witch' ) )
+				{
+					if ( simpleDamageAction )
+					{
+						l_action = new W3Action_Attack in theGame.damageMgr;
+						
+						l_action.Init( (CGameplayEntity)summoner, l_actor, NULL, ((CGameplayEntity)summoner).GetInventory().GetItemFromSlot( 'r_weapon' ), 'attack_heavy', ((CGameplayEntity)summoner).GetName(), EHRT_Heavy, false, true, 'attack_heavy', AST_Jab, ASD_DownUp, false, false, false, true );
+						l_action.GetDamageValueTotal();
+						theGame.damageMgr.ProcessAction( l_action );
+						
+						if ( onHitCameraShakeStrength > 0 )
+							GCameraShake( onHitCameraShakeStrength, true, l_actor.GetWorldPosition(), 30.0f );
+						
+						delete l_action;
+					}
+					if ( applyDebuffType != EET_Undefined )
+					{
+						l_actor.AddEffectCustom(params);
+					}
+					
+					if ( IsNameValid(attackEffectName) && playAttackEffectOnlyWhenHit )
+					{
+						if ( useSeperateAttackEffectEntity )
+						{
+							fxEntity = theGame.CreateEntity( useSeperateAttackEffectEntity, l_actor.GetWorldPosition(), l_actor.GetWorldRotation() );
+							fxEntity.PlayEffect(attackEffectName);
+							fxEntity.DestroyAfter( 5.0 );
+						}
+						else
+						{
+							PlayEffect(attackEffectName);
+						}
+					}
+					
+				} 
+				else if ( damageValue > 0 )
 				{
 					if ( simpleDamageAction )
 					{

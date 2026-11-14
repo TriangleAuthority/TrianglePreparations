@@ -1,14 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
 class CAICombatSoftReactionsTree extends CAISoftReactionTree
 {
 	default aiTreeName = "resdef:ai\reactions/soft_reactions_combat";
@@ -486,6 +480,8 @@ class CAIPhilippaReactionsTree extends CAINpcReactionsTree
 		reactions.PushBack( bombExplosion );
 	}
 };
+
+
 
 
 class CAIBruxaCommonerReactionTree extends CAINpcReactionsTree
@@ -1291,29 +1287,3 @@ class CAIRunOnlyScaredTree extends CAIScaredSubTree
 {
 	default aiTreeName = "resdef:ai\reactions/npc_scared_run_only_reaction";
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

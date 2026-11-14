@@ -1,10 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
 struct SDurabilityThreshold
 {
 	var thresholdMax : float;	
@@ -167,6 +165,9 @@ import class W3GameParams extends CObject
 	
 	public const var IGNI_SPELL_POWER_MILT : float;
 		default	IGNI_SPELL_POWER_MILT = 1.0f;
+	
+	public const var AARD_SPELL_POWER_MULT : float;
+		default AARD_SPELL_POWER_MULT = 1.0f;
 		
 	public const var INSTANT_KILL_INTERNAL_PLAYER_COOLDOWN : float;					
 		default INSTANT_KILL_INTERNAL_PLAYER_COOLDOWN = 15.f;
@@ -266,7 +267,8 @@ import class W3GameParams extends CObject
 	private var BOOTS_MAGICAL_ABILITIES 	: array<name>;			
 	private var WEAPON_MASTERWORK_ABILITIES	: array<name>;			
 	private var WEAPON_MAGICAL_ABILITIES 	: array<name>;			
-	public const var ITEM_SET_TAG_BEAR, ITEM_SET_TAG_GRYPHON, ITEM_SET_TAG_LYNX, ITEM_SET_TAG_WOLF, ITEM_SET_TAG_RED_WOLF, ITEM_SET_TAG_VAMPIRE, ITEM_SET_TAG_VIPER : name;		
+	public const var ITEM_SET_TAG_BEAR, ITEM_SET_TAG_GRYPHON, ITEM_SET_TAG_LYNX, ITEM_SET_TAG_WOLF, ITEM_SET_TAG_RED_WOLF, ITEM_SET_TAG_VAMPIRE, ITEM_SET_TAG_VIPER, ITEM_SET_TAG_NETFLIX : name;		
+
 	public const var BOUNCE_ARROWS_ABILITY : name;					
 	public const var TAG_ALCHEMY_REFILL_ALCO : name;				
 	public const var REPAIR_OBJECT_BONUS_ARMOR_ABILITY : name;		
@@ -296,6 +298,8 @@ import class W3GameParams extends CObject
 		default ITEM_SET_TAG_RED_WOLF = 'RedWolfSet';
 		default ITEM_SET_TAG_VIPER = 'ViperSet';
 		default ITEM_SET_TAG_VAMPIRE = 'VampireSet';
+
+		default ITEM_SET_TAG_NETFLIX = 'NetflixSet';
 		default BOUNCE_ARROWS_ABILITY = 'bounce_arrows';
 		default TAG_ALCHEMY_REFILL_ALCO = 'StrongAlcohol';
 		default REPAIR_OBJECT_BONUS_ARMOR_ABILITY = 'repair_object_armor_bonus';
@@ -398,8 +402,10 @@ import class W3GameParams extends CObject
 
 	
 	public const var TOXICITY_DAMAGE_THRESHOLD : float;									
-		default TOXICITY_DAMAGE_THRESHOLD = 0.75;
-		
+		default TOXICITY_DAMAGE_THRESHOLD = 0.50001;	
+
+
+
 	
 	public const var DEBUG_CHEATS_ENABLED : bool;										
 	public const var SKILL_GLOBAL_PASSIVE_TAG : name;									
@@ -447,8 +453,8 @@ import class W3GameParams extends CObject
 		default GWINT_CARD_ACHIEVEMENT_TAG = 'GwintCollectorAchievement';
 		default TAG_AXIIABLE = 'Axiiable';
 		default TAG_AXIIABLE_LOWER_CASE = 'axiiable';
-		default LEVEL_DIFF_HIGH = 6;
-		default LEVEL_DIFF_DEADLY = 15;
+		default LEVEL_DIFF_HIGH = 10;	
+		default LEVEL_DIFF_DEADLY = 20; 
 		default LEVEL_DIFF_XP_MOD = 0.16f;
 		default MAX_XP_MOD = 1.5f;
 		default DEVIL_HORSE_AURA_MIN_DELAY = 2;
@@ -986,8 +992,11 @@ import class W3GameParams extends CObject
 			if ( itemName == 'Blunt Bolt Legendary' ) { level = 12; }  else
 			if ( itemName == 'Split Bolt Legendary' ) { level = 24; }  else
 			if ( itemName == 'Explosive Bolt Legendary' ) { level = 26; } 
-		} else
-		if ( itemCategory == 'crossbow' )
+
+		}
+
+		else if ( itemCategory == 'crossbow' )
+
 		{
 			stat = itemAttributes[0];
 			level = 1;
@@ -1001,7 +1010,9 @@ import class W3GameParams extends CObject
 			if ( stat.valueMultiplicative > 1.7 ) level = 25;
 			if ( stat.valueMultiplicative > 1.8 ) level = 27;
 			if ( stat.valueMultiplicative > 1.9 ) level = 32;
-		} 
+		}  
+
+
 		level = level - 1;
 		if ( level < 1 ) level = 1;	
 		baseItemLevel = level;

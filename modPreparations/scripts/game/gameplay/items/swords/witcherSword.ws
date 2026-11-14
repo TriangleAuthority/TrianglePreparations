@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 import class CWitcherSword extends CItemEntity
 {
@@ -54,7 +54,15 @@ import class CWitcherSword extends CItemEntity
 		{
 			PlayEffect( 'rune_blast_long' );
 		}
+		
+		
+		waterColliderComp = GetComponent("sword_water_collider");
+		if(waterColliderComp)
+			waterColliderComp.SetEnabled(false);
+		
 	}
+	
+	private var waterColliderComp : CComponent;
 	
 	event OnItemEnhanced()
 	{
@@ -77,6 +85,15 @@ import class CWitcherSword extends CItemEntity
 		
 		Initialize( (CActor)GetParentEntity() );
 		GetWitcherPlayer().ResetPadBacklightColor();
+		
+		
+		if(waterColliderComp)
+			waterColliderComp.SetEnabled(true);
+			
+		
+		if( HasEffect('glow_sword') )
+			PlayEffectSingle('glow_sword');
+		
 	}
 	
 	event OnPut()
@@ -85,6 +102,10 @@ import class CWitcherSword extends CItemEntity
 		
 		StopAllEffects();
 		GetWitcherPlayer().ResetPadBacklightColor( true );
+		
+		
+		if(waterColliderComp)
+			waterColliderComp.SetEnabled(false);
 	}
 	
 	public function ApplyOil( oilAbilityName : name )
@@ -386,6 +407,16 @@ import class CWitcherSword extends CItemEntity
 			case 'Runeword 12':
 			{
 				enchantmentFx = 'runeword_elation';
+				break;
+			}
+			case 'Runeword 13':
+			{
+				enchantmentFx = 'runeword_incineration';
+				break;
+			}
+			case 'Runeword 14':
+			{
+				enchantmentFx = 'runeword_perturbation';
 				break;
 			}
 		}

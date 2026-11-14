@@ -1,15 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
 abstract class W3CriticalEffect extends CBaseGameplayEffect
 {
 	protected var criticalStateType 		: ECriticalStateType;				
@@ -54,6 +47,8 @@ abstract class W3CriticalEffect extends CBaseGameplayEffect
 		blockedActions.PushBack(EIAB_FastTravel);
 	}
 	
+	
+	
 	public function OnTimeUpdated(deltaTime : float)
 	{
 		if ( isActive )
@@ -78,7 +73,8 @@ abstract class W3CriticalEffect extends CBaseGameplayEffect
 		
 			
 			if(isActive && this == target.GetCurrentlyAnimatedCS())
-			{				
+			{		
+				
 				target.RequestCriticalAnimStop();
 			}
 			else
@@ -184,7 +180,7 @@ abstract class W3CriticalEffect extends CBaseGameplayEffect
 		
 		
 		if(isOnPlayer)
-			theGame.VibrateControllerVeryHard();	
+			theGame.HapticStart( "classic_vibro_large_oneshot" );
 	}
 	
 	event OnEffectAddedPost()

@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 state CharDevMutagens in W3TutorialManagerUIHandler extends TutHandlerBaseState
 {
 	private const var DESCRIPTION, SELECT_TAB, EQUIP, BONUSES, MATCH_SKILL_COLOR, MULTIPLE_SKILLS, WRONG_COLOR, POTIONS, MUTAGENS_JOURNAL : name;
@@ -21,6 +18,8 @@ state CharDevMutagens in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		default WRONG_COLOR			= 'TutorialMutagenWrongColor';
 		default POTIONS				= 'TutorialMutagenPotions';
 		default MUTAGENS_JOURNAL	= 'TutorialJournalCharDevMutagens';
+
+	private var cachedSlot : EEquipmentSlots;
 		
 	event OnEnterState( prevStateName : name )
 	{
@@ -65,14 +64,15 @@ state CharDevMutagens in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		}
 		else if(hintName == EQUIP)
 		{
-			savedEquippedSkills = GetWitcherPlayer().TutorialMutagensUnequipPlayerSkills();
 			
-			ShowHint(BONUSES, POS_CHAR_DEV_X, POS_CHAR_DEV_Y, ETHDT_Input, GetHighlightCharDevMutagenBonusString() );
+			
+			
+			
 		}
 		else if(hintName == BONUSES)
 		{
-			highlights = GetHighlightCharDevMutagenBonusString();
-			AddHighlight( highlights, .568f, .14f, .08f, .15f );
+			highlights = GetHighlightCharDevMutagenBonusString(cachedSlot);
+			highlights = GetHighlightAllSkillSlots(highlights);
 			
 			GetWitcherPlayer().TutorialMutagensEquipOneGoodSkill();
 			
@@ -80,8 +80,8 @@ state CharDevMutagens in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		}
 		else if(hintName == MATCH_SKILL_COLOR)
 		{
-			highlights = GetHighlightCharDevMutagenBonusString();
-			AddHighlight( highlights, .568f, .24f, .08f, .15f );
+			highlights = GetHighlightCharDevMutagenBonusString(cachedSlot);
+			highlights = GetHighlightAllSkillSlots(highlights);
 			
 			GetWitcherPlayer().TutorialMutagensEquipOneGoodOneBadSkill();
 			
@@ -91,7 +91,7 @@ state CharDevMutagens in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		{
 			GetWitcherPlayer().TutorialMutagensEquipThreeGoodSkills();
 			
-			ShowHint(MULTIPLE_SKILLS, POS_CHAR_DEV_X, POS_CHAR_DEV_Y, ETHDT_Input, GetHighlightCharDevMutagenBonusString() );
+			ShowHint(MULTIPLE_SKILLS, POS_CHAR_DEV_X, POS_CHAR_DEV_Y, ETHDT_Input, GetHighlightCharDevMutagenBonusString(cachedSlot) );
 		}		
 		else if(hintName == MULTIPLE_SKILLS)
 		{
@@ -118,10 +118,11 @@ state CharDevMutagens in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		}
 	}
 	
-	public final function EquippedMutagen()
+	public final function EquippedMutagen(slot : EEquipmentSlots)
 	{
 		CloseStateHint(EQUIP);
-		ShowHint(BONUSES, POS_CHAR_DEV_X, POS_CHAR_DEV_Y, ETHDT_Input, GetHighlightCharDevMutagenBonusString() );
+		ShowHint(BONUSES, POS_CHAR_DEV_X, POS_CHAR_DEV_Y, ETHDT_Input, GetHighlightCharDevMutagenBonusString(slot) );
+		cachedSlot = slot;
 	}
 }
 

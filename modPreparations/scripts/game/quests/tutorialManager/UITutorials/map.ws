@@ -1,14 +1,12 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 state Map in W3TutorialManagerUIHandler extends TutHandlerBaseState
 {
-	private const var OPEN_MAP, DESCRIPTION, JUMP_TO_OBJECTIVE, NAVIGATE, QUEST_PINS, OBJECTIVES, AREA_MAP : name;
+	private const var OPEN_MAP, JUMP_TO_OBJECTIVE, NAVIGATE, QUEST_PINS, OBJECTIVES, AREA_MAP : name;
+	private var DESCRIPTION : name;
 	private var isClosing : bool;
 	
 		default OPEN_MAP 			= 'TutorialMapOpenMap';
@@ -20,7 +18,7 @@ state Map in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		default AREA_MAP			= 'TutorialMapAreaMap';
 	
 	event OnEnterState( prevStateName : name )
-	{
+	{	
 		super.OnEnterState(prevStateName);
 		
 		isClosing = false;
@@ -28,7 +26,7 @@ state Map in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		
 		theGame.GetTutorialSystem().HideTutorialHint( OPEN_MAP );
 		
-		ShowHint(DESCRIPTION, POS_MAP_X, POS_MAP_Y, ETHDT_Input);
+		ShowHint(DESCRIPTION, POS_MAP_X, POS_MAP_Y - 0.075f, ETHDT_Input);
 		theGame.GetTutorialSystem().MarkMessageAsSeen( DESCRIPTION );
 	}
 	
@@ -54,23 +52,25 @@ state Map in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		}		
 		else if(hintName == DESCRIPTION)
 		{
-			ShowHint(JUMP_TO_OBJECTIVE, POS_MAP_X, POS_MAP_Y, ETHDT_Input);
+			QuitState();
+			
 		}
 		else if(hintName == JUMP_TO_OBJECTIVE)
 		{
-			ShowHint(NAVIGATE, POS_MAP_X, POS_MAP_Y, ETHDT_Input);
+			
 		}
 		else if(hintName == NAVIGATE)
 		{
-			ShowHint(QUEST_PINS, POS_MAP_X, POS_MAP_Y, ETHDT_Input);
+			
+			QuitState();
 		}
 		else if(hintName == QUEST_PINS)
 		{
-			ShowHint( OBJECTIVES, POS_MAP_X, POS_MAP_Y, ETHDT_Input, GetHighlightMapObjectives() );
+			
 		}
 		else if(hintName == OBJECTIVES)
 		{
-			ShowHint( AREA_MAP, POS_MAP_X, POS_MAP_Y, ETHDT_Input, GetHighlightMapWorldMap() );
+			
 		}
 		else if(hintName == AREA_MAP)
 		{

@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 class W3WhiteFrost extends W3Petard
 {
 	editable var waveProjectileTemplate : CEntityTemplate;
@@ -69,6 +66,8 @@ class W3WhiteFrost extends W3Petard
 	
 	timer function WaveProjectile(dt : float, optional id : int)
 	{
+		var l_entities 	: array<CGameplayEntity>;
+		
 		totalTime += dt;
 		
 		
@@ -87,6 +86,12 @@ class W3WhiteFrost extends W3Petard
 		waveProjectile.SphereOverlapTest( totalTime * shaderSpeed, collisionMask );
 		
 		
+		FindGameplayEntitiesInSphere(l_entities, waveProjectile.GetWorldPosition(), totalTime * shaderSpeed, 99, '', FLAG_TestLineOfSight);	
+		l_entities.Remove( this );
+		l_entities.Remove( waveProjectile );
+		ProcessEntitiesInRange( l_entities );
+		
+		
 		thePlayer.GetVisualDebug().AddSphere(EffectTypeToName(RandRange((int)EET_EffectTypesSize)), totalTime * shaderSpeed, GetWorldPosition(), true, Color(0,0,255), 0.15);
 		
 		
@@ -95,6 +100,25 @@ class W3WhiteFrost extends W3Petard
 			RemoveTimer('WaveProjectile');			
 			waveProjectile.Destroy();
 		}		
+	}
+	
+	protected function ProcessEntitiesInRange ( l_entities : array<CGameplayEntity> )
+	{
+		var i, size  	: int;
+		var ent		 	: CGameplayEntity;
+		var bomb 		: W3Petard;
+		
+		size = l_entities.Size();
+		
+		for( i = 0; i < size; i += 1 )
+		{
+			ent = l_entities[i];
+			
+			bomb = (W3Petard)ent;
+			
+			if ( !bomb )
+				Collided(ent);
+		}	
 	}
 	
 	protected function ProcessMechanicalEffect(targets : array<CGameplayEntity>, isImpact : bool, optional dt : float)

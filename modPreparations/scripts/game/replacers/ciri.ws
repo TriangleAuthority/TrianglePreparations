@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 statemachine class W3ReplacerCiri extends W3Replacer
 {
 	private var isInitialized : bool;
@@ -43,7 +39,7 @@ statemachine class W3ReplacerCiri extends W3Replacer
 		BlockAction( EIAB_OpenAlchemy, 'being_ciri' );	
 		BlockAction( EIAB_OpenGlossary, 'being_ciri' );	
 		BlockAction( EIAB_CallHorse, 'being_ciri' );
-		BlockAction( EIAB_ExplorationFocus, 'being_ciri' );
+		
 		
 		SetBehaviorVariable( 'test_ciri_replacer', 1.0f);
 		

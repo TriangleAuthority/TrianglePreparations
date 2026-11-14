@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 state FastTravel in W3TutorialManagerUIHandler extends TutHandlerBaseState
 {
 	private const var FAST_TRAVEL, INTERACTION : name;
@@ -23,7 +20,8 @@ state FastTravel in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		theGame.GetTutorialSystem().HideTutorialHint( INTERACTION );
 		theGame.GetTutorialSystem().MarkMessageAsSeen(INTERACTION);
 		FactsAdd("tut_FT_interaction_finish");	
-		ShowHint(FAST_TRAVEL, POS_MAP_X, POS_MAP_Y, ETHDT_Input);
+		
+		QuitState();
 	}
 		
 	event OnLeaveState( nextStateName : name )

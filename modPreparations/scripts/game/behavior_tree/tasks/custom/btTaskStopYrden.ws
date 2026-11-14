@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 class CBTTaskStopYrden extends IBehTreeTask
 {
@@ -69,6 +69,12 @@ class CBTTaskStopYrden extends IBehTreeTask
 		npc.RemoveAllBuffsOfType( EET_Bleeding );
 		npc.RemoveAllBuffsOfType( EET_SlowdownFrost );
 		npc.RemoveAllBuffsOfType( EET_Slowdown );
+		
+		
+		npc.RemoveAllBuffsOfType( EET_Bleeding1 );
+		npc.RemoveAllBuffsOfType( EET_Bleeding2 );
+		npc.RemoveAllBuffsOfType( EET_Bleeding3 );
+		
 		
 		l_entities.Clear();
 		

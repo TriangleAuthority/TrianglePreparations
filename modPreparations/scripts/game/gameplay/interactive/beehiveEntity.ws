@@ -1,9 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
 import statemachine class CBeehiveEntity extends W3Container
 {
 	editable var damageVal						: SAbilityAttributeValue;
@@ -140,6 +139,22 @@ import statemachine class CBeehiveEntity extends W3Container
 			delete damage;
 		}
 	}
+	
+	
+	timer function DestoryBeesAfterTime(dt:float,id:int)
+	{
+		activeAttachedBees.RemoveVictimsBuff();
+		activeMovingBees.RemoveVictimsBuff();
+		activeAttachedBees.Enable(false);
+		activeMovingBees.Enable(false);
+		activeAttachedBees.DestroyAfter(0.5f);
+		activeMovingBees.DestroyAfter(0.2f);
+		beesActivated = false;	
+		
+		RemoveTag(theGame.params.TAG_SOFT_LOCK);
+		GetComponent('Loot').SetEnabled(true);
+	}
+	
 }
 
 state HangingIntact in CBeehiveEntity
@@ -282,6 +297,8 @@ state Falling in CBeehiveEntity
 
 state OnGroundActive in CBeehiveEntity
 {
+	var hitByAard : bool;	
+	
 	event OnEnterState( prevStateName : name )
 	{
 		var entityTemplate : CEntityTemplate;
@@ -319,7 +336,6 @@ state OnGroundActive in CBeehiveEntity
 			attachedBees.SetVelocity(0);
 			attachedBees.damageVal = parent.damageVal;
 			attachedBees.SetSwarmOriginEntity(parent);
-			
 		}
 	}
 
@@ -350,6 +366,12 @@ state OnGroundActive in CBeehiveEntity
 				parent.GotoState( 'OnGroundBurned' );
 			}
 		}
+		
+		
+		if(!hitByAard)
+			parent.AddTimer('DestoryBeesAfterTime', 20.f,false); 
+		hitByAard = true;
+		
 	}
 }
 

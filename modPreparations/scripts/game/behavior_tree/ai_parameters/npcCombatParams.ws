@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 class CAIScaredCombatTree extends CAISubTree
 {
 	default aiTreeName = "resdef:ai\combat\npc_scared_combat";
@@ -210,6 +207,7 @@ class CAINpcOlgierdParryAction extends CAINpcDefenseAction
 	default activationTimeLimitBonusHeavy = 0.5;
 	default activationTimeLimitBonusLight = 0.5;
 };
+
 
 
 
@@ -668,6 +666,9 @@ class CAINpcOlgierdTacticTree extends CAINpcCustomTacticTree
 };
 
 
+
+
+
 class CAINpcDettlaffVampireTacticTree extends CAINpcCustomTacticTree
 {
 	default aiTreeName = "resdef:ai\monsters/monster_dettlaff_vampire_logic";
@@ -787,6 +788,8 @@ class CAIAttackBehaviorTreeParams extends CAICombatActionParameters
 		farAttackActionRange = 'rangeFar';
 	}
 };
+
+
 
 
 
@@ -1208,6 +1211,17 @@ class CAICastArcaneExplosionSpecialAction extends CAISpecialAction
 class CAIShadowDashSpecialAction extends CAISpecialAction
 {
 	default aiTreeName = "resdef:ai\combat\npc_special_shadow_dash";
+
+	function Init()
+	{
+		params = new CAISpecialActionParams in this;
+		params.OnCreated();
+	}
+};
+
+class CAISpectralRushSpecialAction extends CAISpecialAction
+{
+	default aiTreeName = "resdef:ai\combat\npc_special_spectral_rush";
 
 	function Init()
 	{

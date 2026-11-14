@@ -1,16 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
-
 enum ELandType
 {
 	LT_Death				= 0,
@@ -59,6 +51,7 @@ class CExplorationStateLand extends CExplorationStateAbstract
 	protected editable			var	m_BehLandSkipToWalkN	: name;			default	m_BehLandSkipToWalkN		= 'LandSkipToWalk';
 	protected editable			var	m_BehLandSkipToIdleN	: name;			default	m_BehLandSkipToIdleN		= 'LandSkipToIdle';
 	protected editable			var	m_BehLandFallForwardN	: name;			default	m_BehLandFallForwardN		= 'LandFallIsForward';
+	protected editable			var m_BehCheckFootForward	: name;			default m_BehCheckFootForward		= 'CheckFootForward';
 	
 	
 	protected editable			var	m_HeightToLandCrouch	: float;		default	m_HeightToLandCrouch		= 2.75f;
@@ -77,6 +70,7 @@ class CExplorationStateLand extends CExplorationStateAbstract
 	protected editable inlined	var	m_LandDataDamage		: SLandData;	
 	protected editable inlined	var	m_LandDataDeath			: SLandData;
 	protected editable inlined	var	m_LandDataKnockBack		: SLandData;
+	protected editable inlined	var	m_LandDataVault			: SLandData;
 	
 	protected 					var	m_LandData				: SLandData;
 	
@@ -85,14 +79,14 @@ class CExplorationStateLand extends CExplorationStateAbstract
 	
 	
 	private	  editable			var m_AutoRollB				: bool;			default	m_AutoRollB					= false;
-	private	  editable			var m_AutoSlopeAngleB		: float;		default	m_AutoSlopeAngleB			= 30.0f;
+	private	  editable			var m_AutoSlopeAngleB		: float;		default	m_AutoSlopeAngleB			= 30.0f; 	
 	private	  					var m_AutoRollSlopeCoefF	: float;		
 	private	  editable			var m_DamageOverridesRollB	: bool;			default	m_DamageOverridesRollB		= false;
 	protected					var m_RollingB				: bool;
 	private						var	m_RollIsSlopeB			: bool;
-	protected editable			var	m_RollMinHeightF		: float;		default	m_RollMinHeightF			= 0.5f;
-	protected editable			var	m_RollTimeAfterF		: float;		default	m_RollTimeAfterF			= 0.1f;
-	protected editable 			var m_RollMinJumpTotalF 	: float; 		default m_RollMinJumpTotalF 		= 0.02f;
+	protected editable			var	m_RollMinHeightF		: float;		default	m_RollMinHeightF			= 1.05f;	
+	protected editable			var	m_RollTimeAfterF		: float;		default	m_RollTimeAfterF			= 0.1f;		
+	protected editable 			var m_RollMinJumpTotalF 	: float; 		default m_RollMinJumpTotalF 		= 1.02f;	
 	
 	
 	protected 					var m_SlidingB					: bool;
@@ -320,6 +314,11 @@ class CExplorationStateLand extends CExplorationStateAbstract
 		{
 			m_ExplorationO.m_SharedDataO.ForceFotForward( !m_ExplorationO.m_SharedDataO.m_IsRightFootForwardB );
 		}
+
+		if ( m_ExplorationO.m_SharedDataO.m_JumpTypeE == EJT_Vault )
+		{
+			m_ExplorationO.m_SharedDataO.SetRunStartingFoot();
+		}
 	}
 	
 	
@@ -327,6 +326,7 @@ class CExplorationStateLand extends CExplorationStateAbstract
 	{
 		m_ExplorationO.m_OwnerE.AddAnimEventCallback( m_BehLandCanEndN, 'OnAnimEvent_SubstateManager' );
 		m_ExplorationO.m_OwnerE.AddAnimEventCallback( m_BehLandCancelN, 'OnAnimEvent_SubstateManager' );
+		m_ExplorationO.m_OwnerE.AddAnimEventCallback( m_BehCheckFootForward, 'OnAnimEvent_SubstateManager' );
 	}
 	
 	
@@ -455,6 +455,7 @@ class CExplorationStateLand extends CExplorationStateAbstract
 	{
 		m_ExplorationO.m_OwnerE.RemoveAnimEventCallback( m_BehLandCanEndN );
 		m_ExplorationO.m_OwnerE.RemoveAnimEventCallback( m_BehLandCancelN );
+		m_ExplorationO.m_OwnerE.RemoveAnimEventCallback( m_BehCheckFootForward );
 	}
 	
 	
@@ -749,6 +750,10 @@ class CExplorationStateLand extends CExplorationStateAbstract
 						SetThisParameters( m_LandDataFall );
 						LogExploration( " Params set: m_LandDataFall" );
 						break;
+					case EJT_Vault :
+						SetThisParameters( m_LandDataVault );
+						LogExploration( " Params set: m_LandDataVault" );
+						break;
 				}
 				break;
 			case LT_Higher	:
@@ -958,6 +963,11 @@ class CExplorationStateLand extends CExplorationStateAbstract
 		{		
 			LogExplorationLandExit( GetStateName() + " SetReadyToChangeTo: Beh land cancel event received" );
 			SetReadyToChangeTo( 'Idle' );
+		}
+		else if ( animEventName == m_BehCheckFootForward && m_ExplorationO.m_SharedDataO.m_JumpTypeE == EJT_Vault )
+		{
+			
+			m_ExplorationO.m_SharedDataO.SetRunStartingFoot();
 		}
 	}
 	

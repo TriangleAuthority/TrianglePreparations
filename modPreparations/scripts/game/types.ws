@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 enum EActorImmortalityMode
 {
 	AIM_None,
@@ -14,7 +11,7 @@ enum EActorImmortalityMode
 	AIM_Unconscious				
 }
 
-enum EActorImmortalityChanel
+enum EActorImmortalityChannel
 {
 	
 	AIC_Default = 1,
@@ -24,7 +21,7 @@ enum EActorImmortalityChanel
 	AIC_Fistfight = 16,
 	AIC_SyncedAnim = 32,
 	AIC_WhiteRaffardsPotion = 64,
-	AIC_IsAttackableByPlayer = 128
+	AIC_Cheat = 128
 	
 }
 
@@ -43,88 +40,6 @@ enum ETerrainType
 	TT_Rough,
 	TT_Swamp,
 	TT_Water
-}
-
-
-
-
-
-enum EAreaName
-{
-	AN_Undefined,
-	AN_NMLandNovigrad,
-	AN_Skellige_ArdSkellig,
-	AN_Kaer_Morhen,
-	AN_Prologue_Village,
-	AN_Wyzima,
-	AN_Island_of_Myst,
-	AN_Spiral,
-	AN_Prologue_Village_Winter,
-	AN_Velen,
-	AN_CombatTestLevel,
-	
-}
-
-enum EDlcAreaName
-{
-	
-	AN_Dlc_Bob = 11, 
-}
-
-function AreaNameToType( lName : string ) : EAreaName
-{
-	var areaTypeInt : int;
-	var areaType : EAreaName;
-	switch(lName)
-	{
-		case "novigrad":
-			return AN_NMLandNovigrad;
-		case "skellige":
-			return AN_Skellige_ArdSkellig;
-		case "kaer_morhen":
-			return AN_Kaer_Morhen;
-		case "prolog_village":
-			return AN_Prologue_Village;
-		case "wyzima_castle":
-			return AN_Wyzima;
-		case "island_of_mist":
-			return AN_Island_of_Myst;
-		case "spiral":
-			return AN_Spiral;
-		case "no_mans_land":
-			return AN_Velen;
-		default:
-		{
-			areaTypeInt = theGame.GetWorldDLCExtender().AreaNameToType( lName );
-			areaType = (EAreaName)areaTypeInt;
-			return areaType;
-		}
-	}
-}
-	
-function AreaTypeToName( type : EAreaName ) : string 
-{
-	switch(type)
-	{
-		case AN_NMLandNovigrad:
-			return "novigrad";
-		case AN_Skellige_ArdSkellig:
-			return "skellige";
-		case AN_Kaer_Morhen:
-			return "kaer_morhen";
-		case AN_Prologue_Village:
-			return "prolog_village";
-		case AN_Wyzima:
-			return "wyzima_castle";
-		case AN_Island_of_Myst:
-			return "island_of_mist";
-		case AN_Spiral:
-			return "spiral";
-		case AN_Velen:
-			return "no_mans_land";
-		default:
-			return theGame.GetWorldDLCExtender().AreaTypeToName( (int)type );
-	}
 }
 
 
@@ -420,7 +335,9 @@ enum ETimescaleSource
 	ETS_HorseMelee,
 	ETS_FinisherInput,
 	ETS_TutorialFight,
-	ETS_InstantKill
+	ETS_InstantKill,
+	ETS_Meditation,
+
 }
 
 
@@ -571,6 +488,78 @@ function MonsterCategoryToResistReduction(type : EMonsterCategory) : name
 		default :				return '';
 	}
 }
+
+function MonsterCategoryToOilNames(monsterCategory : EMonsterCategory) : array<name>
+{
+	var oils : array<name>;
+	
+	switch(monsterCategory)
+	{
+		case MC_Beast:
+			oils.PushBack('Beast Oil 3');
+			oils.PushBack('Beast Oil 2');
+			oils.PushBack('Beast Oil 1');
+			return oils;
+		case MC_Cursed:
+			oils.PushBack('Cursed Oil 3');
+			oils.PushBack('Cursed Oil 2');
+			oils.PushBack('Cursed Oil 1');
+			return oils;
+		case MC_Draconide:
+			oils.PushBack('Draconide Oil 3');
+			oils.PushBack('Draconide Oil 2');
+			oils.PushBack('Draconide Oil 1');
+			return oils;
+		case MC_Human:
+			oils.PushBack('Hanged Man Venom 3');
+			oils.PushBack('Hanged Man Venom 2');
+			oils.PushBack('Hanged Man Venom 1');
+			return oils;
+		case MC_Hybrid:
+			oils.PushBack('Hybrid Oil 3');
+			oils.PushBack('Hybrid Oil 2');
+			oils.PushBack('Hybrid Oil 1');
+			return oils;
+		case MC_Insectoid:
+			oils.PushBack('Insectoid Oil 3');
+			oils.PushBack('Insectoid Oil 2');
+			oils.PushBack('Insectoid Oil 1');
+			return oils;
+		case MC_Magicals:
+			oils.PushBack('Magicals Oil 3');
+			oils.PushBack('Magicals Oil 2');
+			oils.PushBack('Magicals Oil 1');
+			return oils;			
+		case MC_Necrophage:
+			oils.PushBack('Necrophage Oil 3');
+			oils.PushBack('Necrophage Oil 2');
+			oils.PushBack('Necrophage Oil 1');
+			return oils;	
+		case MC_Troll:
+			oils.PushBack('Ogre Oil 3');
+			oils.PushBack('Ogre Oil 2');
+			oils.PushBack('Ogre Oil 1');
+			return oils;	
+		case MC_Relic:
+			oils.PushBack('Relic Oil 3');
+			oils.PushBack('Relic Oil 2');
+			oils.PushBack('Relic Oil 1');
+			return oils;	
+		case MC_Specter:
+			oils.PushBack('Specter Oil 3');
+			oils.PushBack('Specter Oil 2');
+			oils.PushBack('Specter Oil 1');
+			return oils;	
+		case MC_Vampire:
+			oils.PushBack('Vampire Oil 3');
+			oils.PushBack('Vampire Oil 2');
+			oils.PushBack('Vampire Oil 1');
+			return oils;				
+		
+		default : return oils;
+	}
+}
+
 
 
 struct SAttributeTooltip
@@ -1093,6 +1082,7 @@ struct STutorialMessage
 	editable saved var hintPromptPosY : float;				
 	editable saved var hintPromptDuration : float;			
 	editable saved var hintPromptCloseFact : string;		
+	editable saved var extraInfo : string;					
 	
 	editable saved var markAsSeenOnShow : bool;				
 	

@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 enum ECriticalEffectCounterType
 {
 	CECT_Human,
@@ -552,7 +548,14 @@ class CBehTreeTaskCSEffect extends IBehTreeTask
 	
 	final function FinisherSyncAnim()
 	{
-		theGame.GetSyncAnimManager().SetupSimpleSyncAnim( finisherAnimName, thePlayer, GetActor() );
+		if ( GetActor().HasAbility( 'UseFinisherSyncAnim2' ) )
+		{
+			theGame.GetSyncAnimManager().SetupSimpleSyncAnim2( finisherAnimName, thePlayer, GetActor() );
+		}
+		else
+		{
+			theGame.GetSyncAnimManager().SetupSimpleSyncAnim( finisherAnimName, thePlayer, GetActor() );
+		}
 	}
 	
 	final function CombatCheck() : bool
@@ -713,7 +716,7 @@ class CBehTreeTaskCSEffect extends IBehTreeTask
 			distanceFromRootToBone = VecDistance( bonePos, owner.GetWorldPosition() );
 		}
 		
-		if ( !owner.IsInFistFightMiniGame() && owner.IsVulnerable() && ( !IsThisStagger() || IsCliffBehindMe() ) && !owner.IsInInterior() && owner.EnablePhysicalMovement(true) )
+		if ( !owner.IsInFistFightMiniGame() && owner.IsVulnerable() && ( !IsThisStagger() || IsCliffBehindMe() ) && !owner.IsInInterior() && owner.EnablePhysicalMovement(true) && !owner.IsRagdollPaused())
 		{
 			mac.SnapToNavigableSpace( false );
 			isInPotentialRagdoll = true;

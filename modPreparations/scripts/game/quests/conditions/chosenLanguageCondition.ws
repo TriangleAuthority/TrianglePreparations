@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 enum ELanguageCheckType
 {
 	LCT_Text,
@@ -33,7 +29,9 @@ enum ECheckedLanguage
 	TL_Brazilian_Portuguese,
 	TL_Latin_American_Spanish,
 	TL_Arabic,
-	TL_Debug,	
+	TL_Debug,
+	TL_Ukranian,
+	TL_Chinese_Simplified,
 }
 
 function ConvertLanguageNameToEnum( languageName : string ) : ECheckedLanguage
@@ -55,6 +53,8 @@ function ConvertLanguageNameToEnum( languageName : string ) : ECheckedLanguage
 	if( languageName == "ESMX" )return TL_Latin_American_Spanish;
 	if( languageName == "AR" )return TL_Arabic;	
 	if( languageName == "DEBUG" )return TL_Debug;
+	if( languageName == "UA" )return TL_Ukranian;
+	if( languageName == "CN" )return TL_Chinese_Simplified;
 	
 	return 	TL_None;
 }

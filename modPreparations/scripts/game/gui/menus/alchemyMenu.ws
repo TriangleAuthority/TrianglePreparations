@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 struct SItemAttribute
 {
 	var attributeName	: name;
@@ -22,6 +18,11 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 	protected var _inv       		: CInventoryComponent;
 	private var _playerInv			: W3GuiPlayerInventoryComponent;
 	
+	private var m_npc		 			: CNewNPC;
+	private var m_npcInventory  	    : CInventoryComponent;
+	private var m_shopInvComponent 	    : W3GuiShopInventoryComponent;
+	private var m_lastSelectedTag		: name;
+	
 	private var m_fxSetCraftingEnabled	: CScriptedFlashFunction;
 	private var m_fxSetCraftedItem 		: CScriptedFlashFunction;
 	private var m_fxHideContent	 		: CScriptedFlashFunction;
@@ -32,6 +33,8 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 	default DATA_BINDING_NAME_DESCRIPTION	= "alchemy.item.description";
 	
 	var itemsQuantity 						: array< int >;
+
+	private var m_forcedThunderbolt : bool;
 	
 	event  OnConfigUI()
 	{	
@@ -39,7 +42,12 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 		var l_craftingFilters	: SCraftingFilters;
 		var pinnedTag			: int;
 		
+		var l_obj		 		: IScriptable;
+		var l_initData			: W3InventoryInitData;
+		
 		super.OnConfigUI();
+
+		m_forcedThunderbolt = (FactsQuerySum("tut_forced_preparation") > 0);
 		
 		m_initialSelectionsToIgnore = 2;
 		
@@ -48,6 +56,25 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 		
 		_playerInv = new W3GuiPlayerInventoryComponent in this;
 		_playerInv.Initialize( _inv );
+		
+		l_obj = GetMenuInitData();
+		l_initData = (W3InventoryInitData)l_obj;
+		if (l_initData)
+		{
+			m_npc = (CNewNPC)l_initData.containerNPC;
+		}
+		else
+		{
+			m_npc = (CNewNPC)l_obj;
+		}
+		
+		if (m_npc)
+		{
+			m_npcInventory = m_npc.GetInventory();
+			
+			m_shopInvComponent = new W3GuiShopInventoryComponent in this;
+			m_shopInvComponent.Initialize( m_npcInventory );
+		}
 		
 		m_alchemyManager = new W3AlchemyManager in this;
 		m_alchemyManager.Init();		
@@ -95,6 +122,9 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 		}
 		
 		theSound.SoundEvent( 'gui_global_quit' ); 
+
+		if(m_forcedThunderbolt)
+			theGame.GetTutorialSystem().ForcedAlchemyCleanup();
 		CloseMenu();
 	}
 
@@ -175,6 +205,34 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 	{
 	}
 	
+	event  OnBuyIngredient( item : int, isLastItem : bool ) : void
+	{
+		var vendorItemId   : SItemUniqueId;	
+		var vendorItems    : array< SItemUniqueId >;
+		
+		
+		var reqQuantity    : int;
+		var itemName       : name;
+		var newItemID      : SItemUniqueId;
+		
+		if( m_npcInventory )
+		{
+			itemName = itemsNames[ item - 1 ];
+			vendorItems = m_npcInventory.GetItemsByName( itemName );
+			
+			if( vendorItems.Size() > 0 )
+			{
+				vendorItemId = vendorItems[0];
+				
+				
+				
+				
+				BuyIngredient( vendorItemId, 1, isLastItem );
+				OnPlaySoundEvent( "gui_inventory_buy" );
+			}
+		}
+	}
+	
 	event OnCategoryOpened( categoryName : name, opened : bool )
 	{
 		var player : W3PlayerWitcher;
@@ -195,6 +253,43 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 
 		
 		super.OnCategoryOpened( categoryName, opened );
+	}
+
+	public function BuyIngredient( itemId : SItemUniqueId, quantity : int, isLastItem : bool ) : void
+	{
+		var newItemID   : SItemUniqueId;
+		var result 		: bool;
+		var itemName	: name;
+		var notifText	: string;
+		var itemLocName : string;
+		
+		itemLocName = GetLocStringByKeyExt( m_npcInventory.GetItemLocalizedNameByUniqueID( itemId ) );
+		itemName = m_npcInventory.GetItemName( itemId );
+		theTelemetry.LogWithLabelAndValue( TE_INV_ITEM_BOUGHT, itemName, quantity );
+		result = m_shopInvComponent.GiveItem( itemId, _playerInv, quantity, newItemID );
+		
+		if( result )
+		{
+			notifText = GetLocStringByKeyExt("panel_blacksmith_items_added") + ":" + quantity + " x " + itemLocName;
+			
+			if (isLastItem)
+			{
+				PopulateData();
+			}
+		}
+		else
+		{
+			notifText = GetLocStringByKeyExt( "panel_shop_notification_not_enough_money" );
+		}
+		
+		showNotification( notifText );
+		
+		UpdateItemsCounter();
+		
+		if (m_lastSelectedTag != '')
+		{
+			UpdateItems(m_lastSelectedTag);
+		}
 	}
 	
 	protected function ShowSelectedItemInfo( tag : name ):void
@@ -273,6 +368,18 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 		{
 			showNotification(GetLocStringByKeyExt(AlchemyExceptionToString(exception)));
 			OnPlaySoundEvent("gui_global_denied");
+		}
+	}
+
+	private function UpdateItemsCounter()
+	{		
+		var commonMenu 	: CR4CommonMenu;
+		
+		commonMenu = (CR4CommonMenu)m_parentMenu;
+		if( commonMenu )
+		{
+			commonMenu.UpdateItemsCounter();
+			commonMenu.UpdatePlayerOrens();
 		}
 	}
 
@@ -426,6 +533,7 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 		var title : string;
 		var id : int;
 		
+		m_lastSelectedTag = tag;										   
 		id = FindRecipieID(tag);
 		
 		title = GetLocStringByKeyExt(m_definitionsManager.GetItemLocalisationKeyName(m_recipeList[id].cookedItemName));	
@@ -511,9 +619,58 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 	{	
 		super.FillItemInformation(flashObject, index);
 		
+		if( m_npcInventory )
+		{
+			flashObject.SetMemberFlashInt( "vendorQuantity", m_npcInventory.GetItemQuantityByName( itemsNames[index] ) );
+		}
 		flashObject.SetMemberFlashInt("reqQuantity", itemsQuantity[index]);
 	}
 	
+	protected function GetTooltipData(item : int, compareItemType : int, out resultData : CScriptedFlashObject ) : void
+	{
+		var vendorItemId   : SItemUniqueId;		
+		var vendorItems    : array< SItemUniqueId >;
+		var vendorQuantity : int;
+		var vendorPrice    : int;
+		var itemName       : name;
+		var language 	   : string;
+		var audioLanguage  : string;
+		var locStringBuy   : string;
+		var locStringPrice : string;
+		
+		super.GetTooltipData( item, compareItemType, resultData );
+		
+		if( m_npcInventory )
+		{
+			theGame.GetGameLanguageName( audioLanguage, language);	
+			itemName = itemsNames[ item - 1 ];
+			
+			vendorItems = m_npcInventory.GetItemsByName( itemName );
+			
+			if( vendorItems.Size() > 0 )
+			{
+				vendorItemId = vendorItems[0];
+				vendorQuantity = m_npcInventory.GetItemQuantity( vendorItemId );
+				vendorPrice = m_npcInventory.GetItemPriceModified( vendorItemId, false );
+				
+				resultData.SetMemberFlashNumber( "vendorQuantity", vendorQuantity );
+				resultData.SetMemberFlashNumber( "vendorPrice", vendorPrice );
+				
+				locStringBuy = GetLocStringByKeyExt( "panel_inventory_quantity_popup_buy" );
+				
+				if( language != "AR")
+				{
+					resultData.SetMemberFlashString( "vendorInfoText", locStringBuy + " (" +  vendorPrice + ")" );
+				}
+				else
+				{
+					locStringPrice = " *" +  vendorPrice + "*" ;
+					resultData.SetMemberFlashString( "vendorInfoText", locStringPrice + locStringBuy  );
+				}
+			}
+		}
+	}
+
 	function GetItemRarityDescription( itemName : name ) : string
 	{
 		var itemQuality : int;
@@ -562,20 +719,7 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 	
 	public final function IsInShop() : bool
 	{
-		var l_obj		 			: IScriptable;		
-		var l_initData				: W3InventoryInitData;
-		var m_npc					: CNewNPC;
 		
-		l_obj = GetMenuInitData();
-		l_initData = (W3InventoryInitData)l_obj;
-		if (l_initData)
-		{
-			m_npc = (CNewNPC)l_initData.containerNPC;
-		}
-		else
-		{
-			m_npc = (CNewNPC)l_obj;
-		}
 		
 		return m_npc;
 	}

@@ -1,10 +1,11 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 class CR4StartScreenMenuBase extends CR4MenuBase
 {	
+	private var languageName : string;
 	private var _fadeDuration : float;
 	default _fadeDuration = 0.1;
 	protected var m_fxSetFadeDuration	: CScriptedFlashFunction;
@@ -15,7 +16,6 @@ class CR4StartScreenMenuBase extends CR4MenuBase
 	
 	event  OnConfigUI()
 	{	
-		var languageName : string;
 		var audioLanguageName : string;
 		super.OnConfigUI();
 		
@@ -32,8 +32,7 @@ class CR4StartScreenMenuBase extends CR4MenuBase
 		theGame.SetActiveUserPromiscuous();
 		
 		m_fxSetGameLogoLanguage = m_flashModule.GetMemberFlashFunction( "setGameLogoLanguage" );
-		theGame.GetGameLanguageName(audioLanguageName,languageName);
-		m_fxSetGameLogoLanguage.InvokeSelfOneArg( FlashArgString(languageName) );
+		UpdateGameLogo();
 		
 		theSound.StopMusic( );
 		theSound.SoundEvent( "play_music_main_menu" );
@@ -60,6 +59,25 @@ class CR4StartScreenMenuBase extends CR4MenuBase
 		theGame.GetGuiManager().SetIsDuringFirstStartup( false );
 		
 		theSound.SoundEvent("stop_music"); 
+	}
+
+	private function UpdateGameLogo():void
+	{
+		var audioLanguageName 	: string;
+		var tempLanguageName 	: string;
+		theGame.GetGameLanguageName(audioLanguageName, tempLanguageName);
+		if( tempLanguageName != languageName )
+		{
+			languageName = tempLanguageName;
+			if( languageName == "ZH")
+				m_fxSetGameLogoLanguage.InvokeSelfOneArg( FlashArgString("ZHT") );			
+			else if( languageName == "CN")
+				m_fxSetGameLogoLanguage.InvokeSelfOneArg( FlashArgString("ZHS") );
+			else if( languageName == "EN" || languageName == "CZ" || languageName == "PL" || languageName == "RU" || languageName == "UA" )
+				m_fxSetGameLogoLanguage.InvokeSelfOneArg( FlashArgString(languageName) );
+			else 
+				m_fxSetGameLogoLanguage.InvokeSelfOneArg( FlashArgString("REST") );
+		}
 	}
 
 	private function SetFadeTime()
@@ -89,18 +107,7 @@ class CR4StartScreenMenuBase extends CR4MenuBase
 	
 	public function setStandardtext():void
 	{
-		if (theGame.GetPlatform() == Platform_Xbox1)
-		{
-			m_fxSetText.InvokeSelfOneArg(FlashArgString(GetLocStringByKeyExt("panel_button_press_any_X1")));
-		}
-		else if (theGame.GetPlatform() == Platform_PS4)
-		{
-			m_fxSetText.InvokeSelfOneArg(FlashArgString(GetLocStringByKeyExt("panel_button_press_any_PS4")));
-		}
-		else
-		{
-			m_fxSetText.InvokeSelfOneArg(FlashArgString(GetLocStringByKeyExt("panel_button_press_any")));
-		}
+		m_fxSetText.InvokeSelfOneArg( FlashArgString( GetPlatformLocString( "panel_button_press_any" ) ) );
 	}
 	
 	public function setWaitingText()

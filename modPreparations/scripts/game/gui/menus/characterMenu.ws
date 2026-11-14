@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class W3BuySkillConfirmation extends ConfirmationPopupData
 {
 	public var characterMenuRef : CR4CharacterMenu;
@@ -815,7 +811,7 @@ class CR4CharacterMenu extends CR4MenuBase
 			curSkill = skillsList[i];
 			
 			if (curSkill.skillPath == skillType && 
-				curSkill.skillSubPath != ESSP_NotSet && curSkill.skillSubPath != ESSP_Core)
+				curSkill.skillSubPath != ESSP_NotSet && curSkill.skillSubPath != ESSP_Core && !curSkill.isReworked)
 			{
 				gfxSkill = m_flashValueStorage.CreateTempFlashObject();
 				GetSkillGFxObject(curSkill, true, gfxSkill);
@@ -1013,6 +1009,7 @@ class CR4CharacterMenu extends CR4MenuBase
 		{
 			showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
 			OnPlaySoundEvent("gui_global_denied");
+			UpdateAppliedSkill(slotID);
 		}
 		else
 		{
@@ -1249,90 +1246,170 @@ class CR4CharacterMenu extends CR4MenuBase
 				thePlayer.RemoveAbility( 'mutagen_color_green_x' );
 				thePlayer.RemoveAbility( 'mutagen_color_red_x' );
 				thePlayer.RemoveAbility( 'mutagen_color_blue_x' );
+				thePlayer.RemoveAbility( 'greater_mutagen_color_red_green_red_x' );
+				thePlayer.RemoveAbility( 'greater_mutagen_color_red_green_green_x' );
+				thePlayer.RemoveAbility( 'greater_mutagen_color_red_blue_red_x' );
+				thePlayer.RemoveAbility( 'greater_mutagen_color_red_blue_blue_x' );
+				thePlayer.RemoveAbility( 'greater_mutagen_color_blue_green_blue_x' );
+				thePlayer.RemoveAbility( 'greater_mutagen_color_blue_green_green_x' );
+				thePlayer.RemoveAbility( 'greater_mutagen_color_red_white_red_x' );
+				thePlayer.RemoveAbility( 'greater_mutagen_color_red_white_white_x' );
+				thePlayer.RemoveAbility( 'greater_mutagen_color_blue_white_blue_x' );
+				thePlayer.RemoveAbility( 'greater_mutagen_color_blue_white_white_x' );
+				thePlayer.RemoveAbility( 'greater_mutagen_color_green_white_green_x' );
+				thePlayer.RemoveAbility( 'greater_mutagen_color_green_white_white_x' );
+				thePlayer.RemoveAbility( 'greater_mutagen_color_white_x' );
 			}	
 	}
 	
-	private function GetGroupBonusDescription( groupId:int, out color : ESkillColor ):string
+	private function GetGroupBonusDescription( groupId:int, out color : ESkillColor, out values : string ):string
 	{
-		var defManager			 	: CDefinitionsManagerAccessor;
-		var curAttributeValue, min, max	 : SAbilityAttributeValue;
-		var curAttributeCalc	 	: float;
-		var curDescription		 	: string;
-		var curAbilityName 		 	: name;
-		var attributes 			 	: array<name>;	
-		var curColorCount,i			: int;
-		var hasAbility		     	: bool;
-		var mutagen 				: SItemUniqueId;
-		var hasMutagen				: bool;
-		var mutagenStats			: array<SAttributeTooltip>;
-		var attributeValue			: float;
-		var synergyBonus			: float;
+		var defManager			 										: CDefinitionsManagerAccessor;
+		var curAttributeValue, min, max	 								: SAbilityAttributeValue;
+		var curAttributeCalc	 										: float;
+		var curDescription						 						: string;
+		var curValues													: string;
+		var attributes 			 										: array<name>;	
+		var curColorCount,i												: int;
+		var mutagen 													: SItemUniqueId;
+		var hasMutagen													: bool;
+		var mutagenStats												: array<SAttributeTooltip>;
+		var attributeValue												: float;
+		var synergyBonus												: float;
 		var pam : W3PlayerAbilityManager;
-		
-		hasMutagen = GetWitcherPlayer().GetItemEquippedOnSlot(thePlayer.GetMutagenSlotIDFromGroupID(groupId), mutagen);
+		var isRareMutagen												: bool;
+		var rareMutagenLeftCount,rareMutagenRightCount, rareMutagenMult	: int;
+		var skillColor													: ESkillColor;
+		var bonusAbilityName											: name;
 		
 		pam = (W3PlayerAbilityManager)thePlayer.abilityManager;
-		curAbilityName = thePlayer.GetSkillGroupBonus(groupId);
-		curColorCount =  1 + thePlayer.GetGroupBonusCount( thePlayer.GetInventory().GetSkillMutagenColor( mutagen ), groupId );
-		
-		hasAbility = thePlayer.HasAbility(curAbilityName);
 		
 		color = SC_None;
+		hasMutagen = GetWitcherPlayer().GetItemEquippedOnSlot(thePlayer.GetMutagenSlotIDFromGroupID(groupId), mutagen);
 		
-		if ((curAbilityName == 'None' || !hasAbility) && !hasMutagen)
+		if (!hasMutagen)
 		{
 			return "";
 		}
+
+		isRareMutagen = pam.IsMutagenRare(mutagen);
+		skillColor = _inv.GetSkillMutagenColor( mutagen );
+		curColorCount =  1 + thePlayer.GetGroupBonusCount( skillColor, groupId );
 		
-		if (hasMutagen)
+		if (isRareMutagen)
 		{
-			_inv.GetItemStats(mutagen, mutagenStats);
-			if ( pam.GetMutagenBonusAbilityName(mutagen) == 'mutagen_color_red_synergy_bonus' ) 
+			pam.GetRareMutagenConnectionsCount(mutagen,rareMutagenLeftCount,rareMutagenRightCount);
+			rareMutagenLeftCount = rareMutagenLeftCount + 1;
+			rareMutagenRightCount = rareMutagenRightCount + 1;
+		}
+		
+		
+		if (hasMutagen && isRareMutagen)
+		{
+			_inv.GetItemStats(mutagen, mutagenStats, true);
+
+
+				
+			curDescription = " ";
+			curValues = "";
+
+			for (i = 0; i < mutagenStats.Size(); i += 1)
+			{
+				rareMutagenMult = rareMutagenLeftCount;
+				if (i > 0)
+				{
+					
+					curDescription += ",";
+					curValues += ",";
+					curDescription += mutagenStats[i].attributeName;
+					rareMutagenMult = rareMutagenRightCount;
+				}
+				else
+				{
+					curDescription = mutagenStats[i].attributeName;
+				}
+				attributeValue = mutagenStats[i].value * rareMutagenMult;
+				
+				if ( GetWitcherPlayer().CanUseSkill( S_Alchemy_s19 ) || GetWitcherPlayer().CanUseSkill( S_Perk_43 ) )
+				{
+					if (thePlayer.GetSkillLevel( S_Alchemy_s19) > thePlayer.GetSkillLevel( S_Perk_43 ))
+					{
+						synergyBonus = CalculateAttributeValue(GetWitcherPlayer().GetSkillAttributeValue(S_Alchemy_s19, 'synergy_bonus', false, false));
+						synergyBonus *= GetWitcherPlayer().GetSkillLevel(S_Alchemy_s19);
+					}
+					else
+					{
+						synergyBonus = CalculateAttributeValue(GetWitcherPlayer().GetSkillAttributeValue(S_Perk_43, 'synergy_bonus', false, false));
+						synergyBonus *= GetWitcherPlayer().GetSkillLevel(S_Perk_43);
+					}
+					
+					attributeValue += attributeValue * synergyBonus;
+				}
+				
+				if( mutagenStats[i].percentageValue )
+				{
+					curValues += "+" + RoundMath(attributeValue * 100 ) +"%";
+				}
+				else
+				{
+					curValues += "+" + RoundMath(attributeValue);
+				}
+			}
+		}
+		else if (hasMutagen)
+		{
+			_inv.GetItemStats(mutagen, mutagenStats, true);
+			bonusAbilityName = pam.GetMutagenBonusAbilityName(mutagen);
+			
+			if ( bonusAbilityName == 'mutagen_color_red_synergy_bonus' ) 
 			{
 				thePlayer.AddAbilityMultiple('mutagen_color_red_x' , curColorCount - 1);
 				color = SC_Red;
 			}
-			if ( pam.GetMutagenBonusAbilityName(mutagen) == 'mutagen_color_green_synergy_bonus' ) 		
+			else if ( bonusAbilityName == 'mutagen_color_green_synergy_bonus' ) 		
 			{
 				thePlayer.AddAbilityMultiple('mutagen_color_green_x' , curColorCount - 1);
 				color = SC_Green;
 			}
-			if ( pam.GetMutagenBonusAbilityName(mutagen) == 'mutagen_color_blue_synergy_bonus' ) 
+			else if ( bonusAbilityName == 'mutagen_color_blue_synergy_bonus' ) 
 			{
 				thePlayer.AddAbilityMultiple('mutagen_color_blue_x' , curColorCount - 1);
 				color = SC_Blue;
 			}
-			
-			if ( pam.GetMutagenBonusAbilityName(mutagen) == 'mutagen_color_lesser_red_synergy_bonus' ) 
+			else if ( bonusAbilityName == 'mutagen_color_lesser_red_synergy_bonus' ) 
 			{
 				thePlayer.AddAbilityMultiple('lesser_mutagen_color_red_x' , curColorCount - 1);
 				color = SC_Red;
 			}
-			if ( pam.GetMutagenBonusAbilityName(mutagen) == 'mutagen_color_lesser_green_synergy_bonus' ) 		
+			else if ( bonusAbilityName == 'mutagen_color_lesser_green_synergy_bonus' ) 		
 			{
 				thePlayer.AddAbilityMultiple('lesser_mutagen_color_green_x' , curColorCount - 1);
 				color = SC_Green;
 			}
-			if ( pam.GetMutagenBonusAbilityName(mutagen) == 'mutagen_color_lesser_blue_synergy_bonus' ) 
+			else if ( bonusAbilityName == 'mutagen_color_lesser_blue_synergy_bonus' ) 
 			{
 				thePlayer.AddAbilityMultiple('lesser_mutagen_color_blue_x' , curColorCount - 1);
 				color = SC_Blue;
 			}
-			
-			if ( pam.GetMutagenBonusAbilityName(mutagen) == 'greater_mutagen_color_red_synergy_bonus' ) 
+			else if ( bonusAbilityName == 'greater_mutagen_color_red_synergy_bonus' ) 
 			{
 				thePlayer.AddAbilityMultiple('greater_mutagen_color_red_x' , curColorCount - 1);
 				color = SC_Red;
 			}
-			if ( pam.GetMutagenBonusAbilityName(mutagen) == 'greater_mutagen_color_green_synergy_bonus' ) 		
+			else if ( bonusAbilityName == 'greater_mutagen_color_green_synergy_bonus' ) 		
 			{
 				thePlayer.AddAbilityMultiple('greater_mutagen_color_green_x' , curColorCount - 1);
 				color = SC_Green;
 			}
-			if ( pam.GetMutagenBonusAbilityName(mutagen) == 'greater_mutagen_color_blue_synergy_bonus' ) 
+			else if ( bonusAbilityName == 'greater_mutagen_color_blue_synergy_bonus' ) 
 			{
 				thePlayer.AddAbilityMultiple('greater_mutagen_color_blue_x' , curColorCount - 1);
 				color = SC_Blue;
+			}
+			else if ( bonusAbilityName == 'greater_mutagen_color_white_synergy_bonus' ) 
+			{
+				thePlayer.AddAbilityMultiple('greater_mutagen_color_white_x' , curColorCount - 1);
+				color = SC_Yellow;
 			}
 
 			for (i = 0; i < mutagenStats.Size(); i += 1)
@@ -1341,39 +1418,39 @@ class CR4CharacterMenu extends CR4MenuBase
 				if (i > 0)
 				{
 					curDescription += ", ";
+					curValues += ", ";
 				}
 				
-				if (hasAbility)
-				{
 					attributeValue = mutagenStats[i].value * curColorCount;
-				}
-				else
-				{
-					attributeValue = mutagenStats[i].value * curColorCount;
-				}
 				
-				if ( GetWitcherPlayer().CanUseSkill ( S_Alchemy_s19 ) )
+				if ( GetWitcherPlayer().CanUseSkill( S_Alchemy_s19 ) || GetWitcherPlayer().CanUseSkill( S_Perk_43 ) )
 				{
-					synergyBonus = CalculateAttributeValue(GetWitcherPlayer().GetSkillAttributeValue(S_Alchemy_s19, 'synergy_bonus', false, false));
-					synergyBonus *= GetWitcherPlayer().GetSkillLevel(S_Alchemy_s19);
+					if (thePlayer.GetSkillLevel( S_Alchemy_s19) > thePlayer.GetSkillLevel( S_Perk_43 ))
+					{
+						synergyBonus = CalculateAttributeValue(GetWitcherPlayer().GetSkillAttributeValue(S_Alchemy_s19, 'synergy_bonus', false, false));
+						synergyBonus *= GetWitcherPlayer().GetSkillLevel(S_Alchemy_s19);
+					}
+					else
+					{
+						synergyBonus = CalculateAttributeValue(GetWitcherPlayer().GetSkillAttributeValue(S_Perk_43, 'synergy_bonus', false, false));
+						synergyBonus *= GetWitcherPlayer().GetSkillLevel(S_Perk_43);
+					}
+					
 					attributeValue += attributeValue * synergyBonus;
 				}
 				
 				if( mutagenStats[i].percentageValue )
 				{
-					curDescription += "+" + RoundMath(attributeValue * 100 ) +"%";
+					curValues += "+" + RoundMath(attributeValue * 100 ) +"%";
 				}
 				else
 				{
-					curDescription += "+" + RoundMath(attributeValue);
+					curValues += "+" + RoundMath(attributeValue);
 				}
 			}
 		}
-		else
-		{
-			
-		}
 		
+		values = curValues;
 		return curDescription;
 	}
 	
@@ -1381,10 +1458,12 @@ class CR4CharacterMenu extends CR4MenuBase
 	protected function CreateBonusGFxData(index:int):CScriptedFlashObject
 	{
 		var gfxGroupBonus : CScriptedFlashObject;
+		var gfxColorArray 	: CScriptedFlashArray;
 		var description   : string;
+		var values		  : string;
 		var color         : ESkillColor;
 		
-		description = GetGroupBonusDescription(index, color);
+		description = GetGroupBonusDescription(index, color, values);
 		
 		if (index > m_previousSkillBonuses.Size())
 		{
@@ -1405,6 +1484,7 @@ class CR4CharacterMenu extends CR4MenuBase
 		
 		gfxGroupBonus = m_flashValueStorage.CreateTempFlashObject();
 		gfxGroupBonus.SetMemberFlashString('description', description);
+		gfxGroupBonus.SetMemberFlashString('values', values);
 		gfxGroupBonus.SetMemberFlashInt('color', color);
 		
 		return gfxGroupBonus;
@@ -1675,7 +1755,14 @@ class CR4CharacterMenu extends CR4MenuBase
 		dataObject.SetMemberFlashInt('id', curSkill.skillType); 
 		dataObject.SetMemberFlashInt('skillTypeId', curSkill.skillType);
 		
-		originSkillLevel = GetWitcherPlayer().GetBoughtSkillLevel(curSkill.skillType);
+		if (curSkill.isCoreSkill)
+		{
+			originSkillLevel = 1;
+		}
+		else
+		{
+			originSkillLevel = GetWitcherPlayer().GetBoughtSkillLevel(curSkill.skillType);
+		}
 		
 		if ( isGridView )
 		{
@@ -1702,7 +1789,6 @@ class CR4CharacterMenu extends CR4MenuBase
 		dataObject.SetMemberFlashString('abilityName', curSkill.abilityName); 
 		dataObject.SetMemberFlashString('cost', curSkill.cost);
 		dataObject.SetMemberFlashString('iconPath', curSkill.iconPath);
-		dataObject.SetMemberFlashString('isCoreSkill', curSkill.isCoreSkill);
 		dataObject.SetMemberFlashString('skillPathPoints', SkillsPathsPointsSpent(curSkill));
 		
 		dataObject.SetMemberFlashString('positionID', curSkill.positionID);
@@ -1810,7 +1896,7 @@ class CR4CharacterMenu extends CR4MenuBase
 		dm.GetAbilityAttributeValue('sword_adrenalinegain', 'focus_gain', min, max);
 		ability =  GetAttributeRandomizedValue(min, max);
 		arg_focus = ability.valueAdditive;
-		
+
 		switch (targetSkill.skillType)
 		{
 			case S_Magic_1:
@@ -1863,14 +1949,10 @@ class CR4CharacterMenu extends CR4MenuBase
 				
 				baseString = GetLocStringByKeyExtWithParams(locKey, argsInt)+ "<br>" + GetLocStringByKeyExt("focus_gain") + ": +" + RoundF((arg_focus * 100) * skillLevel) + "%";;					
 				break;
-			case S_Sword_s02:
+			case S_Sword_s02:			
 				
-				arg = CalculateAttributeValue(GetWitcherPlayer().GetSkillAttributeValue(S_Sword_s02, theGame.params.CRITICAL_HIT_CHANCE, false, false)) * skillLevel;
-				argsInt.PushBack(Min(RoundMath(arg*100),100));
-				
-				
-				ability = GetWitcherPlayer().GetSkillAttributeValue(S_Sword_s02, 'adrenaline_final_damage_bonus', false, false);
-				argsInt.PushBack(RoundMath(ability.valueMultiplicative*100));
+				ability = GetWitcherPlayer().GetSkillAttributeValue(S_Sword_s02, 'adrenaline_damage_bonus', false, false);
+				argsInt.PushBack(RoundMath(ability.valueMultiplicative * skillLevel * 100));
 				
 				baseString = GetLocStringByKeyExtWithParams(locKey, argsInt) + "<br>" + GetLocStringByKeyExt("focus_gain") + ": +" + RoundF((arg_focus * 100) * skillLevel) + "%";
 				break;
@@ -1996,12 +2078,14 @@ class CR4CharacterMenu extends CR4MenuBase
 		var min, max	: SAbilityAttributeValue;
 		var dm 			: CDefinitionsManagerAccessor;
 		
+		var sp 			: SAbilityAttributeValue; 
+		
 		
 		dm = theGame.GetDefinitionsManager();
 		dm.GetAbilityAttributeValue('magic_staminaregen', 'staminaRegen', min, max);
 		ability =  GetAttributeRandomizedValue(min, max);
 		arg_stamina = ability.valueMultiplicative;
-		
+
 		switch (targetSkill.skillType)
 		{
 			case S_Magic_s01:
@@ -2148,7 +2232,7 @@ class CR4CharacterMenu extends CR4MenuBase
 		dm.GetAbilityAttributeValue('alchemy_potionduration', 'potion_duration', min, max);
 		ability =  GetAttributeRandomizedValue(min, max);
 		arg_duration = CalculateAttributeValue(ability);
-				
+		
 		switch (targetSkill.skillType)
 		{
 			case S_Alchemy_s01:
@@ -2168,7 +2252,7 @@ class CR4CharacterMenu extends CR4MenuBase
 				baseString = GetLocStringByKeyExtWithParams(locKey, argsInt);
 				break;
 			case S_Alchemy_s03:
-				arg = 1 - CalculateAttributeValue(GetWitcherPlayer().GetSkillAttributeValue(S_Alchemy_s03, 'toxicity_threshold', false, false)) * skillLevel;
+				arg = GetWitcherPlayer().GetAlchemyS03Threshold();
 				argsInt.PushBack(Max(0, RoundMath(arg*100)));
 				baseString = GetLocStringByKeyExtWithParams(locKey, argsInt);
 				break;
@@ -2269,7 +2353,7 @@ class CR4CharacterMenu extends CR4MenuBase
 		var argsString	: array<string>;
 		var arg			: float;
 		var ability		: SAbilityAttributeValue;
-		
+
 		switch (targetSkill.skillType)
 		{
 			case S_Perk_01:
@@ -2286,7 +2370,7 @@ class CR4CharacterMenu extends CR4MenuBase
 				break;
 			case S_Perk_04:
 				ability = GetWitcherPlayer().GetSkillAttributeValue(S_Perk_04, 'vitality', false, true);
-				argsInt.PushBack(RoundMath(ability.valueBase));
+				argsInt.PushBack(RoundMath(ability.valueMultiplicative*100)); 
 				baseString = GetLocStringByKeyExtWithParams(locKey, argsInt);
 				break;
 			case S_Perk_05:

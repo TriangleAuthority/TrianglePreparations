@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 import class CInGameConfigWrapper
 {
@@ -18,15 +18,19 @@ import class CInGameConfigWrapper
 	import final function GetVarOptionsNum( groupName : name, varName : name ) : int;
 	import final function GetVarOption( groupName : name, varName : name, optionIdx : int ) : string;
 	import final function GetVarValue( groupCName : name, varCName : name ) : string;
+	import final function GetVarValueByStr( groupNameStr : string, varCName : name ) : string;
 	import final function SetVarValue( groupName : name, varName : name, varValue : string );
+	import final function SetVarValueByStr( groupNameStr : string, varName : name, varValue : string );
 	import final function GetVarNameByGroupName( groupName : name, varIdx : int ) : name;
 	import final function GetVarsNumByGroupName( groupName : name ) : int;
 	import final function IsVarVisible( groupName : name, varName : name ) : bool;
 	import final function DoVarHasTag( groupName : name, varName : name, tag : name ) : bool;
+	import final function DoOptionHasTag( groupName : name, varName : name, optionIdx : int, tag : name ) : bool;
 	
 	
 	import final function GetGroupsNum() : int;
 	import final function GetGroupName( groupIdx : int ) : name;
+	import final function GetGroupIdx( groupName : string ) : int;
 	import final function GetVarsNum( groupIdx : int ) : int;
 	import final function GetVarName( groupIdx : int, varIdx : int ) : name;
 	import final function IsGroupVisible( groupName : name ) : bool;
@@ -36,7 +40,43 @@ import class CInGameConfigWrapper
 	import final function IsTagActive( tag : name ) : bool;
 	import final function ActivateScriptTag( tag : name );
 	import final function DeactivateScriptTag( tag : name );
+	
+	
+	import final function WriteIniFile(iniFileName : string, key : string, newValue : string);
+	
+	
+	import final function GetEntriesNumForOption( groupName : name, varName : name, optionId : int ) : int;
+	import final function GetEntryNameForOption( groupName : name, varName : name, optionId : int, entryId : int ) : name;
+	import final function GetCurrentOptionId( groupName : name, varName : name ) : int;
+
+	import final function GetRawConfigValueByStr( groupName : string, varName : string ) : string;
+	import final function SetRawConfigValueByStr( groupName : string, varName : string, varValue : string );
 }
+
+	function GetVarsNumForGroupDisplayName( displayName : string ) : int
+	{
+		var totalGroups : int;
+		var groupIdx : int;
+		var groupName : name;
+		var result : int;
+		var inGameConfigWrapper	: CInGameConfigWrapper;
+		
+		inGameConfigWrapper = (CInGameConfigWrapper) theGame.GetInGameConfigWrapper();	
+		result = 0;
+		totalGroups = inGameConfigWrapper.GetGroupsNum();
+		
+		for ( groupIdx = 0; groupIdx < totalGroups; groupIdx += 1 )
+		{
+			groupName = inGameConfigWrapper.GetGroupName( groupIdx );
+			
+			if( inGameConfigWrapper.GetGroupDisplayName( groupName ) == displayName )
+			{
+				result += inGameConfigWrapper.GetVarsNum( groupIdx );
+			}
+		}
+		
+		return result;
+	}
 
 function GetCurrentTextLocCode() : string
 {

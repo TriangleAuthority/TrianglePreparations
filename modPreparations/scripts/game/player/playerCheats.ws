@@ -1,8 +1,10 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
+import function ParseCameraViewString( cameraViewString : string, position: Vector, orientation: EulerAngles) : bool;
+
 
 exec function killall( optional range : float )
 {	
@@ -303,6 +305,23 @@ exec function tptopos( x : float, y : float, z : float )
 	thePlayer.Teleport( Vector( x, y, z) );
 }
 
+exec function tlp( cameraString : string )
+{
+	var parseSuccessful : bool;
+	var position : Vector;
+	var orientation : EulerAngles;
+	
+	parseSuccessful = ParseCameraViewString( cameraString, position, orientation );
+	if ( parseSuccessful )
+	{
+		thePlayer.TeleportWithRotation( position, orientation );
+	}
+	else
+	{
+		LogCheats( "tlp() Error : Cannot parse camera view string : " + cameraString );
+	}
+}
+
 exec function xy( x : float, y : float )
 {
 	var z : float;
@@ -316,6 +335,10 @@ exec function xy( x : float, y : float )
 		z = 500.1f;
 	}
 	thePlayer.Teleport( Vector( x, y, z ) );
+}
+
+exec function moveCamera(x : float, y : float, z : float, rx : float, ry : float, rz : float) {
+	theGame.MoveFreeCamera(Vector(x, y, z), EulerAngles(rx, ry, rz));
 }
 
 exec function TrajectoryDebug( actorTag : name )

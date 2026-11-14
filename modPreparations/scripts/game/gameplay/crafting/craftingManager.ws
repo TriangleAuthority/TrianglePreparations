@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class W3CraftingManager
 {
 	protected var schematics : array<SCraftingSchematic>;		
@@ -168,7 +164,13 @@ class W3CraftingManager
 		var tutStateSet : W3TutorialManagerUIHandlerStateCraftingSet;
 		var craftsman : CGameplayEntity;
 		var upgrades, temp : array<name>;
-	
+
+		var wasEnchanted 			: bool;
+		var wasDyed					: bool;
+		var enchantName, colorName	: name;
+		var maxSlots				: int;
+		var dye_ids					: array<SItemUniqueId>;	
+
 		error = CanCraftSchematic(schemName, true);
 		if(error != ECE_NoException)
 		{
@@ -182,7 +184,11 @@ class W3CraftingManager
 		
 		craftsman = (CGameplayEntity)craftMasterComp.GetEntity();
 		thePlayer.inv.GiveMoneyTo(craftsman.GetInventory(), GetCraftingCost(schemName), false);
-		
+
+		maxSlots = 0;
+		wasEnchanted = false;
+		wasDyed = false;
+
 		
 		equipAfterCrafting = false;
 		for(i=0; i<schem.ingredients.Size(); i+=1)
@@ -195,21 +201,36 @@ class W3CraftingManager
 					equipAfterCrafting = true;
 				}
 			}
+
+			maxSlots = Max(maxSlots, thePlayer.inv.GetItemEnhancementSlotsCount( itemsingr[0] ));
+
 			
 			thePlayer.inv.GetItemEnhancementItems(itemsingr[0], temp);
 			ArrayOfNamesAppend(upgrades, temp);
 			temp.Clear();
-			
+
+			if ( thePlayer.inv.IsItemEnchanted( itemsingr[0] ) )
+			{
+				wasEnchanted = true;
+				enchantName = thePlayer.inv.GetEnchantment( itemsingr[0] );
+			}
+			if (thePlayer.inv.IsItemColored( itemsingr[0] ))
+			{
+				wasDyed = true;
+				colorName = thePlayer.inv.GetItemColor( itemsingr[0] );
+			}
+
 			thePlayer.inv.RemoveItemByName(schem.ingredients[i].itemName, schem.ingredients[i].quantity);
 		}
 		
 		
 		items = thePlayer.inv.AddAnItem(schem.craftedItemName, schem.craftedItemCount);
 		item = items[0];
-		
-		if ( equipAfterCrafting )
-			thePlayer.EquipItem( item );
-			
+
+		maxSlots = Min(maxSlots, thePlayer.inv.GetSlotItemsLimit( item ));
+		while (thePlayer.inv.GetItemEnhancementSlotsCount(item) < maxSlots)
+			thePlayer.inv.AddSlot(item);
+
 		
 		size = Min(thePlayer.inv.GetItemEnhancementSlotsCount(item), upgrades.Size());	
 		for(i=0; i<size; i+=1)
@@ -217,7 +238,21 @@ class W3CraftingManager
 			upgradeItem = thePlayer.inv.AddAnItem(upgrades[i], 1, true, true);
 			thePlayer.inv.EnhanceItemScript(item, upgradeItem[0]);
 		}
+
+		if ( wasEnchanted )
+		{
+			thePlayer.inv.EnchantItem( item, enchantName, getEnchamtmentStatName(enchantName) );
+		}
+		if ( wasDyed )
+		{
+			dye_ids = thePlayer.inv.AddAnItem( colorName, 1, true, true, false );
+			thePlayer.inv.ColorItem( item, dye_ids[0] );
+			thePlayer.inv.RemoveItem( dye_ids[0], 1 );
+		}
 		
+		if ( equipAfterCrafting )
+			thePlayer.EquipItem( item );
+
 		LogCrafting("Item <<" + schem.craftedItemName + ">> crafted successfully");
 		
 		if(thePlayer.inv.IsItemSetItem(item) && ShouldProcessTutorial('TutorialCraftingSets'))
@@ -285,4 +320,3 @@ function getCraftingSchematicFromName(schematicName : name):SCraftingSchematic
 		
 	return schem;
 }
-

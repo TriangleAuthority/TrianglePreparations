@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class W3Effect_AirDrain extends CBaseGameplayEffect
 {
 	default effectType = EET_AirDrain;
@@ -18,10 +14,15 @@ class W3Effect_AirDrain extends CBaseGameplayEffect
 	event OnUpdate(deltaTime : float)
 	{
 		var drain : float;
+		var inGameConfigWrapper : CInGameConfigWrapper;
+		var isAccessibilityAirDrainDisabled : bool;
+		
+		inGameConfigWrapper = (CInGameConfigWrapper)theGame.GetInGameConfigWrapper();			
+		isAccessibilityAirDrainDisabled = inGameConfigWrapper.GetVarValue('Accessibility', 'NoAirDrain') == "true";
 		
 		super.OnUpdate(deltaTime);
 		
-		if(isOnPlayer && thePlayer.CanPlaySpecificVoiceset() )
+		if(isOnPlayer && thePlayer.CanPlaySpecificVoiceset()  && FactsQuerySum("nge_block_geralt_coughing") <= 0 )
 		{
 			thePlayer.PlayVoiceset( 100, "coughing" );
 			thePlayer.SetCanPlaySpecificVoiceset( false );
@@ -30,11 +31,15 @@ class W3Effect_AirDrain extends CBaseGameplayEffect
 	
 		if(target.GetStat(BCS_Air) <= 0)
 		{
-			target.AddEffectDefault(EET_Choking,target,"NoAir");
+			if (!isAccessibilityAirDrainDisabled)
+				target.AddEffectDefault(EET_Choking,target,"NoAir");
 		}
 		else
 		{
 			drain = MaxF(0, deltaTime * ( effectValue.valueAdditive + effectValue.valueMultiplicative * target.GetStatMax(BCS_Air) ) );
+
+			if ( isAccessibilityAirDrainDisabled )
+				drain = 0;
 			
 			effectManager.CacheStatUpdate(BCS_Air, -drain);
 		}
@@ -57,6 +62,7 @@ class W3Effect_AirDrain extends CBaseGameplayEffect
 	{
 		super.OnEffectRemoved();
 		
+		target.RemoveBuff(EET_Choking, false, "NoAir"); 
 		target.ResumeEffects(EET_AutoAirRegen, 'AirDrain');
 	}
 }

@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 class W3Effect_AxiiGuardMe extends CBaseGameplayEffect
 {
 	private var drainStaminaOnExit : bool;
@@ -52,6 +49,11 @@ class W3Effect_AxiiGuardMe extends CBaseGameplayEffect
 		bonusAbilityName = thePlayer.GetSkillAbilityName(S_Magic_s05);
 		for(i=0; i<skillLevel; i+=1)
 			target.AddAbility(bonusAbilityName, true);
+
+		
+		skillLevel = thePlayer.GetSkillLevel( S_Magic_s31 );
+		bonusAbilityName = thePlayer.GetSkillAbilityName( S_Magic_s31 );
+		target.AddAbilityMultiple( bonusAbilityName, skillLevel );
 			
 		if (npc.IsHorse())
 			npc.GetHorseComponent().ResetPanic();
@@ -81,6 +83,9 @@ class W3Effect_AxiiGuardMe extends CBaseGameplayEffect
 		bonusAbilityName = thePlayer.GetSkillAbilityName(S_Magic_s05);		
 		while(target.HasAbility(bonusAbilityName))
 			target.RemoveAbility(bonusAbilityName);
+
+		bonusAbilityName = thePlayer.GetSkillAbilityName( S_Magic_s31 );
+		target.RemoveAbilityAll( bonusAbilityName );
 	}
 	
 	public function SetDrainStaminaOnExit()
@@ -93,6 +98,35 @@ class W3Effect_AxiiGuardMe extends CBaseGameplayEffect
 		super.CalculateDuration(setInitialDuration);
 		
 		if ( duration > 0 )
-			duration = MaxF(8.f,duration);
+		{	
+			if (FactsQuerySum("used_red_haze") > 0) 
+			{
+				duration = 8.f;
+			}
+			else if (FactsQuerySum("used_red_haze_2") > 0) 
+			{
+				duration = 10.f;
+			}
+			else if (FactsQuerySum("used_red_haze_3") > 0) 
+			{
+				duration = 12.f;
+			}
+			else if(thePlayer.IsSkillEquipped(S_Magic_s18)) 
+			{
+				switch(GetWitcherPlayer().GetSkillLevel(S_Magic_s18))
+				{
+					case 3: 
+						duration = 15.f;
+						break;
+					case 2: 
+						duration = 13.f;
+						break;
+					case 1: 
+						duration = 11.f;
+						break;
+				}
+			}
+			
+		}
 	}
 }

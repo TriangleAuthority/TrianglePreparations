@@ -1,15 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
 class CAINpcCombatStyle extends CAISubTree
 {
 	default aiTreeName = "resdef:ai\combat/npc_combatstyle";
@@ -1449,6 +1442,7 @@ class CAINpcGregoireCombatStyleParams extends CAINpcCombatStyleParams
 
 
 
+
 class CAINpcVesemirTutorialCombatStyle extends CAINpcCombatStyle
 {
 	function Init()
@@ -1474,6 +1468,8 @@ class CAINpcStyleVesemirTutorialParams extends CAINpcCombatStyleParams
 		
 	}
 };
+
+
 
 
 

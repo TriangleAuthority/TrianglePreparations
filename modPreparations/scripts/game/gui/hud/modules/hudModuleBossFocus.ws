@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CR4HudModuleBossFocus extends CR4HudModuleBase
 {	
 	
@@ -127,10 +123,11 @@ class CR4HudModuleBossFocus extends CR4HudModuleBase
 		if ( m_bossEntity )
 		{
 			bossName = m_bossEntity.GetDisplayName();
+						
 			if ( onShow || m_bossName != bossName )
 			{
 				m_bossName = bossName;
-				m_fxSetBossName.InvokeSelfOneArg( FlashArgString( m_bossEntity.GetDisplayName() ) );
+				m_fxSetBossName.InvokeSelfOneArg( FlashArgString( m_bossName ) );
 			}
 			if ( onShow )
 			{
@@ -138,6 +135,7 @@ class CR4HudModuleBossFocus extends CR4HudModuleBase
 			}
 			
 			l_currentHealthPercentage = CeilF( 100 * m_bossEntity.GetHealthPercents() );	
+
 			if ( m_lastHealthPercentage != l_currentHealthPercentage )
 			{
 				m_fxSetBossHealth.InvokeSelfOneArg( FlashArgInt( l_currentHealthPercentage ) );
@@ -171,5 +169,4 @@ class CR4HudModuleBossFocus extends CR4HudModuleBase
 	
 	
 	
-
 }

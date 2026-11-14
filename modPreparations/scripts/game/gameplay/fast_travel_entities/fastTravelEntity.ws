@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 import class CR4MapPinEntity extends CGameplayEntity
 {
@@ -35,12 +35,10 @@ class W3FastTravelEntity extends CR4FastTravelEntity
 	
 	event OnInteractionActivated( interactionComponentName : string, activator : CEntity )
 	{
-		theGame.GetSecondScreenManager().SendFastTravelEnable();
 	}
 	
 	event OnInteractionDeactivated( interactionComponentName : string, activator : CEntity )
 	{
-		theGame.GetSecondScreenManager().SendFastTravelDisable();
 	}
 	
 	event OnInteraction( actionName : string, activator : CEntity )

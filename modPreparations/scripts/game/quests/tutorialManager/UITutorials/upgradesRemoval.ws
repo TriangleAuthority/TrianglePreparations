@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 state UpgradesRemoval in W3TutorialManagerUIHandler extends TutHandlerBaseState
 {
 	private const var DESCRIPTION, ITEMS, UPGRADES, COST, REMOVING : name;
@@ -48,6 +45,9 @@ state UpgradesRemoval in W3TutorialManagerUIHandler extends TutHandlerBaseState
 	{
 		if(closedByParentMenu || isClosing)
 			return true;
+
+		QuitState();
+		return true;
 			
 		if(hintName == DESCRIPTION)
 		{

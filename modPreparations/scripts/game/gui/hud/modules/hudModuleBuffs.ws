@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 class CR4HudModuleBuffs extends CR4HudModuleBase
 {
@@ -18,7 +18,7 @@ class CR4HudModuleBuffs extends CR4HudModuleBase
 	private var bDisplayBuffs : bool; default bDisplayBuffs = true;
 	
 	private var m_runword5Applied : bool; default m_runword5Applied = false;
-	
+		
 	
 	
 
@@ -61,6 +61,7 @@ class CR4HudModuleBuffs extends CR4HudModuleBase
 		var oilEffect : W3Effect_Oil;
 		var aerondightEffect	: W3Effect_Aerondight;
 		var effectType : EEffectType;
+		var minAttributeValue, maxAttributeValue : SAbilityAttributeValue;
 
 		if ( !CanTick( timeDelta ) )
 			return true;
@@ -138,8 +139,17 @@ class CR4HudModuleBuffs extends CR4HudModuleBase
 						oilEffect = (W3Effect_Oil)effectArray[ i ];
 						if ( oilEffect )
 						{
-							initialDuration = oilEffect.GetAmmoMaxCount();
-							duration		= oilEffect.GetAmmoCurrentCount();
+							
+							if (oilEffect.GetAmmoCurrentCount() > 0 && GetWitcherPlayer().CanUseSkill(S_Alchemy_s06) && GetWitcherPlayer().GetSkillLevel(S_Alchemy_s06) > 2)
+							{
+								initialDuration = oilEffect.GetAmmoMaxCount();
+								duration		= oilEffect.GetAmmoMaxCount();
+							}
+							else
+							{
+								initialDuration = oilEffect.GetAmmoMaxCount();
+								duration		= oilEffect.GetAmmoCurrentCount();
+							}
 						}
 					}					
 					else if( effectType == EET_Aerondight )
@@ -156,6 +166,12 @@ class CR4HudModuleBuffs extends CR4HudModuleBase
 						
 						extraValue = ( ( W3Effect_BasicQuen ) effectArray[i] ).GetStacks();
 						
+					}
+					else if ( effectType == EET_ConvergenceTheory )
+					{
+						theGame.GetDefinitionsManager().GetAbilityAttributeValue('ConvergenceTheoryEffect', 'spell_power', minAttributeValue, maxAttributeValue);
+						extraValue = ( int )( minAttributeValue.valueMultiplicative * 100 );
+						extraValue *= ( ( W3Effect_ConvergenceTheory ) effectArray[i] ).GetStacks() * thePlayer.GetSkillLevel(S_Magic_s37);
 					}
 					else if( effectType == EET_Mutation3 )
 					{						
@@ -270,6 +286,9 @@ class CR4HudModuleBuffs extends CR4HudModuleBase
 		var buffState				: int;
 		var format					: int;
 		var quenBuff 				: W3Effect_BasicQuen;
+		
+		
+		var isOilInfinite : bool;
 
 		l_flashArray = GetModuleFlashValueStorage()().CreateTempFlashArray();
 		for(i = 0; i < Min(buffDisplayLimit,_currentEffects.Size()); i += 1) 
@@ -291,7 +310,11 @@ class CR4HudModuleBuffs extends CR4HudModuleBase
 
 				effectType = _currentEffects[i].GetEffectType();
 
-				if ( effectType == EET_Oil && thePlayer.IsSkillEquipped( S_Alchemy_s06 ) )
+				
+				if(thePlayer.IsSkillEquipped( S_Alchemy_s06 ) && GetWitcherPlayer().CanUseSkill(S_Alchemy_s06) && GetWitcherPlayer().GetSkillLevel(S_Alchemy_s06) > 2)
+					isOilInfinite = true;
+				
+				if ( effectType == EET_Oil && isOilInfinite )
 				{
 					
 					format = 0;
@@ -306,7 +329,7 @@ class CR4HudModuleBuffs extends CR4HudModuleBase
 					
 					format = 2;
 				}
-				else if ( effectType == EET_Mutation7Buff || effectType == EET_Mutation7Debuff || effectType == EET_BasicQuen )
+				else if ( effectType == EET_Mutation7Buff || effectType == EET_Mutation7Debuff || effectType == EET_BasicQuen || effectType == EET_ConvergenceTheory )
 				{
 					
 					format = 4;
@@ -315,7 +338,7 @@ class CR4HudModuleBuffs extends CR4HudModuleBase
 				{
 					
 					format = 3;
-				}
+				}				
 				
 				l_flashObject = m_flashValueStorage.CreateTempFlashObject();
 				l_flashObject.SetMemberFlashBool("isVisible",_currentEffects[i].ShowOnHUD());
@@ -330,8 +353,19 @@ class CR4HudModuleBuffs extends CR4HudModuleBase
 					oilEffect = (W3Effect_Oil)_currentEffects[i];
 					if ( oilEffect )
 					{
-						l_flashObject.SetMemberFlashNumber("duration",        oilEffect.GetAmmoCurrentCount() * 1.0 );
-						l_flashObject.SetMemberFlashNumber("initialDuration", oilEffect.GetAmmoMaxCount() 	  * 1.0 );
+						
+						if (oilEffect.GetAmmoCurrentCount() > 0 && isOilInfinite)
+						{
+							l_flashObject.SetMemberFlashNumber("duration",        oilEffect.GetAmmoMaxCount() 	  * 1.0 );
+							l_flashObject.SetMemberFlashNumber("initialDuration", oilEffect.GetAmmoMaxCount() 	  * 1.0 );
+							l_flashObject.SetMemberFlashInt("format", 0);
+						}
+						
+						else
+						{
+							l_flashObject.SetMemberFlashNumber("duration",        oilEffect.GetAmmoCurrentCount() * 1.0 );
+							l_flashObject.SetMemberFlashNumber("initialDuration", oilEffect.GetAmmoMaxCount() 	  * 1.0 );
+						}
 					}
 				}
 				else if( effectType == EET_Aerondight )

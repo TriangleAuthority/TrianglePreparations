@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 state Sailing in CR4Player extends UseGenericVehicle
 {
 	private var boatLogic : CBoatComponent;
@@ -506,7 +502,11 @@ state SailingPassive in CR4Player extends UseGenericVehicle
 	}
 	
 	event OnGameCameraPostTick( out moveData : SCameraMovementData, dt : float )
-	{
+	{	
+		
+		if (thePlayer.IsQuestCameraRequestActive())
+			theGame.GetGameCamera().SetAllowAutoRotation(true);
+
 		if ( super.OnGameCameraPostTick( moveData, dt ) )
 			return true;
 	}

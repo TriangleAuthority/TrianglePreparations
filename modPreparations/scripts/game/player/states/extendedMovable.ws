@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 state ExtendedMovable in CR4Player extends Movable
 {
@@ -183,7 +183,7 @@ state ExtendedMovable in CR4Player extends Movable
 			if ( parent.GetDisplayTarget() )
 			{
 				playerToTargetVector = parent.GetDisplayTarget().GetWorldPosition() - parent.GetWorldPosition();
-				moveData.pivotRotationController.SetDesiredHeading( VecHeading( playerToTargetVector ), 0.5f );
+				moveData.pivotRotationController.SetDesiredHeading( VecHeading( playerToTargetVector ), thePlayer.lockCameraSpeed );
 			}
 			else
 				moveData.pivotRotationController.SetDesiredHeading( moveData.pivotRotationValue.Yaw, 0.5f );

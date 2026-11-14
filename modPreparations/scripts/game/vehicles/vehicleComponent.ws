@@ -1,49 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import abstract class CVehicleComponent extends CComponent
 {	
 	import public var user : CActor;
@@ -82,6 +41,15 @@ import abstract class CVehicleComponent extends CComponent
 			OnDriverMount();
 		}
 	}
+
+	event OnEarlyExplorationMountStart( entity : CEntity )
+	{
+	}
+
+	event OnEarlyExplorationMountJump( entity : CEntity )
+	{
+	}
+
 	event OnMountFinished( entity : CEntity )
 	{
 		if( entity == thePlayer )
@@ -92,6 +60,7 @@ import abstract class CVehicleComponent extends CComponent
 			}
 			
 			thePlayer.BlockAction(EIAB_MeditationWaiting, 'vehicle', true);
+			GetWitcherPlayer().TestStopClothSimulation(false);
 		}
 	}
 	
@@ -107,6 +76,8 @@ import abstract class CVehicleComponent extends CComponent
 			ToggleVehicleCamera( false );
 			thePlayer.UnblockAction(EIAB_MeditationWaiting, 'vehicle');
 			thePlayer.AddTimer('ReapplyCSTimer', 2.f);
+			thePlayer.SetInteractionPriority(IP_Prio_0);
+			GetWitcherPlayer().TestStopClothSimulation(true);
 		}
 	}
 	

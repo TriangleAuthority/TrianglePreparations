@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 import struct SSceneChoice
 {
@@ -53,6 +53,10 @@ class CR4HudModuleDialog extends CR4HudModuleBase
 	event  OnConfigUI()
 	{
 		var flashModule : CScriptedFlashSprite;
+		
+		
+		var inGameConfigWrapper : CInGameConfigWrapper;		
+		
 		m_anchorName = "ScaleOnly";	
 		flashModule = GetModuleFlash();
 		
@@ -71,6 +75,11 @@ class CR4HudModuleDialog extends CR4HudModuleBase
 		m_fxSetAlternativeDialogOptionView = flashModule.GetMemberFlashFunction( "setAlternativeDialogOptionView" );
 		
 		UpdateCanBeSkipped(theGame.GetStorySceneSystem().IsSkippingLineAllowed());
+		
+		
+		inGameConfigWrapper = (CInGameConfigWrapper)theGame.GetInGameConfigWrapper();
+		subtitleScale = StringToInt(inGameConfigWrapper.GetVarValue('Hud', 'SubtitleScale'));
+		choiceScale = StringToInt(inGameConfigWrapper.GetVarValue('Hud', 'DialogChoiceScale'));
 		
 		super.OnConfigUI();
 	}
@@ -156,10 +165,44 @@ class CR4HudModuleDialog extends CR4HudModuleBase
 		LogChannel('DIALOG', "***************************" );
 		
 		system.SendSignal( SSST_Skip, value );
+		
+		
+		if(FactsQuerySum("q401_yen_sex_scene_active") > 0)
+		{
+			FactsAdd("hack_skip_cutscene",1);
+		}
 	}
 
+	
+	private var	ep1hack : bool;		default ep1hack = false;
+	public function SetEP1Hack(b : bool)
+	{
+		ep1hack = b;
+	}
+	
 	function OnDialogSentenceSet( text : string, optional alternativeUI : bool )
 	{
+		
+		
+		
+		
+		ep1hack = false;
+		if(text == GetLocStringById(1131989))
+		{
+			
+			ep1hack = true;
+		}
+		else if(text == GetLocStringById(1131955) || text == GetLocStringById(1131958))
+		{
+			
+			ep1hack = true;
+			return;
+		}		
+		
+		
+		
+		text = "<font size = '"+ IntToString( 27 + subtitleScale ) + "' >" + text + "</font>";
+	
 		if( theGame.isDialogDisplayDisabled )
 		{
 			text = "";
@@ -174,6 +217,9 @@ class CR4HudModuleDialog extends CR4HudModuleBase
 	
 	function OnDialogPreviousSentenceSet( text : string )
 	{
+		
+		text = "<font size = '"+ IntToString( 27 + subtitleScale ) + "' >" + text + "</font>";
+	
 		if( theGame.isDialogDisplayDisabled )
 		{
 			text = "";
@@ -188,7 +234,9 @@ class CR4HudModuleDialog extends CR4HudModuleBase
 	
 	function OnDialogSentenceHide()
 	{
-		m_fxSentenceHideSFF.InvokeSelf();
+		
+		if(!ep1hack)
+			m_fxSentenceHideSFF.InvokeSelf();
 	}
 
 	function OnDialogChoicesSet( choices : array< SSceneChoice >, alternativeUI : bool )
@@ -208,6 +256,9 @@ class CR4HudModuleDialog extends CR4HudModuleBase
 		var hasContentMissing		: bool;
 		var missingContent			: name;
 		var progress 				: float;
+		
+		
+		var prefix : string;
 		
 		hasContentMissing = false;
 		
@@ -229,8 +280,44 @@ class CR4HudModuleDialog extends CR4HudModuleBase
 		
 		for ( i = 0; i < lastSetChoices.Size(); i += 1 )
 		{
+		
+			
+			lastSetChoices[ i ].description = "<font size = '"+ IntToString( 23 + choiceScale ) + "' >" + lastSetChoices[ i ].description + "</font>";
+			prefix = "<font size = '" + IntToString( 23 + choiceScale ) + "' >" + IntToString(i + 1) + ". " + "</font>";
+
+			if ( lastSetChoices[ i ].disabled )
+			{
+				lastSetChoices[ i ].description = "<FONT COLOR='#CC0000'>" + lastSetChoices[ i ].description + "</FONT>";
+				prefix = "<FONT COLOR='#CC0000'>" + prefix + "</FONT>";
+			}
+			else if ( lastSetChoices[ i ].previouslyChoosen )
+			{
+				lastSetChoices[ i ].description = "<FONT COLOR='#a7a7a7'>" + lastSetChoices[ i ].description + "</FONT>";
+				prefix = "<FONT COLOR='#a7a7a7'>" + prefix + "</FONT>";
+			}
+			else if ( lastSetChoices[ i ].emphasised )
+			{
+				if (!lastSetChoices[ i ].previouslyChoosen)
+				{
+					lastSetChoices[ i ].description = "<FONT COLOR='#d9b215'>" + lastSetChoices[ i ].description + "</FONT>";
+					prefix = "<FONT COLOR='#d9b215'>" + prefix + "</FONT>";
+				}
+				else
+				{
+					lastSetChoices[ i ].description = "<FONT COLOR='#a7a7a7'>" + lastSetChoices[ i ].description + "</FONT>";
+					prefix = "<FONT COLOR='#a7a7a7'>" + prefix + "</FONT>";
+				}
+			}
+			else
+			{
+				lastSetChoices[ i ].description = "<FONT COLOR='#F2D6B7'>" + lastSetChoices[ i ].description + "</FONT>";
+				prefix = "<FONT COLOR='#F2D6B7'>" + prefix + "</FONT>";
+			}	
+			
+			
+			
 			choiceFlashObject = flashValueStorage.CreateTempFlashObject();
-			choiceFlashObject.SetMemberFlashInt( "prefix",      i + 1 );
+			choiceFlashObject.SetMemberFlashString( "prefix",   prefix );	
 			choiceFlashObject.SetMemberFlashString( "name",     lastSetChoices[ i ].description );
 			choiceFlashObject.SetMemberFlashInt( "icon",     	lastSetChoices[ i ].dialogAction );		
 			choiceFlashObject.SetMemberFlashBool( "read",     	lastSetChoices[ i ].previouslyChoosen == false );		
@@ -629,6 +716,34 @@ class CR4HudModuleDialog extends CR4HudModuleBase
 	{
 		return isPopupOpened;
 	}
+	
+	
+	private var subtitleScale : int;
+	default subtitleScale = 0;
+	
+	private var choiceScale : int;
+	default choiceScale = 0;
+	
+	public function SetSubtitleScale(scale : int)
+	{
+		subtitleScale = scale;
+	}
+	
+	public function SetDialogChoiceScale(scale : int)
+	{
+		choiceScale = scale;
+	}
+}
+
+
+exec function dscale( s : int )
+{
+	var hud : CR4ScriptedHud;
+	var module : CR4HudModuleDialog;
+
+	hud = (CR4ScriptedHud)theGame.GetHud();
+	module = (CR4HudModuleDialog)hud.GetHudModule("DialogModule");
+	module.SetSubtitleScale( s );
 }
 
 

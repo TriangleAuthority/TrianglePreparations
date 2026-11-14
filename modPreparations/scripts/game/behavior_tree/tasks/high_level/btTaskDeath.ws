@@ -1,10 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
 class CBehTreeTaskFlyingMonsterDeath extends IBehTreeTask
 {
 	var 	wasFlying : bool;
@@ -148,7 +146,7 @@ class CBehTreeTaskDeathState extends IBehTreeTask
 	var saveLockID						: int;
 	var dropWeapons						: bool;
 	
-	private var deadDestructSquaredDist : float; 
+	protected var deadDestructSquaredDist : float; 
 	
 	default deadDestructSquaredDist 	= 0;
 	default destroyAnimEvent 			= false;
@@ -168,7 +166,9 @@ class CBehTreeTaskDeathState extends IBehTreeTask
 		}
 		
 		SetCombatTarget(NULL);
-		owner.SignalGameplayEvent( 'Death' );
+
+
+
 		owner.SignalGameplayEventParamInt( 'RidingManagerDismountHorse', DT_ragdoll );
 		
 		if( owner.GetMovingAgentComponent().GetName() == "woman_base" )
@@ -428,7 +428,7 @@ class CBehTreeTaskDeathIdle extends IBehTreeTask
 		thePlayer.AddToFinishableEnemyList( GetNPC(), false );
 		
 		actor.EnableFinishComponent( false );
-		actor.RaiseForceEvent('FinisherDeath');
+
 		
 		timeStamp = GetLocalTime();
 		
@@ -692,6 +692,9 @@ class CBehTreeHLTaskUnconscious extends IBehTreeTask
 		GetActor().DisableLookAt();
 		GetActor().SetAlive(false);
 		GetActor().SignalGameplayEvent('GuardUnconsciousAction');
+
+		GetActor().SignalGameplayEventParamInt( 'RidingManagerDismountHorse', DT_ragdoll );		
+
 		return BTNS_Active;
 	}
 	function OnDeactivate()
@@ -825,7 +828,9 @@ class CBehTreeTaskDeathAnimDecorator extends IBehTreeTask
 		{
 			return true;
 		}
-		
+
+
+
 		return false;
 	}
 	
@@ -861,7 +866,9 @@ class CBehTreeTaskDeathAnimDecorator extends IBehTreeTask
 		var activateDisableCollision	: bool;
 		
 		timeStamp = GetLocalTime();
-		
+
+
+
 		while( finisherEnabled )
 		{
 			if( syncInstance )
@@ -995,12 +1002,17 @@ class CBehTreeTaskDeathAnimDecorator extends IBehTreeTask
 	
 	function OnListenedGameplayEvent( eventName : name ) : bool
 	{
+		var owner : CNewNPC = GetNPC();
+
 		if ( eventName == 'ForceFinisher' && !ignoreForceFinisher )
 		{
-			finisherEnabled = true;
-			GetActor().EnableFinishComponent( true );
-			thePlayer.AddToFinishableEnemyList( GetActor(), true );
-			return true;
+
+			{
+				finisherEnabled = true;
+				GetActor().EnableFinishComponent( true );
+				thePlayer.AddToFinishableEnemyList( GetActor(), true );
+				return true;
+			}
 		}
 		return false;
 	}

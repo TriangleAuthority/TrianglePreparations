@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 abstract class CBTTaskCastSign extends CBTTaskAttack
 {
 	protected var resourceName 		: name;
@@ -134,12 +131,16 @@ class CBTTaskCastAard extends CBTTaskCastSign
 	}
 
 	function OnActivate() : EBTNodeStatus
-	{
+	{	
 		if ( !IsNameValid(attackRangeName) )
 			attackRangeName = 'cone';
 			
 		if ( !IsNameValid(resourceName) )
 			resourceName = 'aard';
+			
+		
+		if ( GetNPC().HasTag('mq1060_witcher') )
+			resourceName = 'aard_mq1060';
 		
 		return super.OnActivate();
 	}		
@@ -167,6 +168,10 @@ class CBTTaskCastIgni extends CBTTaskCastSign
 			
 		if ( !IsNameValid(resourceName) )
 			resourceName = 'igni';
+			
+		
+		if ( GetNPC().HasTag('mq1060_witcher') )
+			resourceName = 'igni_mq1060';
 		
 		return super.OnActivate();
 	}	
@@ -208,6 +213,10 @@ class CBTTaskCastQuen extends CBTTaskCastSign
 			attackRangeName = 'quen';
 		if( !IsNameValid(resourceName) )
 			resourceName = 'quen';
+			
+		
+		if ( GetNPC().HasTag('mq1060_witcher') )
+			resourceName = 'quen_mq1060';
 		
 		npc.SetGuarded(true);
 		npc.SetParryEnabled( true );
@@ -231,7 +240,11 @@ class CBTTaskCastQuen extends CBTTaskCastSign
 	
 	latent function Main() : EBTNodeStatus
 	{
-		hitEntityTemplate = (CEntityTemplate) LoadResourceAsync( "gameplay\sign\quen_hit_new" );
+		
+		if(GetNPC().HasTag('mq1060_witcher'))
+			hitEntityTemplate = (CEntityTemplate) LoadResourceAsync( "gameplay\sign\quen_hit_new_mq1060" );
+		else
+			hitEntityTemplate = (CEntityTemplate) LoadResourceAsync( "gameplay\sign\quen_hit_new" );
 		
 		super.Main();
 		Started();

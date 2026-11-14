@@ -1,8 +1,14 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
+import struct SVirtualKeyboardConfig
+{
+	import var inputScope : EVirtualKeyboardInputScope;
+	import var titleStr : string;
+	import var defaultStr : string;
+}
 
 enum EInputDeviceType
 {
@@ -11,13 +17,18 @@ enum EInputDeviceType
 	IDT_Steam = 2,
 	IDT_KeyboardMouse = 3,
 	IDT_Tablet = 4,
-	IDT_Unknown = 5
+	IDT_Unknown = 5,
+	IDT_PS5 = 6,
+	IDT_Switch2 = 7,
+	IDT_Switch2_Mouser = 8,
 }
 
 import class CInputManager
 {
 	import final function GetLastActivationTime( actionName : name ) : float; 	
 	import final function GetActionValue( actionName : name ) : float; 			
+	import final function IsActionActivatedWithPattern( actionName : name ) : bool;
+	import final function GetActionPatternName( actionName : name ) : name;
 	import final function GetAction( actionName : name ) : SInputAction;
 
 	import final function ClearIgnoredInput();									
@@ -43,11 +54,22 @@ import class CInputManager
 	
 	import final function LastUsedPCInput() : bool;
 	import final function LastUsedGamepad() : bool;
+
+	
+	import final function GetIsMouserConnected() : bool;
+	import final function GetIsMouserUsed() : bool;
+	import final function GetMouserControllerScheme() : MouserControllerScheme;
+	import final function GetOunceGamepadStyle() : OunceGamepadStyle;
+
+	function IsMousePresent() : bool
+	{
+		return LastUsedPCInput() || GetIsMouserUsed();
+	} 
 	
 	import final function GetLastUsedDeviceName() : name;
 	public final function GetLastUsedGamepadType() : EInputDeviceType
 	{
-		var deviceName:name = GetLastUsedDeviceName();				
+		var deviceName:name = GetLastUsedDeviceName();
 		
 		switch (deviceName)
 		{
@@ -57,8 +79,17 @@ import class CInputManager
 			case 'ps4pad':
 				return IDT_PS4;
 				break;
+			case 'ps5pad':
+				return IDT_PS5;
+				break;
 			case 'steampad':
 				return IDT_Steam;
+				break;
+			case 'switch2pad':
+				return IDT_Switch2;
+				break;
+			case 'switch2mouser':
+				return IDT_Switch2_Mouser;
 				break;
 			case 'keyboardmouse':
 				return IDT_KeyboardMouse;
@@ -102,6 +133,13 @@ import class CInputManager
 	
 	import final function GetCurrentKeysForActionStr( actionName : string, out outKeys : array< EInputKey > );
 	
+	import final function SuppressPropagatingEventAfterAction( actionName : name );
+
+	import latent function OpenVirtualKeyboard( virtualKeyboardConfig : SVirtualKeyboardConfig, optional timeout : float ) : string;
+	import final function CloseVirtualKeyboard();
+	import final function GetVirtualKeyboardInput() : string;
+	import final function IsVirtualKeyboardActive() : bool;
+	
 	function IsActionPressed( actionName : name ) : bool
 	{
 		var action : SInputAction = GetAction( actionName );
@@ -129,6 +167,20 @@ import class CInputManager
 		
 		return IsReleased( action );
 	}
+
+	function IsActionJustActivatedWithPattern( actionName : name ) : bool
+	{
+		var action : SInputAction = GetAction( actionName );
+
+		return IsActivatedWithPattern( action );
+	}
+
+	function GetInputActionPatternName( actionName : name ) : name
+	{
+		var action : SInputAction = GetAction( actionName );
+
+		return GetPatternName( action );
+	}
 	
 	
 	event OnInputDeviceChanged()
@@ -139,13 +191,15 @@ import class CInputManager
 		var tutorialPopupRef : CR4TutorialPopup;
 		var glossaryTutorial : CR4GlossaryTutorialsMenu;
 		var tutorialSystem   : CR4TutorialSystem;
-		var commonMenuRef    : CR4CommonMenu;		
+		var commonMenuRef    : CR4CommonMenu;
+		var menuBase         : CR4MenuBase;
 		
 		guiManager = theGame.GetGuiManager();
 		
 		if (guiManager.GetLockedControlScheme() == LCS_None)
-		{			
-			
+		{
+			Log("OnInputDeviceChanged()");
+
 			tutorialSystem = theGame.GetTutorialSystem();
 			if(tutorialSystem && tutorialSystem.IsRunning())
 			{
@@ -169,6 +223,13 @@ import class CInputManager
 			{
 				hud.UpdateInputDevice();
 			}
+
+			
+			menuBase = (CR4MenuBase)guiManager.GetRootMenu();
+			if ( menuBase )
+			{
+				menuBase.UpdateInputDevice();
+			}
 			
 			commonMenuRef = guiManager.GetCommonMenu();
 			if (commonMenuRef)
@@ -181,7 +242,6 @@ import class CInputManager
 					
 				}
 			}
-			
 		}
 	}
 	
@@ -226,6 +286,8 @@ import struct SInputAction
 	import const var aName : name;
 	import const var value : float;
 	import const var lastFrameValue : float;
+	import const var isActivatedWithPattern : bool;
+	import const var patternName : name;
 }
 
 function IsPressed( action : SInputAction, optional justValue : bool ) : bool
@@ -236,4 +298,14 @@ function IsPressed( action : SInputAction, optional justValue : bool ) : bool
 function IsReleased( action : SInputAction, optional justValue : bool ) : bool
 {
 	return action.value < 0.7f && ( justValue || action.lastFrameValue >= 0.7f );
+}
+
+function IsActivatedWithPattern( action : SInputAction ) : bool
+{
+	return action.isActivatedWithPattern;
+}
+
+function GetPatternName( action : SInputAction ) : name
+{
+	return action.patternName;
 }

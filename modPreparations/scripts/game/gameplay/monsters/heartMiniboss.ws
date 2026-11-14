@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 statemachine class CHeartMiniboss extends CNewNPC
 {
@@ -50,27 +50,27 @@ statemachine class CHeartMiniboss extends CNewNPC
 			return false;
 		}
 		
-		if( !canHit && action.GetSignSkill() != S_Magic_s02 )
+		if( !canHit && action.GetSignSkill() != S_Magic_s02 && action.GetSignSkill() != S_Magic_s28 )
 			PlayEffect( 'wood_hit' );
 		
 		if( GetCurrentStateName() == 'FullyCovered' && canHit )
 		{
 			canHit = false;
-			if(action.GetSignSkill() != S_Magic_s02)
+			if(action.GetSignSkill() != S_Magic_s02 && action.GetSignSkill() != S_Magic_s28)
 				PlayEffect( 'wood_hit' );
 			GotoState( 'FourRoots' );
 		}
 		else if( GetCurrentStateName() == 'FourRoots' && canHit )
 		{
 			canHit = false;
-			if(action.GetSignSkill() != S_Magic_s02)
+			if(action.GetSignSkill() != S_Magic_s02 && action.GetSignSkill() != S_Magic_s28)
 				PlayEffect( 'wood_hit' );
 			GotoState( 'TwoRoots' );
 		}
 		else if( GetCurrentStateName() == 'TwoRoots' && canHit )
 		{
 			canHit = false;
-			if(action.GetSignSkill() != S_Magic_s02)
+			if(action.GetSignSkill() != S_Magic_s02 && action.GetSignSkill() != S_Magic_s28)
 				PlayEffect( 'wood_hit' );
 			GotoState( 'NoRoots' );
 			FactsAdd( factSetInOpenedPhase, 1 );

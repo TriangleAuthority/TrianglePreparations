@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 exec function spawnt( template_nbr : int, optional distance : float)
 {	
 	switch ( template_nbr )
@@ -2358,7 +2354,3 @@ function spawnt_internal(nam : string, optional quantity : int, optional distanc
 		
 	}
 }
-
-
-
-

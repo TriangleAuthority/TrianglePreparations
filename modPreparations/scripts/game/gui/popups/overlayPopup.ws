@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class W3NotificationData extends CObject
 {
 	public var messageText 	: string;
@@ -38,6 +34,8 @@ class CR4OverlayPopup extends CR4PopupBase
 	private var m_fxSetMouseCursorType 	   : CScriptedFlashFunction;
 	private var m_fxShowMouseCursor  	   : CScriptedFlashFunction;
 	private var m_fxShowSafeRect 		   : CScriptedFlashFunction;
+	private var m_fxSetGamepadTypeOverlay  : CScriptedFlashFunction;
+	private var m_fxSetGamepadTypeMenu	   : CScriptedFlashFunction;
 	
 	private var m_fxShowEP2Logo				: CScriptedFlashFunction;
 	
@@ -66,6 +64,8 @@ class CR4OverlayPopup extends CR4PopupBase
 		m_fxShowMouseCursor = m_flashModule.GetMemberFlashFunction( "showMouseCursor" );
 		m_fxShowSafeRect = m_flashModule.GetMemberFlashFunction( "showSafeRect" );
 		m_fxShowEP2Logo = m_flashModule.GetMemberFlashFunction( "showEP2Logo" );
+		m_fxSetGamepadTypeOverlay = m_flashModule.GetMemberFlashFunction( "setGamepadType" );
+		m_fxSetGamepadTypeMenu = m_guiManager.GetIngameMenu().GetMenuFlash().GetMemberFlashFunction( "setGamepadType" );
 		
 		m_fxClearNotificationsQueue = m_flashModule.GetMemberFlashFunction( "clearNotificationsQueue" );
 		
@@ -85,9 +85,20 @@ class CR4OverlayPopup extends CR4PopupBase
 		UpdateInputDevice();
 	}
 	
-	event OnInputHandled(NavCode:string, KeyCode:int, ActionId:int)
+	event  OnInputHandled(NavCode:string, KeyCode:int, ActionId:int)
 	{
 		
+	}
+	
+	event  OnDispatchForeignInputEvent(type:string, keyCode:int, inputValue:string, navEquivalent:string)
+	{
+		
+		var rootMenu : CR4MenuBase;
+		rootMenu = (CR4MenuBase) m_guiManager.GetRootMenu();
+		if (rootMenu)
+		{
+			rootMenu.DispatchForeignInputEvent(type, keyCode, inputValue, navEquivalent);
+		}
 	}
 	
 	public function SetMouseCursorType(value:int):void
@@ -116,18 +127,30 @@ class CR4OverlayPopup extends CR4PopupBase
 		UpdateCursorVisibility();
 	}
 	
-	public function UpdateGamepadType():void
-	{
-		UpdateInputDeviceType();
-		UpdateInputDevice();
-	}
-	
 	public function UpdateInputDevice():void
 	{
 		var isGamepad:bool = theInput.LastUsedGamepad();
 		
-		UpdateCursorVisibility();
 		SetControllerType(isGamepad);
+		UpdateInputDeviceType();
+		UpdateCursorVisibility();
+	}
+	
+	protected function UpdateInputDeviceType():void
+	{
+		var deviceType : EInputDeviceType = theInput.GetLastUsedGamepadType();
+
+		m_fxSetGamepadTypeOverlay = m_flashModule.GetMemberFlashFunction( "setGamepadType" );
+		if (m_fxSetGamepadTypeOverlay)
+		{
+			m_fxSetGamepadTypeOverlay.InvokeSelfOneArg( FlashArgUInt(deviceType) );
+		}
+
+		m_fxSetGamepadTypeMenu = m_guiManager.GetIngameMenu().GetMenuFlash().GetMemberFlashFunction( "setGamepadType" );
+		if (m_fxSetGamepadTypeMenu)
+		{
+			m_fxSetGamepadTypeMenu.InvokeSelfOneArg( FlashArgUInt(deviceType) );
+		}
 	}
 	
 	private function ShowSoftwareCursor()
@@ -162,9 +185,10 @@ class CR4OverlayPopup extends CR4PopupBase
 	
 	private function UpdateCursorVisibility():void
 	{
-		var isGamepad:bool = theInput.LastUsedGamepad();
+		var isGamepad : bool = theInput.LastUsedGamepad();
+		var deviceType : EInputDeviceType = theInput.GetLastUsedGamepadType();
 		
-		if (!isGamepad && !m_cursorHidden && m_cursorRequested > 0)
+		if ((!isGamepad || deviceType == IDT_Switch2_Mouser) && !m_cursorHidden && m_cursorRequested > 0)
 		{
 			ShowCursor();
 		}
@@ -269,6 +293,40 @@ class CR4OverlayPopup extends CR4PopupBase
 
 		m_fxShowEP2Logo.InvokeSelfFiveArgs( FlashArgBool( show ), FlashArgNumber( fadeInterval ), FlashArgInt( x ), FlashArgInt( y ), FlashArgString( path ) );
 	}
+
+	public function ShowEP3Logo( show : bool, fadeInterval : float, x : int, y : int )
+	{
+		var audio, subtitles : string;
+		var path : string;
+
+		if ( show )
+		{
+			path = "img://logos/ep3/";
+
+			theGame.GetGameLanguageName( audio, subtitles );
+			switch ( subtitles )
+			{
+			case "PL":
+				path += "ep3_pl.png";
+				break;
+			case "CZ":
+				path += "ep3_cz.png";
+				break;
+			case "RU":
+				path += "ep3_ru.png";
+				break;
+			case "ZH":
+				path += "ep3_zh.png";
+				break;
+			case "EN":
+			default:
+				path += "ep3_en.png";
+				break;
+			}
+		}
+
+		m_fxShowEP2Logo.InvokeSelfFiveArgs( FlashArgBool( show ), FlashArgNumber( fadeInterval ), FlashArgInt( x ), FlashArgInt( y ), FlashArgString( path ) );
+	}	
 }
 
 exec function closeoverlay()

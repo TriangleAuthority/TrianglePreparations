@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 enum EArmorType
 {
 	EAT_Undefined,
@@ -167,8 +163,9 @@ function GetLocNameFromEquipSlot(slotType : EEquipmentSlots) : name
 	case EES_RangedWeapon:
 		return 'panel_inventory_paperdoll_slotname_rangeweapon';
 	case EES_Quickslot1:
+		return 'panel_inventory_paperdoll_slotname_quickitems';	
 	case EES_Quickslot2:
-		return 'panel_inventory_paperdoll_slotname_quickitems';
+		return 'item_category_mask';	
 	case EES_Unused:
 	case EES_Hair:
 		return '';
@@ -385,6 +382,7 @@ function GetSlotForItem(category : name, tags : array<name>, isPlayer : bool) : 
 			case 'mask' :				return EES_Mask;
 			case 'hair'	: 				return EES_Hair; 
 			case 'crossbow'	: 			return EES_RangedWeapon; 
+
 			default :					return EES_InvalidSlot;
 		}
 	}
@@ -404,10 +402,11 @@ function GetSlotForItemByCategory(category : name) : EEquipmentSlots
 		case 'mask' :				return EES_Mask;
 		case 'hair'	: 				return EES_Hair;
 		case 'crossbow'	: 			return EES_RangedWeapon;
+
 		case 'petard'	: 			return EES_Petard1;
 		case 'potion'	: 			return EES_Potion1;
-		
 		case 'bolt'	: 				return EES_Bolt;
+
 		case 'trophy' : 			return EES_HorseTrophy;
 		case 'horse_bag' : 			return EES_HorseBag;
 		case 'horse_blinder' :	 	return EES_HorseBlinders;
@@ -512,5 +511,5 @@ struct SAreaItemDefinition
 struct SAreaLootParams
 {
 	saved var remainingItemDrops : array<SAreaItemDefinition>;			
-	saved var areaType : EAreaName;										
+	saved var areaType : name;											
 };

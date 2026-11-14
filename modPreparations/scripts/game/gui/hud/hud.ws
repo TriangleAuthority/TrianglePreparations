@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 import class CR4Hud extends CHud
 {
@@ -62,11 +62,13 @@ class CR4ScriptedHud extends CR4Hud
 	private var m_visibleHudByRadial : bool;	default m_visibleHudByRadial = false;
 	private var languageName 					: string;
 
-	private var m_lastUsedDeviceName : EInputDeviceType;
+	private var m_lastUsedDeviceType : EInputDeviceType;
+
+	private var m_addingBulkJournalEntries : bool; 
 
 	event OnTick( timeDelta : float )
 	{
-		var curUsedDeviceName : EInputDeviceType;
+		var curUsedDeviceType : EInputDeviceType;
 		var overlayPopupRef	  : CR4OverlayPopup;
 		var guiManager        : CR4GuiManager;
 		
@@ -120,18 +122,17 @@ class CR4ScriptedHud extends CR4Hud
 		
 		GetHudEventController().RunDelayedEvents();
 		
-		
-		curUsedDeviceName = theInput.GetLastUsedGamepadType();
-		if( ( curUsedDeviceName == IDT_Steam || m_lastUsedDeviceName == IDT_Steam ) && curUsedDeviceName != m_lastUsedDeviceName )
+		curUsedDeviceType = theInput.GetLastUsedGamepadType();
+		if( curUsedDeviceType != m_lastUsedDeviceType )
 		{
-			m_lastUsedDeviceName = curUsedDeviceName;
+			m_lastUsedDeviceType = curUsedDeviceType;
 			UpdateInputDeviceType();
 			guiManager = theGame.GetGuiManager();
 			overlayPopupRef = (CR4OverlayPopup) guiManager.GetPopup( 'OverlayPopup' );
 			
 			if( overlayPopupRef )
 			{
-				overlayPopupRef.UpdateGamepadType();
+				overlayPopupRef.UpdateInputDevice();
 			}
 			
 			UpdateInputDevice();
@@ -149,6 +150,11 @@ class CR4ScriptedHud extends CR4Hud
 				languageName = tempLanguageName;
 				m_fxSetGameLanguage.InvokeSelfOneArg( FlashArgString(languageName) );
 			}
+	}
+	
+	public function AddingBulkJournalEntries( addingBulkJournalEntries : bool )
+	{
+		m_addingBulkJournalEntries = addingBulkJournalEntries;
 	}
 	
 	protected function CheckDLCMessagePending():void
@@ -374,8 +380,10 @@ class CR4ScriptedHud extends CR4Hud
 		hudModulesNames.PushBack('BoatHealthModule');
 		
 		hudModulesNames.PushBack('ConsoleModule');				
+		hudModulesNames.PushBack('LootFeedModule');		
 		hudModulesNames.PushBack('JournalUpdateModule');				
 		hudModulesNames.PushBack('AreaInfoModule');				
+
 		hudModulesNames.PushBack('CrosshairModule');				
 		hudModulesNames.PushBack('OnelinersModule');				
 		hudModulesNames.PushBack('Minimap2Module');
@@ -383,7 +391,7 @@ class CR4ScriptedHud extends CR4Hud
 		hudModulesNames.PushBack('DamagedItemsModule');
 		hudModulesNames.PushBack('TimeLapseModule');
 		hudModulesNames.PushBack('TimeLeftModule');
-		
+
 		for( i = 0; i < hudModulesNames.Size(); i += 1 )
 		{
 			CreateHudModule(NameToString(hudModulesNames[i]));
@@ -396,7 +404,9 @@ class CR4ScriptedHud extends CR4Hud
 		
 		UpdateInputDeviceType();
 		
-		CheckDLCMessagePending();
+		
+		
+		
 		setGameLanguage();
 		ToogleMinimalBuffView(true);
 	}
@@ -531,6 +541,8 @@ class CR4ScriptedHud extends CR4Hud
 		{
 			m_fxSetControllerType.InvokeSelfOneArg( FlashArgBool(theInput.LastUsedGamepad()) );
 		}
+
+		UpdateInputDeviceType();
 	}
 	
 	public function ShowBuffUpdate():void
@@ -547,6 +559,11 @@ class CR4ScriptedHud extends CR4Hud
 	
 	public function UpdateHudConfigs():void
 	{
+		
+		var minimapModule : CR4HudModuleMinimap2;
+		var objectiveModule : CR4HudModuleQuests;
+		
+
 		UpdateHudConfig('Subtitles', false);
 		
 		
@@ -567,12 +584,36 @@ class CR4ScriptedHud extends CR4Hud
 		UpdateHudConfig('HorseStaminaBarModule', false);
 		UpdateHudConfig('ItemInfoModule', false);
 		
-		UpdateHudConfig('Minimap2Module', false);
+		
+		
+		minimapModule = (CR4HudModuleMinimap2)GetHudModule("Minimap2Module");
+		if(minimapModule)
+		{
+			if(!minimapModule.GetMinimapDuringFocusCombat())
+			{
+				UpdateHudConfig('Minimap2Module', false);
+			}
+		}	
+		
+		
 		UpdateHudConfig('DayWeatherIndicator',false);
 		UpdateHudConfig('TrackedMonster',false);
 		UpdateHudConfig('OnelinersModule', false);
 		UpdateHudConfig('OxygenBarModule', false);
-		UpdateHudConfig('QuestsModule', false);
+		
+		
+		
+		
+		objectiveModule = (CR4HudModuleQuests)GetHudModule("QuestsModule");
+		if(objectiveModule)
+		{
+			if(!objectiveModule.GetObjectiveDuringFocusCombat())
+			{
+				UpdateHudConfig('QuestsModule', false);
+			}
+		}	
+		
+		
 		UpdateHudConfig('WolfMedalion',false);
 		UpdateHudConfig('MessageModule', false);
 		UpdateHudConfig('MinimapRotation', false);
@@ -582,7 +623,7 @@ class CR4ScriptedHud extends CR4Hud
 		UpdateHudConfig('MinimapPoiCompletedIcons', false);
 		UpdateHudConfig('ControlsFeedbackModule', false);		
 		UpdateHudConfig('TimeLeftModule', false);
-		
+
 		UpdateHUD();
 	}
 	
@@ -633,6 +674,7 @@ class CR4ScriptedHud extends CR4Hud
 		case 'QuestsModule':
 		case 'MessageModule':
 		case 'BuffsModule':
+		case 'LootFeedModule': 
 		case 'ControlsFeedbackModule':
 			{
 				configValue = inGameConfigWrapper.GetVarValue('Hud', configName);
@@ -683,6 +725,7 @@ class CR4ScriptedHud extends CR4Hud
 		case 'DayWeatherIndicator':
 			
 			break;
+
 		case 'TrackedMonster':
 			
 			break;
@@ -903,6 +946,7 @@ class CR4ScriptedHud extends CR4Hud
 		if ( dialogModule )
 		{
 			dialogModule.OnDialogChoiceTimeoutSet(timeOutPercent);
+			FactsSet("nge_pause_menu_disabled",1,20); 
 		}
 		else
 		{
@@ -918,6 +962,7 @@ class CR4ScriptedHud extends CR4Hud
 		if ( dialogModule )
 		{
 			dialogModule.OnDialogChoiceTimeoutHide();
+			FactsRemove("nge_pause_menu_disabled"); 
 		}
 		else
 		{
@@ -1083,7 +1128,7 @@ class CR4ScriptedHud extends CR4Hud
 	event  OnCharacterEvent( journalCharacter : CJournalCharacter )
 	{
 		LogChannel( 'Journal', "OnCharacterEvent" );
-		OnJournalUpdate(journalCharacter,false);
+		OnJournalUpdate(journalCharacter,true);
 		m_guiManager.RegisterNewGlossaryEntry( journalCharacter, 'panel_title_glossary_dictionary' ); 
 	}
 
@@ -1163,6 +1208,28 @@ class CR4ScriptedHud extends CR4Hud
 		OnQuestUpdate( journalQuest, false ); 
 	}
 	
+	
+	
+	event  OnTwoFingerSwipeDown( ) 
+	{
+		if ( theGame.IsBlackscreenOrFading() || theGame.IsDialogOrCutscenePlaying() )
+		{
+			return false;
+		}
+		
+		theGame.RequestMenu('CommonMenu');
+	}
+	
+	event  OnTwoFingerSwipeUp( ) 
+	{
+		if ( theGame.IsBlackscreenOrFading() || theGame.IsDialogOrCutscenePlaying() )
+		{
+			return false;
+		}
+
+		theGame.RequestMenu('CommonIngameMenu');
+	}
+	
 	function OnQuestUpdate( journalQuest : CJournalQuest, isQuestUpdate : bool )
 	{
 		var hudJournalUpdateModule : CR4HudModuleJournalUpdate;
@@ -1237,14 +1304,14 @@ class CR4ScriptedHud extends CR4Hud
 		}
 	}
 	
-	function OnMapPinUpdate( mapPinTag : name )
+	function OnMapPinUpdate( mapPinTag : name, mapPinType : name )
 	{
 		var hudJournalUpdateModule : CR4HudModuleJournalUpdate;
 		
 		hudJournalUpdateModule = (CR4HudModuleJournalUpdate)GetHudModule( "JournalUpdateModule" );
 		if ( hudJournalUpdateModule )
 		{
-			hudJournalUpdateModule.AddMapPinUpdate(mapPinTag);
+			hudJournalUpdateModule.AddMapPinUpdate(mapPinTag, mapPinType);
 		}
 	}
 	
@@ -1262,11 +1329,25 @@ class CR4ScriptedHud extends CR4Hud
 	function OnJournalUpdate( journalEntry : CJournalBase, isDescription : bool )
 	{
 		var hudJournalUpdateModule : CR4HudModuleJournalUpdate;
+		var m_journalManager		: CWitcherJournalManager;
 		
 		hudJournalUpdateModule = (CR4HudModuleJournalUpdate)GetHudModule( "JournalUpdateModule" );
-		if ( hudJournalUpdateModule )
+		
+		
+		if ( !m_addingBulkJournalEntries )
 		{
-			hudJournalUpdateModule.AddJournalUpdate( journalEntry, isDescription );
+			if ( hudJournalUpdateModule )
+			{
+				hudJournalUpdateModule.AddJournalUpdate( journalEntry, isDescription );
+			}
+		}
+		
+		
+		if ( m_addingBulkJournalEntries )
+		{	
+			
+			m_journalManager = theGame.GetJournalManager();
+			m_journalManager.SetEntryUnread(journalEntry,false);
 		}
 	}	
 	
@@ -1547,6 +1628,21 @@ class CR4ScriptedHud extends CR4Hud
 	
 	public function OnCutsceneStarted()
 	{
+		
+		var qst : CR4HudModuleQuests;		
+		var mm : CR4HudModuleMinimap2;
+
+		mm = (CR4HudModuleMinimap2)GetHudModule("Minimap2Module");
+		qst = (CR4HudModuleQuests)GetHudModule("QuestsModule");
+		
+		if(mm)
+			mm.SetIsInDlg(true);
+			
+		if(qst)
+			qst.SetIsInDlg(true);				
+		
+	
+	
 		ForceShow( true, HVS_Scene );
 		
 		m_fxOnCutscene.InvokeSelfOneArg( FlashArgBool( true ) );
@@ -1554,6 +1650,20 @@ class CR4ScriptedHud extends CR4Hud
 	
 	public function OnCutsceneEnded()
 	{
+		
+		var qst : CR4HudModuleQuests;		
+		var mm : CR4HudModuleMinimap2;
+
+		mm = (CR4HudModuleMinimap2)GetHudModule("Minimap2Module");
+		qst = (CR4HudModuleQuests)GetHudModule("QuestsModule");
+		
+		if(mm)
+			mm.SetIsInDlg(false);
+			
+		if(qst)
+			qst.SetIsInDlg(false);				
+		
+	
 		ForceShow( false, HVS_Scene );
 		
 		m_fxOnCutscene.InvokeSelfOneArg( FlashArgBool( false ) );
@@ -1650,7 +1760,8 @@ function GetBaseScreenPosition( out screenPos : Vector, entity : CEntity, option
 	
 	
 	targetActor = (CActor)entity;
-	if ( targetActor )
+	targetEntity = (CGameplayEntity)entity;
+	if ( targetActor && !targetEntity.iconUseComponent )
 	{
 	
 
@@ -1689,7 +1800,7 @@ function GetBaseScreenPosition( out screenPos : Vector, entity : CEntity, option
 	}
 	else
 	{
-		targetEntity = (CGameplayEntity)entity;
+		
 		if ( targetEntity )
 		{
 			if ( comp )

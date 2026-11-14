@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 class CBTTaskAttack extends CBTTaskPlayAnimationEventDecorator
 {
 	var attackType										: EAttackType;
@@ -175,6 +172,9 @@ class CBTTaskAttack extends CBTTaskPlayAnimationEventDecorator
 			SleepOneFrame();
 		}
 		combatDataStorage.SetIsAttacking( true, GetLocalTime() );
+		
+		((CPlayer)GetCombatTarget()).SetPlayerUnderAttack( true ); 
+		
 		theGame.GetBehTreeReactionManager().CreateReactionEventIfPossible( GetActor(), 'NpcAttackAction', 10.0, 15.0f, -1, -1, true); 
 		
 		return BTNS_Active;
@@ -186,6 +186,8 @@ class CBTTaskAttack extends CBTTaskPlayAnimationEventDecorator
 		var target : CActor = GetCombatTarget();
 		
 		combatDataStorage.SetIsAttacking( false );
+		
+		((CPlayer)GetCombatTarget()).SetPlayerUnderAttack( false ); 
 		
 		
 		target.SetUnpushableTarget( NULL );

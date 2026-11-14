@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 import class W3Boat extends CGameplayEntity
 {
 	private autobind boatComp : CBoatComponent = single;
@@ -156,7 +152,7 @@ import class W3Boat extends CGameplayEntity
 	}
 	
 	public function SetCanBeDestroyed( val : bool )	{ canBeDestroyed = val; }
-	public function GetCanBeDestroyed() : bool		{ return canBeDestroyed; }
+	public function GetCanBeDestroyed() : bool		{ return canBeDestroyed && !theGame.GetInGameConfigWrapper().GetVarValue('Accessibility', 'DisableDurabilityBoat'); }
 
 	
 	

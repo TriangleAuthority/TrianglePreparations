@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 state CharacterDevelopment in W3TutorialManagerUIHandler extends TutHandlerBaseState
 {
 	private const var OPEN_CHAR_DEV, LEVELING, SKILLS, BUY_SKILL, SKILL_EQUIPPING, EQUIP_SKILL, SKILL_UNEQUIPPING, GROUPS : name;
@@ -27,7 +24,7 @@ state CharacterDevelopment in W3TutorialManagerUIHandler extends TutHandlerBaseS
 		isClosing = false;
 		
 		theGame.GetTutorialSystem().HideTutorialHint( OPEN_CHAR_DEV );
-		ShowHint(LEVELING, POS_CHAR_DEV_X, POS_CHAR_DEV_Y);
+		ShowHint(LEVELING, POS_CHAR_DEV_X + 0.065, POS_CHAR_DEV_Y - 0.3);
 		
 		
 		theGame.GetTutorialSystem().uiHandler.UnregisterUIState('CharacterDevelopmentFastMenu');
@@ -57,27 +54,29 @@ state CharacterDevelopment in W3TutorialManagerUIHandler extends TutHandlerBaseS
 		if(closedByParentMenu || isClosing)
 			return true;
 			
-		if(hintName == LEVELING)
-		{
-			ShowHint(SKILLS, POS_CHAR_DEV_X, POS_CHAR_DEV_Y, , GetHighlightCharDevSkillPoints() );
-		}
-		else if(hintName == SKILLS)
-		{
-			ShowHint(GROUPS, POS_CHAR_DEV_X, POS_CHAR_DEV_Y, , GetHighlightCharDevSkillGroups() );
-		}
-		else if(hintName == GROUPS)
-		{
-			ShowHint(BUY_SKILL, POS_CHAR_DEV_X, POS_CHAR_DEV_Y, ETHDT_Infinite, GetHighlightCharDevSkills() );
-		}
-		else if(hintName == SKILL_EQUIPPING)
-		{
-			
-			ShowHint(EQUIP_SKILL, .05f , POS_CHAR_DEV_Y, ETHDT_Infinite, GetHighlightCharDevSkillSlotGroup1() );
-		}
-		else if(hintName == SKILL_UNEQUIPPING)
-		{
-			QuitState();
-		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+
+		QuitState();
 	}
 	
 	public final function OnBoughtSkill(skill : ESkill)

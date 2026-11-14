@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 enum EMutationFeedbackType
 {
@@ -57,12 +57,14 @@ class CR4HudModuleWolfHead extends CR4HudModuleBase
 	private var m_lockedToxicity			: float;
 	private var m_curVitality				: float;
 	private var m_maxVitality				: float;
+	private var m_bForceToxicityUpdate		: bool;
 		
 		
 		
 	default m_iCurrentPositiveEffectsSize = 0;
 	default m_iCurrentNegativeEffectsSize = 0;
 	default m_IsPlayerCiri				  = false;
+	default m_bForceToxicityUpdate		  = false;
 
 	 event OnConfigUI()
 	{
@@ -106,6 +108,18 @@ class CR4HudModuleWolfHead extends CR4HudModuleBase
 		DisplayNewLevelIndicator();
 		
 		UpdateCoatOfArms();
+	}
+
+	event  OnTapStats()
+	{
+		if ( theGame.IsBlackscreenOrFading() || theGame.IsDialogOrCutscenePlaying() )
+		{
+			return false;
+		}
+		
+		SetAlwaysDisplayed( true );
+		
+		return true;
 	}
 	
 	public function DisplayMutationFeedback( value : EMutationFeedbackType )
@@ -200,12 +214,12 @@ class CR4HudModuleWolfHead extends CR4HudModuleBase
 			if ( l_curStamina <= 0 )
 			{
 				thePlayer.SoundEvent("gui_no_stamina");
-				theGame.VibrateControllerVeryLight(); 
+				
 			}
 			else if ( l_curStamina >= l_curMaxStamina && playStaminaSoundCue )
 			{
 				thePlayer.SoundEvent("gui_stamina_recharged");
-				theGame.VibrateControllerVeryLight(); 
+				
 				playStaminaSoundCue = false;
 			}
 		}
@@ -233,10 +247,10 @@ class CR4HudModuleWolfHead extends CR4HudModuleBase
 		m_curToxicity = curToxicity;
 		m_lockedToxicity = curLockedToxicity;
 		
-		if ( m_LastToxicity != curToxicity || m_LastMaxToxicity != curMaxToxicity || m_LastLockedToxicity != curLockedToxicity )
+		if ( m_bForceToxicityUpdate || m_LastToxicity != curToxicity || m_LastMaxToxicity != curMaxToxicity || m_LastLockedToxicity != curLockedToxicity )
 		{
 			
-			if( m_LastLockedToxicity != curLockedToxicity || m_LastMaxToxicity != curMaxToxicity)
+			if( m_bForceToxicityUpdate || m_LastLockedToxicity != curLockedToxicity || m_LastMaxToxicity != curMaxToxicity)
 			{
 				m_fxSetLockedToxicity.InvokeSelfOneArg( FlashArgNumber( ( curLockedToxicity )/ curMaxToxicity ) );
 				m_LastLockedToxicity = curLockedToxicity;
@@ -246,13 +260,14 @@ class CR4HudModuleWolfHead extends CR4HudModuleBase
 			m_LastMaxToxicity = curMaxToxicity;
 			
 			damageThreshold = GetWitcherPlayer().GetToxicityDamageThreshold();
-			curDeadlyToxicity = ( curToxicity >= damageThreshold * curMaxToxicity );
-			if( m_bLastDeadlyToxicity != curDeadlyToxicity ) 
+			curDeadlyToxicity = ( (curToxicity + curLockedToxicity) >= damageThreshold * curMaxToxicity ); 
+			if( m_bForceToxicityUpdate || m_bLastDeadlyToxicity != curDeadlyToxicity ) 
 			{
 				m_fxSetDeadlyToxicity.InvokeSelfOneArg( FlashArgBool( curDeadlyToxicity ) );
 				m_bLastDeadlyToxicity = curDeadlyToxicity;
 			}
 			
+			m_bForceToxicityUpdate = false;
 			
 		}
 	}
@@ -356,6 +371,7 @@ class CR4HudModuleWolfHead extends CR4HudModuleBase
 		if( thePlayer.IsCiri() != m_IsPlayerCiri )
 		{
 			m_IsPlayerCiri = thePlayer.IsCiri();
+			m_bForceToxicityUpdate = true;
 			m_fxSetCiriAsMainCharacter.InvokeSelfOneArg(FlashArgBool(m_IsPlayerCiri));
 			DisplayNewLevelIndicator();
 		}
@@ -404,6 +420,11 @@ class CR4HudModuleWolfHead extends CR4HudModuleBase
 	{
 		m_fxSetAlwaysDisplayed.InvokeSelfOneArg(FlashArgBool(value));
 	}
+	
+	public function GetWolfActivator() : CScriptedFlashFunction
+	{
+		return m_fxSwitchWolfActivation;
+	}
 }
 
 exec function AlwaysDisplayHUD( value : bool )
@@ -434,6 +455,3 @@ exec function coa( val : bool )
 		}
 	}
 }
-
-
-

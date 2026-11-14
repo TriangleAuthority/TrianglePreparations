@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 enum EStorySceneOutputAction
 {
@@ -126,6 +126,7 @@ import statemachine class CStoryScenePlayer extends CEntity
 	
 	event OnMovieStarted()
 	{
+		FactsSet("nge_pause_menu_disabled",1,-1); 
 		
 		if( m_isFinalboard )
 		{
@@ -139,6 +140,7 @@ import statemachine class CStoryScenePlayer extends CEntity
 	
 	event OnMovieEnded()
 	{
+		FactsRemove("nge_pause_menu_disabled"); 
 		if ( theSound.GetCurrentGameState() != ESGS_MusicOnly )
 		{
 			if( theGame.envMgr.IsNight() )
@@ -323,6 +325,14 @@ enum EStorySceneGameplayAction
 	SSGA_DelayWork,
 }
 
+enum EStorySceneGameplayAIAttitudeTowardsPlayer
+{
+	SSGAIATP_KeepCurrent = -1,
+	SSGAIATP_Friendly = 0,
+	SSGAIATP_Neutral = 1,
+	SSGAIATP_Hostile = 2,
+}
+
 import struct SStorySceneGameplayActionCallbackInfo
 {
 	import var outChangeItems : bool;
@@ -331,6 +341,7 @@ import struct SStorySceneGameplayActionCallbackInfo
 	import var inActorPosition : Vector;
 	import var inActorHeading : Vector;
 	import var inGameplayAction : int; 
+	import var inAttitudeTowardsPlayer : int;
 	import var inActor : CActor;
 }
 
@@ -344,6 +355,7 @@ function DoStorySceneGameplayAction( out callbackInfo : SStorySceneGameplayActio
 	var combatActionSilver	: bool;
 	var combatActionFists	: bool;
 	var action				: int;
+	var attitude			: int;
 	var correctedZ			: float;
 	var npc					: CNewNPC;
 	var currentGraphName	: name;
@@ -449,6 +461,8 @@ function DoStorySceneGameplayAction( out callbackInfo : SStorySceneGameplayActio
 	{
 		thePlayer.SetCombatIdleStance( 1.f );
 		thePlayer.SetPlayerCombatStance( PCS_AlertNear, true );
+		
+		thePlayer.SetIsInCombat( true );	
 	}
 	else if ( action == SSGA_EndInWork )
 	{
@@ -470,8 +484,12 @@ function DoStorySceneGameplayAction( out callbackInfo : SStorySceneGameplayActio
 			currentGraphName = npc.GetBehaviorGraphInstanceName();
 			if (action == SSGA_GoTo_Combat_Pose || ( currentGraphName != 'Exploration' && currentGraphName != 'StoryScene' ) )
 				npc.SignalGameplayEvent('WaitAfterScene');
+			
+			attitude = callbackInfo.inAttitudeTowardsPlayer;
+			if ( attitude != SSGAIATP_KeepCurrent)
+			{
+				npc.SetAttitude( thePlayer, attitude );
+			}
 		}
 	}
 }
-
-

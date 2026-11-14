@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CR4CommonMainMenuBase extends CR4MenuBase
 {
 	private var m_menuData 	  : array< SMenuTab >;
@@ -23,6 +19,7 @@ class CR4CommonMainMenuBase extends CR4MenuBase
 		var menuName : name;
 		var inGameConfigWrapper	: CInGameConfigWrapper;
 		var overlayPopupRef  : CR4OverlayPopup;
+		var menuType : int;
 		
 		super.OnConfigUI();
 		m_flashModule = GetMenuFlash();
@@ -46,7 +43,7 @@ class CR4CommonMainMenuBase extends CR4MenuBase
 		
 		theGame.GetGuiManager().RequestMouseCursor(true);
 		
-		if (theInput.LastUsedPCInput())
+		if (theInput.IsMousePresent())
 		{
 			theGame.MoveMouseTo(0.17, 0.36);
 		}
@@ -60,7 +57,7 @@ class CR4CommonMainMenuBase extends CR4MenuBase
 		
 		theGame.FadeInAsync(300); 
 		
-		theInput.StoreContext( 'MAIN_MENU_CONTEXT' );
+		theInput.StoreContext( 'Exploration' );
 		
 		theGame.ReleaseNoSaveLock(theGame.deathSaveLockId);
 		
@@ -69,18 +66,20 @@ class CR4CommonMainMenuBase extends CR4MenuBase
 		
 		theSound.SoundEvent( "play_music_main_menu" );
 		
-		if ( theGame.GetDLCManager().IsEP2Available() )
+		menuType = theGame.GetChosenMainMenuType();
+		switch ( menuType )
 		{
-			theSound.SoundEvent( "play_music_toussaint" );
-			theSound.SoundEvent( "mus_main_menu_ep2" );
-		}
-		else if ( theGame.GetDLCManager().IsEP1Available() )
-		{
-			theSound.SoundEvent( "mus_main_menu_theme_ep1" );
-		}
-		else
-		{
-			theSound.SoundEvent( "mus_main_menu_theme" );
+			case 1:
+				theSound.SoundEvent( "mus_main_menu_theme_ep1" );
+				break;
+			case 2:
+				theSound.SoundEvent( "play_music_toussaint" );
+				theSound.SoundEvent( "mus_main_menu_ep2" );
+				break;
+			case 0:
+			default:
+				theSound.SoundEvent( "mus_main_menu_theme" );
+				break;
 		}
 	}
 	
@@ -104,7 +103,7 @@ class CR4CommonMainMenuBase extends CR4MenuBase
 	{
 		if (m_configUICalled)
 		{
-			theInput.RestoreContext( 'MAIN_MENU_CONTEXT', true );
+			theInput.RestoreContext( 'Exploration', true );
 		}
 		
 		theGame.GetGuiManager().RequestMouseCursor(false);

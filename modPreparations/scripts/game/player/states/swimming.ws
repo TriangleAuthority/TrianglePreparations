@@ -1,9 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
 state Swimming in CR4Player extends ExtendedMovable
 {
 	
@@ -22,7 +21,7 @@ state Swimming in CR4Player extends ExtendedMovable
 	default LEAVE_STATE_SUBMERGE_DEPTH 	= -0.9; 
 	default WALK_DEEP_WATER_LEVEL 		= 1.10;
 	default MIN_WATER_LEVEL_FOR_DIVING 	= 1.95;
-	default ENTER_DIVING_WATER_LEVEL 	= -1.6; 
+	default ENTER_DIVING_WATER_LEVEL 	= -2.1; 
 	default EXIT_DIVING_WATER_LEVEL 	= -1.2;
 	default MINIMAL_SUBMERGE_DEPTH 		= -25.0;
 	
@@ -76,7 +75,7 @@ state Swimming in CR4Player extends ExtendedMovable
 	{
 		var item : SItemUniqueId;
 		
-		StateBlockInputActions(false);
+ 		StateBlockInputActions(false);
 		
 		usePredicitonDepth = false;
 		
@@ -120,6 +119,7 @@ state Swimming in CR4Player extends ExtendedMovable
 		parentMAC.SetDiving( false );
 		((W3PlayerWitcher)parent).SetBIsCombatActionAllowed(true);
 		thePlayer.UnblockAction(EIAB_Crossbow,'Diving');
+
 		
 		ResetVariables();
 		
@@ -130,7 +130,9 @@ state Swimming in CR4Player extends ExtendedMovable
 		
 		
 		
-		if ( nextStateName != 'AimThrow')
+
+		if ( nextStateName != 'AimThrow' )
+
 		{
 			GetWitcherPlayer().AddAndEquipInfiniteBolt(true);
 			GetWitcherPlayer().ClearPreviouslyUsedBolt();
@@ -190,7 +192,9 @@ state Swimming in CR4Player extends ExtendedMovable
 		theInput.SetContext( 'Swimming' );
 		
 		StateBlockInputActions(true);
-		
+
+
+
 		
 		TurnOnSwimmingCamera();
 		
@@ -259,7 +263,8 @@ state Swimming in CR4Player extends ExtendedMovable
 			theInput.SetContext('Diving');		
 		}
 		
-		GetWitcherPlayer().AddAndEquipInfiniteBolt(false, true);
+
+			GetWitcherPlayer().AddAndEquipInfiniteBolt(false, true);
 	}
 	
 	
@@ -378,12 +383,15 @@ state Swimming in CR4Player extends ExtendedMovable
 			parent.BlockAction(		EIAB_Signs,			'SwimmingState');
 			parent.BlockAction(		EIAB_CallHorse,		'SwimmingState');
 			parent.BlockAction(		EIAB_ThrowBomb,		'SwimmingState');
+
 		}
 		else
 		{
 			parent.BlockAllActions( 'SwimmingState', false );
 		}
 	}
+
+
 	
 	private function ShouldSpawnWaterSplash( optional prevState : name)
 	{
@@ -640,12 +648,12 @@ state Swimming in CR4Player extends ExtendedMovable
 	
 	public function ShouldDrainStamina() : bool
 	{
-		var currentArea : EAreaName;
+		var currentArea : name;
 		
 		currentArea = theGame.GetCommonMapManager().GetCurrentArea();
 		
 		
-		if ( !IsInTroubledWater() || currentArea == AN_Prologue_Village )
+		if ( !IsInTroubledWater() || currentArea == 'AN_Prologue_Village' )
 			return false;
 		
 		return true;
@@ -653,16 +661,16 @@ state Swimming in CR4Player extends ExtendedMovable
 	
 	public function IsInColdWater() : bool
 	{
-		var currentArea : EAreaName;
+		var currentArea : name;
 		
 		currentArea = theGame.GetCommonMapManager().GetCurrentArea();
 		
 		switch( currentArea )
 		{
-			case AN_Skellige_ArdSkellig:
+			case 'AN_Skellige_ArdSkellig':
 				return true;
 				
-			case AN_Island_of_Myst:
+			case 'AN_Island_of_Myst':
 				return true;
 				
 			default:
@@ -778,6 +786,7 @@ state Swimming in CR4Player extends ExtendedMovable
 				divingEnd = true;
 			
 			thePlayer.UnblockAction(EIAB_Crossbow,'Diving');
+
 			
 			parent.SetBehaviorVariable( 'diving', 0.f);
 			parent.SetBehaviorVariable( 'cameraPitch', 0.f);
@@ -836,10 +845,12 @@ state Swimming in CR4Player extends ExtendedMovable
 			if ( depth > EXIT_DIVING_WATER_LEVEL - 0.8 ) 
 			{
 				thePlayer.BlockAction(EIAB_Crossbow,'Diving');
+
 			}
 			else
 			{
 				thePlayer.UnblockAction(EIAB_Crossbow,'Diving');
+
 			}
 		}
 	}
@@ -1200,6 +1211,7 @@ state Swimming in CR4Player extends ExtendedMovable
 		parent.SetIsInAir(false);
 		divingStarting = false;
 		jumpToWaterInProgress = false;
+		parent.substateManager.m_SharedDataO.SetIsJumpToWaterFinished(true);
 	}
 	
 	
@@ -1345,6 +1357,8 @@ state Swimming in CR4Player extends ExtendedMovable
 	
 	private var cameraPitch : float;
 	
+	private var lerpAmount : float; 
+	
 	event OnGameCameraPostTick( out moveData : SCameraMovementData, dt : float )
 	{
 		var cameraRotation : EulerAngles;
@@ -1357,6 +1371,11 @@ state Swimming in CR4Player extends ExtendedMovable
 		var playerToTargetVector : Vector;
 		var playerToTargetAngles : EulerAngles;
 		var playerToTargetPitch : float;
+		
+		
+		lerpAmount += dt/2;
+		lerpAmount = ClampF(lerpAmount,0,1);
+		
 		
 		cameraPosition = theCamera.GetCameraPosition();
 		waterLevel = theGame.GetWorld().GetWaterLevel(cameraPosition, true);
@@ -1463,8 +1482,12 @@ state Swimming in CR4Player extends ExtendedMovable
 		}
 		if ( theGame.IsFocusModeActive() )
 		{
-			moveData.pivotDistanceController.SetDesiredDistance(1.f);
+			
 			moveData.pivotRotationController.SetDesiredHeading(VecHeading(theCamera.GetCameraDirection()));
+			if(!parent.GetExplCamera())
+			{
+				DampVectorSpring( moveData.cameraLocalSpaceOffset, moveData.cameraLocalSpaceOffsetVel, Vector( 0.4f, 0.5f, -0.15f ), 0.40f, dt );
+			}	
 		}
 		
 		else if ( moveData.pivotDistanceController.controllerName == 'Diving' )
@@ -1482,6 +1505,19 @@ state Swimming in CR4Player extends ExtendedMovable
 				moveData.pivotDistanceController.SetDesiredDistance(2.75);
 			}
 		}
+		
+		
+		if(parent.GetExplCamera())
+		{	
+			moveData.pivotPositionController.SetDesiredPosition( parent.GetWorldPosition(), 15.f );
+			moveData.pivotDistanceController.SetDesiredDistance( 2.25f );
+		
+			moveData.pivotPositionController.offsetZ = 1.15f;
+
+			moveData.cameraLocalSpaceOffset = LerpV(moveData.cameraLocalSpaceOffset, Vector(0.74,-0.38,0.345), lerpAmount);
+			moveData.cameraLocalSpaceOffsetVel = Vector(0,0,0);	
+		}
+		
 		
 		super.OnGameCameraPostTick( moveData, dt );
 	}

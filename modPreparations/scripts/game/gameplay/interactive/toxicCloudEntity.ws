@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 enum EToxicCloudOperation
 {
 	TCO_Enable,
@@ -530,6 +527,7 @@ state Armed in W3ToxicCloud
 				damage = new W3DamageAction in parent;
 				damage.Initialize( parent, entitiesInRange[i], parent, parent, EHRT_None, CPS_Undefined, false, false, false, true );
 				dmgVal = parent.explosionDamage.valueAdditive + parent.explosionDamage.valueMultiplicative * actor.GetMaxHealth();
+
 				damage.AddDamage( theGame.params.DAMAGE_NAME_FIRE, dmgVal);
 				damage.AddEffectInfo(EET_KnockdownTypeApplicator);
 				damage.SetSuppressHitSounds(true);

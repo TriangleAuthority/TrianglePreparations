@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 storyscene function SoundEventScene(player: CStoryScenePlayer, eventName : string, saveBehavior : ESoundEventSaveBehavior )
 {
@@ -394,15 +394,15 @@ storyscene function StorePlayerItems( player: CStoryScenePlayer, merchantTag : C
 	return true;
 }
 
-storyscene function AddFact_S( player: CStoryScenePlayer, factName: string, value: int, validFor : int )
+storyscene function AddFact_S( player: CStoryScenePlayer, factName: string, value: int, validFor : int, telemetryEvent : bool )
 {
 	if(validFor > 0 )
 	{
-		FactsAdd( factName, value, validFor );
+		FactsAdd( factName, value, validFor, telemetryEvent, player );
 	}
 	else
 	{
-		FactsAdd( factName, value, -1);
+		FactsAdd( factName, value, -1, telemetryEvent, player );
 	}
 	
 	player.DbFactAdded( factName );
@@ -452,6 +452,15 @@ storyscene function SetTattoo( player: CStoryScenePlayer, hasTattoo : bool )
 }
 
 
+storyscene function SetScar( player: CStoryScenePlayer, hasScar : bool )
+{
+	var acs : array< CComponent >;
+	
+	acs = thePlayer.GetComponentsByClassName( 'CHeadManagerComponent' );
+	( ( CHeadManagerComponent ) acs[0] ).SetScar( hasScar );
+}
+
+
 storyscene function BlockBeardGrowth( player: CStoryScenePlayer, optional block : bool )
 {
 	var acs : array< CComponent >;
@@ -472,6 +481,21 @@ storyscene function SetCustomHead( player: CStoryScenePlayer, head : name, barbe
 	
 	acs = thePlayer.GetComponentsByClassName( 'CHeadManagerComponent' );
 	( ( CHeadManagerComponent ) acs[0] ).SetCustomHead( head );
+}
+
+
+storyscene function SetCustomHeadNum( player: CStoryScenePlayer, num : int, barberSystem : bool )
+{
+	var acs : array< CComponent >;
+	var head : name;
+
+	acs = thePlayer.GetComponentsByClassName( 'CHeadManagerComponent' );
+	head = ( ( CHeadManagerComponent ) acs[0] ).SetCustomHeadNum( num );
+
+	if( barberSystem )
+	{
+		thePlayer.RememberCustomHead( head );
+	}
 }
 
 
@@ -1101,4 +1125,81 @@ storyscene function ShowEP2Logo_S( player: CStoryScenePlayer, show : bool, fadeI
 	{
 		overlayPopupRef.ShowEP2Logo( show, fadeInterval, x, y );
 	}
+}
+
+
+storyscene function PlayerDrinkPotion( player: CStoryScenePlayer, itemName : name )
+{
+	var ids : array<SItemUniqueId>;
+	
+	if(IsNameValid(itemName))
+	{
+		ids = thePlayer.inv.AddAnItem(itemName, 1);
+		if(ids.Size() > 0)
+		{
+			GetWitcherPlayer().DrinkPreparedPotion( EES_Potion1, ids[0] );
+		}
+	}
+}
+
+
+storyscene function IsUsingSSD_S(player: CStoryScenePlayer) : bool
+{
+	return theGame.GetDriveType() == DT_SSD;
+}
+
+
+storyscene function SetWeather_S(player: CStoryScenePlayer, weatherName: name, blendTime: float, randomGen: bool, questPause: bool)
+{
+	if( randomGen )
+	{
+		RequestRandomWeatherChange( blendTime, questPause );
+	}
+	else
+	{
+		RequestWeatherChangeTo( weatherName, blendTime, questPause );
+	}
+}
+
+
+storyscene function SetTime_S(player: CStoryScenePlayer, requestedTargetHour : int, minutes : int)
+{
+	var waitStartTime, requestedTargetTime : GameTime;
+	
+	waitStartTime = theGame.GetGameTime();
+	requestedTargetTime = GameTimeCreate(GameTimeDays(waitStartTime), requestedTargetHour, minutes, 0);
+	
+	theGame.SetGameTime(requestedTargetTime, false);
+}
+
+
+storyscene function FadeOut_S( player: CStoryScenePlayer, fadeTime : float, fadeColor : Color )
+{
+	theGame.FadeOutAsync(fadeTime, fadeColor );
+	theGame.SetFadeLock( "Scene_FadeOut_S" );
+}
+
+
+storyscene function FadeIn_S( player: CStoryScenePlayer, fadeTime : float )
+{
+	theGame.ResetFadeLock( "Scene_FadeIn_S" );
+	theGame.FadeInAsync(fadeTime);
+}
+
+
+storyscene function NGE_EP1Hack_S(player: CStoryScenePlayer, value : bool)
+{
+	var hud : CR4ScriptedHud;
+	var dialogModule : CR4HudModuleDialog;
+	
+	hud = (CR4ScriptedHud)theGame.GetHud();		
+	if (hud)
+	{
+		dialogModule = hud.GetDialogModule();		
+		if (dialogModule)
+		{
+			dialogModule.SetEP1Hack(value);
+		}
+	}
+	
 }

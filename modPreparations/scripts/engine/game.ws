@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 exec function acticon( contentToActivate : name )
 {
 	theGame.DebugActivateContent( contentToActivate );
@@ -58,6 +54,7 @@ import class CGame extends CObject
 	
 	import final function GetEngineTime() : EngineTime;
 	
+	
 	import final function GetEngineTimeAsSeconds() : Float;
 	
 	
@@ -78,6 +75,9 @@ import class CGame extends CObject
 	
     import final function LogTimeScales();
 
+	
+	import final function GetLocalTimeAsMilliseconds() : int;	
+	
 	
 	import final function GetGameTime() : GameTime;
 	
@@ -114,6 +114,7 @@ import class CGame extends CObject
 	
 	import final function OverrideRumbleDuration( lowFreq : float, highFreq : float, newDuration : float );
 	
+
 	
 	import final function IsPadConnected() : bool;
 
@@ -161,6 +162,9 @@ import class CGame extends CObject
 	
 	
 	import final function GetFreeCameraPosition() : Vector;
+
+	
+	import function MoveFreeCamera(position : Vector, rotation : EulerAngles);
 	
 	
 	import final function IsShowFlagEnabled( showFlag : EShowFlags ) : bool;
@@ -192,7 +196,7 @@ import class CGame extends CObject
 	import final function FadeOutAsync( optional fadeTime : float , optional fadeColor : Color  );
 	
 	
-	import final function FadeInAsync( optional fadeTime : float  );
+	import final function FadeInAsync( optional fadeTime : float , optional fadeColor : Color  );
 	
 	
 	import final function IsFading() : bool;
@@ -211,6 +215,8 @@ import class CGame extends CObject
 	import final function UnlockAchievement( achName : name ) : bool;
 	
 	import final function LockAchievement( achName : name ) : bool;
+
+	import final function NoticeAchievementProgress( achName : name, countNew : int, optional towards : int ) : bool;	
 	
 	import final function GetUnlockedAchievements( out unlockedAchievments : array< name > );
 	
@@ -238,7 +244,9 @@ import class CGame extends CObject
 	import final function GetGameplayConfigIntValue( propName : name ) : int;
 	
 	import final function GetGameplayConfigEnumValue( propName : name ) : int;
-	
+
+	import final function GetMotionPatternsMode_DualGrip() : int;
+
 	
 	import final function SetAIObjectsLooseTime( time : float );
 	
@@ -254,6 +262,72 @@ import class CGame extends CObject
 	
 	
 	import final function SetSingleShotLoadingScreen( contextName : name, optional initString : string, optional videoToPlay : string );
+	
+	import final function ToggleRTEnabled() : void;
+	
+	import final function GetHDRSupported() : bool;
+	import final function GetHDREnabled() : bool;
+	import final function SetHDRMenuActive( hdrMenuActive : bool ) : void;
+	import final function SetHDRMenuActiveAsStandalone( hdrMenuActiveAsStandalone : bool ) : void;
+	import final function SetHDRMenuFadePercentage( hdrFadePercentage : float ) :void;
+	import final function IsIntelGPU() : bool;
+	import final function GetRTEnabled() : bool;
+	import final function GetRTSupported() : bool;
+	import final function GetHairWorksEnabled() : bool;
+	import final function GetDLSSEnabled() : bool;
+	import final function GetFSREnabled() : bool;
+	import final function GetFSRVersion() : string;
+	import final function GetFSRFramegenSupported() : bool;
+	import final function GetFSRFramegenEnabled() : bool;
+	import final function GetAMDAntiLagSupported() : bool;
+	import final function GetAMDAntiLagEnabled() : bool;
+	import final function GetTAAEnabled() : bool;
+	import final function GetXESSEnabled() : bool;
+	import final function GetXESSFGEnabled() : bool;
+	import final function GetXELLEnabled() : bool;
+	import final function GetRTAOEnabled() : bool;
+	import final function GetGTAOEnabled() : bool;
+	import final function GetRTREnabled() : bool;
+	import final function GetRTShadowsEnabled() : bool;
+	import final function GetPTEnabled() : bool;
+	import final function GetDLSSGEnabled() : bool;
+	import final function GetDLSSGEnabledDynamic() : bool;
+	import final function GetDLSSGSupported() : bool;
+	import final function GetDLSSGVSyncSupported() : bool;
+	import final function GetDLSSGMaxNumFrames() : int;
+	import final function GetReflexEnabled() : bool;
+	import final function GetReflexSupported() : bool;
+	import final function GetDLSSRREnabled() : bool;
+	import final function GetDLSSRRSupported() : bool;
+	import final function GetHardwareLinearSweptSpheresSupport() : bool;
+	import final function GetMotionBlurEnabled() : bool;
+	import final function GetDynamicResolutionScalingEnabled() : bool;
+	import final function AreModsEnabled() : bool;
+
+	import final function GetIsPs5Pro() : bool;
+	import final function GetPSSREnabled() : bool;
+	import final function GetPreviewOptionsEnabled() : bool;
+
+	import final function GetGameResource() : CGameResource;
+
+	import final function GetPhotomodeEnabled() : bool;
+	import final function SetPhotomodeEnabled( photomodeEnabled: bool ) : void;
+	
+	import final function SetPhotomodeCameraCanMove( canMove : bool ) : void;
+
+	public function GetToggleButtonCaption() : string
+	{
+		if (theGame.GetRTEnabled()) {
+			return GetLocStringByKeyExt("panel_video_performance_mode");
+		} else {
+			return GetLocStringByKeyExt("panel_video_quality_mode");
+		}
+	}
+
+	
+	
+	import final function IsHdrSupported() : bool;
+	import final function IsRayTracingSupported() : bool;
 };
 
 

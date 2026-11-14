@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 enum EPlayerDeathType
 {
 	PDT_Normal		= 0,
@@ -65,7 +62,7 @@ statemachine import abstract class CPlayer extends CActor
 		
 		default bStartScreenIsOpened = false;	
 		default bEndScreenIsOpened = false;	
-		default DEATH_SCREEN_OPEN_DELAY = 4.f; 
+		default DEATH_SCREEN_OPEN_DELAY = 2.6f; 
 		default fStartScreenFadeDuration = 3.0; 
 		default fStartScreenFadeInDuration = 3.0; 
 		default bStartScreenEndWithBlackScreen = false; 
@@ -80,7 +77,7 @@ statemachine import abstract class CPlayer extends CActor
 	
 		default bUITakesInput = false;
 		default bLAxisReleased = true;
-		default inputModuleNeededToRun = -1.0;
+		default inputModuleNeededToRun = -10.0; 
 		
 	
 	private				var bInteractionPressed			: bool;	
@@ -186,6 +183,11 @@ statemachine import abstract class CPlayer extends CActor
 	default teleportedOnBoatToOtherHUB = false;
 	
 	
+	protected var photomodeManager : PhotomodeManager;
+
+
+
+	
 	
 	public var isAdaptiveBalance : bool;
 	default isAdaptiveBalance = false;
@@ -230,6 +232,9 @@ statemachine import abstract class CPlayer extends CActor
 		AddTimer( 'PlayerTick', 0.f, true );
 		InitializeParryType();
 		SetCanPlayHitAnim( true );
+
+		
+		theGame.RemoveTimeScale( theGame.GetTimescaleSource(ETS_DebugInput) );
 		
 		
 		if( inv )
@@ -278,6 +283,18 @@ statemachine import abstract class CPlayer extends CActor
 		
 		
 		ResumeStaminaRegen( 'Sprint' );
+		
+		photomodeManager = new PhotomodeManager in this;
+		photomodeManager.Initialize();
+		
+		
+		
+		invertedLockOption = ((CInGameConfigWrapper)theGame.GetInGameConfigWrapper()).GetVarValue( 'Controls', 'InvertLockOption' );
+		invertedControllerCameraX = ((CInGameConfigWrapper)theGame.GetInGameConfigWrapper()).GetVarValue( 'Controls', 'InvertCameraX' );
+		invertedControllerCameraY = ((CInGameConfigWrapper)theGame.GetInGameConfigWrapper()).GetVarValue( 'Controls', 'InvertCameraY' );
+		invertedMouseCameraX = ((CInGameConfigWrapper)theGame.GetInGameConfigWrapper()).GetVarValue( 'Controls', 'InvertCameraXOnMouse' );
+		invertedMouseCameraY = ((CInGameConfigWrapper)theGame.GetInGameConfigWrapper()).GetVarValue( 'Controls', 'InvertCameraYOnMouse' );
+		
 	}
 	
 	
@@ -299,6 +316,9 @@ statemachine import abstract class CPlayer extends CActor
 		if ( inputHandler )
 		{
 			inputHandler.BlockAction(action, sourceName, true, keepOnSpawn, this, isFromQuest, isFromPlace);
+
+
+
 			return true;
 		}		
 		return false;
@@ -309,6 +329,9 @@ statemachine import abstract class CPlayer extends CActor
 		if ( inputHandler )
 		{
 			inputHandler.BlockAction(action, sourceName, false);
+
+
+
 			return true;
 		}		
 		return false;
@@ -423,9 +446,9 @@ statemachine import abstract class CPlayer extends CActor
 	public function CheatGod2(on : bool)
 	{
 		if(on)
-			SetImmortalityMode( AIM_Immortal, AIC_Default, true );
+			SetImmortalityMode( AIM_Immortal, AIC_Cheat, true );
 		else
-			SetImmortalityMode( AIM_None, AIC_Default, true );	
+			SetImmortalityMode( AIM_None, AIC_Cheat, true );	
 		
 		StaminaBoyInternal(on);
 	}
@@ -739,6 +762,18 @@ statemachine import abstract class CPlayer extends CActor
 	{
 		lastAxisInputIsMovement = true;
 	}
+	
+	
+	private var invertedLockOption : bool;
+	private var invertedControllerCameraX, invertedControllerCameraY : bool;
+	private var invertedMouseCameraX, invertedMouseCameraY : bool;
+	
+	public function SetInvertedLockOption(value : bool) {invertedLockOption = value;}
+	public function SetInvertedCameraX(value : bool) {invertedControllerCameraX = value;}
+	public function SetInvertedCameraY(value : bool) {invertedControllerCameraY = value;}
+	public function SetInvertedMouseCameraX(value : bool) {invertedMouseCameraX = value;}
+	public function SetInvertedMouseCameraY(value : bool) {invertedMouseCameraY = value;}
+	
 
 	private var bRAxisReleasedLastFrame 	: bool;
 	private var selectTargetTime 			: float;
@@ -753,12 +788,33 @@ statemachine import abstract class CPlayer extends CActor
 		var rightStickVectorNormalized : Vector;
 		var dot	: float;
 		
+		
+		var minMouseSwipeDist: float = 350.f;
+		
 		if ( this.IsCameraLockedToTarget() )
 		{
-			currTime = theGame.GetEngineTimeAsSeconds();
-		
+			currTime = theGame.GetEngineTimeAsSeconds();	
+
+			
+			if(invertedLockOption)
+			{
+				if(thePlayer.IsPCModeEnabled())
+				{
+					if(invertedMouseCameraX) rightStickVector.X *= -1;
+					if(invertedMouseCameraY) rightStickVector.Y *= -1;
+				}
+				else
+				{
+					if(invertedControllerCameraX) rightStickVector.X *= -1;
+					if(invertedControllerCameraY) rightStickVector.Y *= -1;
+				}
+			}
+			
+			
 			if ( thePlayer.IsPCModeEnabled() )
 			{
+				minMouseSwipeDist = thePlayer.targetLockSwitchMinSwipeDist;
+			
 				if ( rawLengthR > 0.f )
 				{
 					rightStickVectorNormalized = VecNormalize( rightStickVector );
@@ -801,12 +857,18 @@ statemachine import abstract class CPlayer extends CActor
 					enableSwipeCheck = true;
 				}
 				
-				if ( swipeMouseDist <= 350.f )
+				if ( swipeMouseDist <= minMouseSwipeDist )
 					return true;
 				else
 				{
 					rightStickVector = rightStickVectorNormalized;
 					rawLengthR = VecLength( rightStickVector );
+					
+					if ( thePlayer.isModernTargetLockEnabled )
+					{
+						swipeMouseDist = 0.f;
+						enableSwipeCheck = true;
+					}
 				}
 			}
 			
@@ -818,7 +880,7 @@ statemachine import abstract class CPlayer extends CActor
 					selectTargetTime = currTime;
 				}
 			}
-			else if ( rawLengthR >= 0.3 && currTime > ( selectTargetTime + 0.5f ) )
+			else if ( rawLengthR >= 0.3 && currTime > ( selectTargetTime + thePlayer.targetLockSwitchCooldown ) )
 			{
 				inputHandler.OnCbtSelectLockTarget( rightStickVector );
 				selectTargetTime = currTime;	
@@ -957,13 +1019,11 @@ statemachine import abstract class CPlayer extends CActor
 		RemoveReactions();
 		theGame.GetBehTreeReactionManager().CreateReactionEventIfPossible( thePlayer, 'PlayerInScene', -1.f, 60.0f, -1, -1, true ); 
 		PushState( 'PlayerDialogScene' );		
-
 	}
 
 	event OnBlockingSceneStarted_OnIntroCutscene( scene: CStoryScene )
 	{
-		SetImmortalityMode( AIM_Invulnerable, AIC_Scene );
-		SetTemporaryAttitudeGroup( 'geralt_friendly', AGP_Scenes);
+		super.OnBlockingSceneStarted_OnIntroCutscene( scene );
 	}
 	
 	event OnBlockingSceneEnded( optional output : CStorySceneOutput)
@@ -1044,7 +1104,10 @@ statemachine import abstract class CPlayer extends CActor
 		
 		if ( allowDeath )
 		{
-			SetAlive(false);
+			if(IsAlive())
+			{
+				SetAlive(false);
+			}
 			
 			if ( IsUsingHorse( true ) || IsUsingBoat() )
 			{
@@ -1053,7 +1116,18 @@ statemachine import abstract class CPlayer extends CActor
 			{
 				RaiseForceEvent( 'Death' );
 				
-				SetBehaviorVariable( 'Ragdoll_Weight', 1.f );
+				
+				theSound.EnterGameState(ESGS_Death);
+				theSound.SoundEvent( 'gui_global_player_death_thump' );
+				
+				theGame.SetTimeScale(0.6f, theGame.GetTimescaleSource(ETS_DebugInput), theGame.GetTimescalePriority(ETS_DebugInput), false, true );
+				
+				
+				
+				
+				
+				
+				
 			}
 			
 			theGame.FadeOutAsync(DEATH_SCREEN_OPEN_DELAY - 0.1 );
@@ -1087,7 +1161,16 @@ statemachine import abstract class CPlayer extends CActor
 				}
 			}
 			theTelemetry.LogWithLabel(TE_FIGHT_PLAYER_DIES, damageAction.attacker.ToString());
+			
+			if(attacker)
+				theGame.IncrementDeathCount();
 		}
+	}
+	
+	
+	timer function JumpOnRagdollFix( deltaTime : float , id : int)
+	{
+		TurnOnRagdoll();
 	}
 	
 	
@@ -1128,10 +1211,10 @@ statemachine import abstract class CPlayer extends CActor
 	
 	private var sprintButtonPressedTimestamp : float;
 	
-	function SetSprintActionPressed( enable : bool, optional dontClearTimeStamp : bool )
+	function SetSprintActionPressed( enable : bool, optional keepPreviousTimeStamp : bool )
 	{
 		sprintActionPressed = enable;
-		if ( !dontClearTimeStamp )
+		if ( !keepPreviousTimeStamp )
 			sprintButtonPressedTimestamp = theGame.GetEngineTimeAsSeconds();
 	}
 	
@@ -1166,7 +1249,7 @@ statemachine import abstract class CPlayer extends CActor
 			BreakPheromoneEffect();
 			RemoveTimer( 'DisableSprintingTimer' );
 			AddTimer('SprintingTimer', 0.01, true);
-			PauseStaminaRegen( 'Sprint' );
+			
 		}
 		else 
 		{
@@ -1280,7 +1363,8 @@ statemachine import abstract class CPlayer extends CActor
 		{
 			currentStateName = GetCurrentStateName();
 			
-			if( currentStateName == 'Exploration' || currentStateName == 'CombatSteel' || currentStateName == 'CombatSilver' || currentStateName == 'CombatFists' )
+			
+			if(  currentStateName == 'CombatSteel' || currentStateName == 'CombatSilver' || currentStateName == 'CombatFists' )
 			{
 				return true;
 			}
@@ -1322,7 +1406,16 @@ statemachine import abstract class CPlayer extends CActor
 	
 	public function IsSprintActionPressed() : bool
 	{
-		return theInput.IsActionPressed('Sprint') || sprintToggle;
+		
+		if(thePlayer.GetLeftStickSprint() && theInput.LastUsedGamepad())
+		{
+			return GetIsSprintToggled();
+		}
+		else
+		{
+			return theInput.IsActionPressed('Sprint') || sprintToggle;
+		}
+		
 	}
 	
 	public function SetSprintToggle( flag : bool )
@@ -1464,7 +1557,7 @@ statemachine import abstract class CPlayer extends CActor
 		else
 		{
 			itemId = thePlayer.GetSelectedItemId();
-			if ( !( playerWitcher.IsHoldingItemInLHand() && inv.IsIdValid(itemId) && !inv.IsItemCrossbow(itemId) && !inv.IsItemBomb(itemId) ) )
+			if ( !( playerWitcher.IsHoldingItemInLHand() && inv.IsIdValid(itemId) && !inv.IsItemRangedWeapon(itemId) && !inv.IsItemBomb(itemId) ) )
  				return true;
 		}
 			
@@ -1992,6 +2085,27 @@ statemachine import abstract class CPlayer extends CActor
 	public function SetCanPlaySpecificVoiceset( val : bool ) 			{ canPlaySpecificVoiceset = val; }
 	timer function ResetSpecificVoicesetFlag( dt : float, id : int )	{ SetCanPlaySpecificVoiceset( true ); }
 	
+	
+	private var numberOfEnemiesAttacking : int;
+	final function SetPlayerUnderAttack( toggle : bool )
+	{
+		if( toggle )
+		{
+			numberOfEnemiesAttacking += 1;
+		}
+		else
+		{
+			numberOfEnemiesAttacking -= 1;
+		}
+	}
+	
+	final function IsPlayerUnderAttack() : bool
+	{
+		return numberOfEnemiesAttacking;
+	}
+	
+	
+	
 	function GetThreatLevel() : int
 	{
 		return 5;
@@ -2185,7 +2299,7 @@ statemachine import abstract class CPlayer extends CActor
 		var currWorld		: CWorld = theGame.GetWorld();
 		var destWorldPath	: string;
 		var id				: int;
-		var area			: int;
+		var area			: name;
 		var type			: int;
 		var position		: Vector;
 		var rotation 		: EulerAngles;
@@ -2408,5 +2522,65 @@ statemachine import abstract class CPlayer extends CActor
 	{
 		spawnBoatAndMount();
 		RemoveTimer( 'DelayedSpawnAndMountBoat' );
+	}
+	
+	public function GetPhotomodeManager() : PhotomodeManager
+	{
+		return photomodeManager;
+	}
+
+	
+	
+	
+	saved var m_lastOpenedMenu : name; 
+	saved var m_lastOpenedGlossaryPage : name;
+
+	public function SetLastOpenedMenu(menu : name)
+	{
+		m_lastOpenedMenu = menu;
+	}
+
+	public function SetLastOpenedGlossaryPage(menu : name)
+	{
+		m_lastOpenedGlossaryPage = menu;
+	}
+
+	public function GetDefaultCommonMenuSelection():name
+	{
+		
+
+		if(m_lastOpenedMenu != '')
+			return m_lastOpenedMenu;
+
+		return 'MapMenu';
+	}
+
+	public function GetDefaultGlossaryPage():name
+	{
+		
+
+		if(m_lastOpenedGlossaryPage != '')
+			return m_lastOpenedGlossaryPage;
+
+		return 'GlossaryBestiaryMenu';
+	}
+	
+
+
+	private var lastPositionBeforeDismount : Vector;
+	private var lastHorsePositionBeforeDismount : Vector;
+	public function SetLastPositionsBeforeDismount(playerPosition : Vector, horsePosition : Vector)
+	{
+		lastPositionBeforeDismount = playerPosition;
+		lastHorsePositionBeforeDismount = horsePosition;
+	}
+
+	public function GetLastPositionsBeforeDismount(out playerPosition : Vector, out horsePosition : Vector)
+	{
+		playerPosition = lastPositionBeforeDismount;
+		horsePosition = lastHorsePositionBeforeDismount;
+
+		lastPositionBeforeDismount = Vector(0.0, 0.0, 0.0);
+		lastHorsePositionBeforeDismount = Vector(0.0, 0.0, 0.0);
 	}
 }

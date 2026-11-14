@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 class CTeleportEntity extends CInteractiveEntity
 {
@@ -204,6 +204,9 @@ class CTeleportEntity extends CInteractiveEntity
 	timer function TeleportMe( td : float , id : int )
 	{	
 		thePlayer.TeleportWithRotation( destinationNode.GetWorldPosition() + destinationNode.GetHeadingVector() * 1.5, destinationNode.GetWorldRotation() );
+
+
+
 		if( thePlayer.GetCurrentStateName() == 'AimThrow' )
 				thePlayer.OnRangedForceHolster( true );
 		AddTimer( 'FadeInAfter', 0.5 );	
@@ -214,6 +217,9 @@ class CTeleportEntity extends CInteractiveEntity
 	timer function TeleportMeWithBlackscreen( td : float , id : int )
 	{	
 		thePlayer.TeleportWithRotation( destinationNode.GetWorldPosition() + destinationNode.GetHeadingVector() * 1.5, destinationNode.GetWorldRotation() );
+
+
+
 		theInput.RestoreContext( 'EMPTY_CONTEXT', false );
 		currentlyTeleporting = false;
 	}

@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CR4NoticeBoardMenu extends CR4MenuBase
 {
 	public var board : W3NoticeBoard;
@@ -34,7 +30,7 @@ class CR4NoticeBoardMenu extends CR4MenuBase
 		
 		theGame.GetGuiManager().RequestMouseCursor(true);
 		
-		if (theInput.LastUsedPCInput())
+		if (theInput.IsMousePresent())
 		{
 			theGame.MoveMouseTo(0.3, 0.5);
 		}

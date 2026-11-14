@@ -1,17 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
-
-
 class BTTaskCaretakerManager extends IBehTreeTask
 {
 	
@@ -212,6 +203,13 @@ class BTTaskCaretakerManager extends IBehTreeTask
 			m_Npc.RemoveAllBuffsOfType( EET_Bleeding );
 			m_Npc.RemoveAllBuffsOfType( EET_SlowdownFrost );
 			m_Npc.RemoveAllBuffsOfType( EET_Slowdown );
+			
+			
+			
+			m_Npc.RemoveAllBuffsOfType( EET_Bleeding1 );
+			m_Npc.RemoveAllBuffsOfType( EET_Bleeding2 );
+			m_Npc.RemoveAllBuffsOfType( EET_Bleeding3 );
+			
 			
 			
 			

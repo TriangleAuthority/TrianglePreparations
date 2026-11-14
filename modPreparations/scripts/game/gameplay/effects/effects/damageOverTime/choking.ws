@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 class W3Effect_Choking extends W3DamageOverTimeEffect
 {
 	default effectType = EET_Choking;
@@ -19,10 +16,16 @@ class W3Effect_Choking extends W3DamageOverTimeEffect
 	
 	event OnUpdate(dt : float)
 	{
+		var inGameConfigWrapper : CInGameConfigWrapper;
+		var isAccessibilityAirDrainDisabled : bool;
+
+		inGameConfigWrapper = (CInGameConfigWrapper)theGame.GetInGameConfigWrapper();
+		isAccessibilityAirDrainDisabled = inGameConfigWrapper.GetVarValue('Accessibility', 'NoAirDrain') == "true";
+
 		super.OnUpdate(dt);
 		
 		
-		if(target.GetStat(BCS_Air) > 0)
+		if(target.GetStat(BCS_Air) > 0 || isAccessibilityAirDrainDisabled )
 		{
 			isActive = false;
 		}

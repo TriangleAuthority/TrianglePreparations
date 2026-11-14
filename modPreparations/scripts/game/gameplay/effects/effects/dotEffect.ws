@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 abstract class W3DamageOverTimeEffect extends CBaseGameplayEffect
 {	
 	protected saved var damages : array<SDoTDamage>;
@@ -74,11 +70,22 @@ abstract class W3DamageOverTimeEffect extends CBaseGameplayEffect
 		var params : W3BuffDoTParams;
 		var perk20Bonus :SAbilityAttributeValue;
 		
+		var skillPassiveMod : float; 
+		
 		params = (W3BuffDoTParams)customParams;
 		if(params)
 		{
 			isEnvironment = params.isEnvironment;
 		}
+		
+		
+		if( params.isFromBomb )
+		{
+			skillPassiveMod = CalculateAttributeValue(GetWitcherPlayer().GetAttributeValue('potion_duration'));
+			effectValue.valueAdditive *= ( 1 + skillPassiveMod );
+		}
+		
+		
 		
 		if( params.isPerk20Active )
 		{
@@ -237,4 +244,5 @@ class W3BuffDoTParams extends W3BuffCustomParams
 {
 	var isEnvironment : bool;			
 	var isPerk20Active : bool;			
+	var isFromBomb 		: bool; 
 }

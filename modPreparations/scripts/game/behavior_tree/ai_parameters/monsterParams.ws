@@ -1,16 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
-
 class CAIMonsterBase extends CAIBaseTree
 {
 	default aiTreeName = "resdef:ai\monster_base";
@@ -302,6 +294,8 @@ class CAIDrownerDefaults extends CAIMonsterDefaults
 		
 	}
 };
+
+
 
 
 class CAIDrownerUnderwaterDefaults extends CAIDrownerDefaults
@@ -603,6 +597,19 @@ class CAIHimDefaults extends CAIMonsterDefaults
 };
 
 
+class CAIRedPlagueDefaults extends CAIMonsterDefaults
+{
+	function Init()
+	{
+		super.Init();
+		combatTree.params.combatLogicTree = new CAIRedPlagueCombatLogic in this;
+		combatTree.params.combatLogicTree.OnCreated();
+		deathTree = new CAIMonsterDeath in this;
+		deathTree.OnCreated();
+	}
+};
+
+
 class CAIEndriagaDefaults extends CAIMonsterDefaults
 {
 	function Init()
@@ -670,6 +677,8 @@ class CAIBlackSpiderEP2Defaults extends CAIMonsterDefaults
 		deathTree.params.disableCollisionDelay	= 0;
 	}
 };
+
+
 
 
 class CAIArachasDefaults extends CAIMonsterDefaults
@@ -1071,6 +1080,8 @@ class CAIBoarEP2Defaults extends CAIMonsterDefaults
 };
 
 
+
+
 class CAIPantherDefaults extends CAIMonsterDefaults
 {
 	function Init()
@@ -1249,6 +1260,8 @@ class CAIBansheeDefaults extends CAIMonsterDefaults
 
 
 
+
+
 class CAIMonsterAxii extends CAIAxiiTree
 {
 	default aiTreeName = "resdef:ai\monster_baseaxii";
@@ -1345,6 +1358,8 @@ class CAICowardMonsterTauntParams extends CAIMonsterTauntParams
 	
 	default moveBackDistance 	 = 13;
 };
+
+
 
 
 
@@ -1527,6 +1542,8 @@ class CAISharleyCombatLogicParams extends CAIMonsterCombatLogicParams
 };
 
 
+
+
 class CAIFlyingMonsterCombatLogic extends CAIMonsterCombatLogic
 {
 };
@@ -1664,6 +1681,7 @@ class CAIDrownerCombatLogic extends CAIMonsterCombatLogic
 };
 
 
+
 class CAIGhoulCombatLogic extends CAIMonsterCombatLogic
 {
 	default aiTreeName = "resdef:ai\monsters/monster_ghoul_logic";
@@ -1765,6 +1783,18 @@ class CAIHimCombatLogic extends CAIMonsterCombatLogic
 {
 	default aiTreeName = "resdef:ai\monsters/monster_him_logic";
 
+	function Init()
+	{
+		params = new CAIMonsterCombatLogicParams in this;
+		params.OnCreated();
+	}
+};
+
+
+class CAIRedPlagueCombatLogic extends CAIMonsterCombatLogic
+{
+	default aiTreeName = "resdef:ai\monsters/monster_red_plague_logic";
+	
 	function Init()
 	{
 		params = new CAIMonsterCombatLogicParams in this;
@@ -1966,6 +1996,8 @@ class CAIBlackSpiderEP2CombatLogic extends CAIMonsterCombatLogic
 };
 
 
+
+
 class CAIArachasCombatLogicParams extends CAIMonsterCombatLogicParams
 {
 	editable var minChargeDist : float;
@@ -2003,6 +2035,8 @@ class CAIBlackSpiderEP2CombatLogicParams extends CAIMonsterCombatLogicParams
 		maxChargeDist = 8.0;
 	}
 };
+
+
 
 
 class CAIArachasDEBUGLogic extends CAIMonsterCombatLogic
@@ -2144,7 +2178,6 @@ class CAIWitch2CombatLogic extends CAIMonsterCombatLogic
 
 
 
-
 class CAIWitchSoloCombatLogic extends CAIMonsterCombatLogic
 {
 	default aiTreeName = "resdef:ai\monsters/monster_witch_solo_logic";
@@ -2216,6 +2249,7 @@ class CAIBoarEP2CombatLogic extends CAIMonsterCombatLogic
 
 
 
+
 class CAIPantherCombatLogic extends CAIMonsterCombatLogic
 {
 	default aiTreeName = "dlc\bob\data\gameplay\trees\monster_panther_logic.w2behtree";
@@ -2238,7 +2272,6 @@ class CAIKikimoreCombatLogic extends CAIMonsterCombatLogic
 		params.OnCreated();
 	}
 };
-
 
 
 class CAIToadCombatLogic extends CAIMonsterCombatLogic
@@ -2353,6 +2386,8 @@ class CAIDettlaffTornadoLogic extends CAIMonsterCombatLogic
 
 
 
+
+
 class CAIMonsterSimpleDamageReactionTree extends CAISubTree
 {
 	default aiTreeName = "resdef:ai\monster_simple_damage_reaction";
@@ -2418,6 +2453,8 @@ class CAIMonsterSpawnParams extends CAISubTreeParameters
 };
 
 
+
+
 class CAIMonsterSpawnDefault extends CAIMonsterSpawn
 {
 	default aiTreeName = "resdef:ai\monster_spawn_default";
@@ -2477,6 +2514,8 @@ class CAIMonsterSpawnLessog extends CAIMonsterSpawn
 		params.OnCreated();
 	}
 };
+
+
 
 
 

@@ -1,17 +1,14 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-class W3ArrowProjectile extends W3AdvancedProjectile
+class W3ArrowProjectile extends W3DeflectableAdvancedProjectile
 {
 	editable 	var defaultTrail 				: name;		default defaultTrail = 'arrow_trail';
 	
 	public	 	var underwaterTrail 			: name;		default underwaterTrail = 'arrow_trail_underwater';
 	private 	var boneName 					: name;
-	private 	var activeTrail					: name;
 	private		var shouldBeAttachedToVictim 	: bool;		default shouldBeAttachedToVictim = true;
 	
 	protected 	var isOnFire 					: bool;
@@ -53,7 +50,6 @@ class W3ArrowProjectile extends W3AdvancedProjectile
 	{
 		
 		var actorVictim	: CActor;
-		var casterPos 	: Vector;
 		var parryInfo 	: SParryInfo;
 		var arrowHitPos : Vector;
 		var bounce		: bool;
@@ -65,7 +61,7 @@ class W3ArrowProjectile extends W3AdvancedProjectile
 		var boundingBox 	: Box;
 		var arrowSize 		: Vector;
 		var hitPos 			: Vector;
-		
+
 		if ( yrdenAlternate )
 		{
 			return true;
@@ -99,7 +95,7 @@ class W3ArrowProjectile extends W3AdvancedProjectile
 			}
 			
 		}
-		else if ( hitCollisionsGroups.Contains( 'Terrain' ) || hitCollisionsGroups.Contains( 'Static' ) )
+		else if ( hitCollisionsGroups.Contains( 'Terrain' ) || hitCollisionsGroups.Contains( 'Static' ) || hitCollisionsGroups.Contains( 'Foliage' ) )	 
 		{
 			StopProjectile();
 			isActive = false;
@@ -184,49 +180,26 @@ class W3ArrowProjectile extends W3AdvancedProjectile
 				template = (CEntityTemplate)LoadResource('glyphword_1');
 				theGame.CreateEntity(template, GetWorldPosition(), thePlayer.GetWorldRotation(), , , true);
 			
-				if ( thePlayer.CheckCounterSpamming( (CActor)caster ) && thePlayer.GetSkillLevel(S_Sword_s10) > 1 )
-				{
-					casterPos = caster.GetWorldPosition();
-					casterPos.Z += 1.5;
-					this.Init(thePlayer);
-					if ( thePlayer.GetSkillLevel(S_Sword_s10) == 3 )
-					{
-						this.projDMG *= 1 + CalculateAttributeValue( thePlayer.GetSkillAttributeValue(S_Sword_s10, 'damage_increase', false, true) );
-					}
-					this.ShootProjectileAtPosition(2,projSpeed*0.7,casterPos);
-					ActivateTrail('arrow_trail_red');
+				if(ProcessCombat_ArrowDeflection())
 					return true;
-				}
-				else
-				{
-					this.SoundEvent( "cmb_arrow_bounce" );
-					bounce = true;
-				}
+
+				this.SoundEvent( "cmb_arrow_bounce" );
+				bounce = true;
 			}
-			else if(thePlayer.CanParryAttack() && thePlayer.CanUseSkill(S_Sword_s10))
+			else if(thePlayer.CanParryAttack() && (thePlayer.CanUseSkill(S_Sword_s10) || thePlayer.CanUseSkill(S_Sword_s33)))
 			{			
 				
 				parryInfo = thePlayer.ProcessParryInfo(((CActor)caster),((CActor)victim),AST_Jab,ASD_NotSet,'attack_light',((CActor)caster).GetInventory().GetItemFromSlot('l_weapon'), true);
+				
 				if ( thePlayer.PerformParryCheck(parryInfo) )
 				{
-					if ( thePlayer.CheckCounterSpamming( (CActor)caster ) && thePlayer.GetSkillLevel(S_Sword_s10) > 1 )
-					{
-						casterPos = caster.GetWorldPosition();
-						casterPos.Z += 1.5;
-						this.Init(thePlayer);
-						if ( thePlayer.GetSkillLevel(S_Sword_s10) == 3 )
-						{
-							this.projDMG *= 1 + CalculateAttributeValue( thePlayer.GetSkillAttributeValue(S_Sword_s10, 'damage_increase', false, true) );
-						}
-						this.ShootProjectileAtPosition(2,projSpeed*0.7,casterPos);
-						ActivateTrail('arrow_trail_red');
-						isBouncedArrow = true;
+					if(ProcessCombat_ArrowDeflection())
 						return true;
-					}
-					else
-					{
-						bounce = true;
-					}
+
+					
+					GetWitcherPlayer().GainAdrenalineFromPerk31( 'parry' );
+						
+					bounce = true;
 				}
 			}
 			
@@ -253,6 +226,8 @@ class W3ArrowProjectile extends W3AdvancedProjectile
 			}
 			else if ( !isRolling )
 			{
+				thePlayer.SetIsDodgingProjectile( false );
+
 				if( actorVictim.IsAlive() )
 					ProcessDamageAction( actorVictim, pos, boneName );
 				
@@ -276,6 +251,11 @@ class W3ArrowProjectile extends W3AdvancedProjectile
 			this.SoundEvent("cmb_arrow_impact_wood");
 			
 			AttachArrowToShield(actorVictim, pos);
+
+			if(caster == thePlayer)
+			{
+				GetWitcherPlayer().ResetCripplingShot();
+			}
 		}
 		else
 		{
@@ -283,6 +263,11 @@ class W3ArrowProjectile extends W3AdvancedProjectile
 			{
 				if ( actorVictim.HasAbility( 'BounceBoltsWildhunt' ))
 				{
+					if(caster == thePlayer)
+					{
+						GetWitcherPlayer().ResetCripplingShot();
+					}
+
 					this.bounceOfVelocityPreserve = 0.1;
 					this.BounceOff(normal, pos);
 					this.Init(actorVictim);
@@ -422,29 +407,6 @@ class W3ArrowProjectile extends W3AdvancedProjectile
 		}
 	}
 	
-	
-	
-	function ActivateTrail( trailName : name )
-	{
-		if ( trailName != activeTrail )
-		{
-			if ( activeTrail )
-				StopEffect( activeTrail );
-			
-			PlayEffect( trailName );
-			activeTrail = trailName;
-		}
-	}
-	
-	function StopActiveTrail()
-	{
-		if (activeTrail)
-		{
-			StopEffect( activeTrail );
-			activeTrail = '';
-		}
-	}
-	
 	timer function CheckIfInfWaterLoop( timeDelta : float , id : int)
 	{
 		if ( CheckIfInfWater() )
@@ -499,6 +461,11 @@ class W3ArrowProjectile extends W3AdvancedProjectile
 		var inv 		: CInventoryComponent;
 		var shield		: CEntity;
 		
+		
+		var relativeRot : EulerAngles;
+		var relativePos : Vector;
+		
+		
 		StopProjectile();
 		StopActiveTrail();
 		isActive = false;
@@ -506,9 +473,28 @@ class W3ArrowProjectile extends W3AdvancedProjectile
 		inv = victim.GetInventory();
 		
 		shield = inv.GetItemEntityUnsafe(inv.GetItemFromSlot('l_weapon'));
-		this.CreateAttachment( shield );
 		
-		this.CreateAttachmentAtBoneWS(shield, 'Root', pos, this.GetWorldRotation());
+		if( ((W3BoltProjectile)this) )
+		{
+			relativePos.X = RandRangeF(0.22f, -0.22f);
+			relativePos.Y = RandRangeF(0.25f, 0.2f);
+			relativePos.Z = RandRangeF(0.22f, -0.22f);
+			relativeRot.Pitch = 180 + RandRange(10, -10);
+			relativeRot.Roll =  RandRange(10, -10);
+			relativeRot.Yaw =  RandRange(10, -10);
+		}
+		else
+		{
+			relativePos.X = RandRangeF(0.22f, -0.22f);
+			relativePos.Y = RandRangeF(-0.1f, -0.25f);
+			relativePos.Z = RandRangeF(0.22f, -0.22f);
+			relativeRot.Pitch = 180 + RandRange(10, -10);
+			relativeRot.Roll =  RandRange(10, -10);
+			relativeRot.Yaw =  RandRange(10, -10);
+		}
+		
+		this.CreateAttachment( shield, , relativePos, relativeRot );
+		
 	}
 	
 	function AttachArrowToRagdoll(victim : CActor, pos : Vector, boneName : name)
@@ -597,6 +583,9 @@ class W3ArrowProjectile extends W3AdvancedProjectile
 		var action : W3DamageAction;
 		var victimTags, attackerTags : array<name>;
 		var none 		: SAbilityAttributeValue;
+		var boneNameString : string;
+
+		boneNameString = NameToString(boneName);
 		
 		action = new W3DamageAction in this;
 		action.Initialize((CGameplayEntity)caster,victim,this,caster.GetName(),EHRT_Light,CPS_AttackPower,false,true,false,false);				
@@ -619,11 +608,11 @@ class W3ArrowProjectile extends W3AdvancedProjectile
 		
 		if ( ((CNewNPC)victim) )
 		{
-			if ( boneName == 'head' || boneName == 'neck' || boneName == 'hroll' || ( boneName == 'pelvis' && ((CNewNPC)victim).IsHuman() ) )
+			if ( StrFindFirst(boneNameString, "head") >= 0 || StrFindFirst(boneNameString, "neck") >= 0 || StrFindFirst(boneNameString, "hroll") >= 0 || ( StrFindFirst(boneNameString, "pelvis") >= 0 && ((CNewNPC)victim).IsHuman() ) )
 				action.SetHeadShot();
 		}
 		
-		if(isBouncedArrow)
+		if(isBouncedArrow || deflected)
 		{
 			action.SetBouncedArrow();
 		}

@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 struct SItemGenericStat
 {
@@ -164,6 +164,8 @@ class W3TooltipComponent
 		
 		var ammo, ammoBonus : float;
 		var additionalRarityDescription : string;
+
+		var transmogAppearance : name;
 		
 		var definitionsMgr : CDefinitionsManagerAccessor;
 		
@@ -209,8 +211,7 @@ class W3TooltipComponent
 			craftSchematic = GetSchematicDataFromXML(itemName); 
 			craftItemName = craftSchematic.craftedItemName;
 		}
-		else
-		if (categoryName == 'alchemy_recipe')
+		else if (categoryName == 'alchemy_recipe')
 		{
 			alchRecipe = GetRecipeDataFromXML(itemName);
 			craftItemName = alchRecipe.cookedItemName;
@@ -274,7 +275,7 @@ class W3TooltipComponent
 		
 		if (categoryName == 'gwint')
 		{
-			additionalDescription += GetGwintCardDescription(GetWitcherPlayer().GetGwentCardIndex(itemName));
+			additionalDescription += GetGwintCardDescription( itemName );
 		}
 		
 		if (itemInvComponent.ItemHasTag(item, 'ReadableItem') && itemInvComponent.IsBookRead(item))
@@ -310,6 +311,13 @@ class W3TooltipComponent
 			else
 			{
 				compareItemInv.GetItemPrimaryStat(equipedItem, eqPrimaryStatLabel, eqPrimaryStatValue);
+				if( compareItemInv.ItemHasTag( equipedItem, 'Aerondight' ) )
+				{
+					if( compareItemInv.GetItemModifierFloat( equipedItem, 'PermDamageBoost' ) >= 0.f )
+					{
+						eqPrimaryStatValue += compareItemInv.GetItemModifierFloat( equipedItem, 'PermDamageBoost' );
+					}
+				}
 			}
 			
 			canBeCompared = isArmorOrWeapon;
@@ -445,8 +453,24 @@ class W3TooltipComponent
 		
 		if( itemInvComponent.ItemHasTag( item, 'Aerondight' ) )
 		{
-			uniqueDescription = GetAerondightTooltipDescription( item );
+			uniqueDescription = GetAerondightTooltipDescription( itemInvComponent, item );
 		}
+
+
+
+		
+		if( itemInvComponent.ItemHasTag( item, 'sq304_unique_sword' ) )
+		{
+			uniqueDescription = GetLocStringByKeyExt( 'item_desc_sq304_sword' );
+		}
+		
+		
+		if( itemInvComponent.ItemHasTag( item, 'q402_unique_sword' ) )
+		{
+			uniqueDescription =  GetLocStringByKeyExt( 'item_desc_sq304_sword' );
+		}
+
+
 		
 		uniqueDescription += additionalDescription;
 		
@@ -526,8 +550,11 @@ class W3TooltipComponent
 		AddOilInfo(item, itemInvComponent, tooltipData);
 		AddSocketsInfo(item, itemInvComponent, socketsList);
 		
-		tmpStr = FloatToStringPrec( weightValue, 2 );
-		addGFxItemStat(propsList, "weight", tmpStr, "attribute_name_weight");
+		if(weightValue != 0)
+		{
+			tmpStr = FloatToStringPrec( weightValue, 2 );
+			addGFxItemStat(propsList, "weight", tmpStr, "attribute_name_weight");
+		}
 		
 		durMult = 1;
 		if ( isArmorOrWeapon && !itemInvComponent.IsItemBolt( item ) )
@@ -608,8 +635,8 @@ class W3TooltipComponent
 		if( compareItemInv.IsIdValid( compareWithItem ) )
 		{
 			tooltipData.SetMemberFlashString( "EquippedTitle", GetLocStringByKeyExt( "panel_blacksmith_equipped" ) );
-		}	
-		
+		}
+
 		tooltipData.SetMemberFlashUInt("ItemId", ItemToFlashUInt(item));
 		tooltipData.SetMemberFlashString("ItemType", typeDesc);
 		tooltipData.SetMemberFlashString("ItemRarity", GetItemRarityDescription(item, itemInvComponent, rarityColor ) + additionalRarityDescription );
@@ -631,8 +658,23 @@ class W3TooltipComponent
 		
 		tooltipData.SetMemberFlashBool("CanBeCompared", canBeCompared);
 		tooltipData.SetMemberFlashBool("EnableFullScreenInfo", isArmorOrWeapon);
+
+		transmogAppearance = itemInvComponent.GetItemTemplateOverride(item);
+		if(transmogAppearance) {
+			tooltipData.SetMemberFlashString( "TransmogText", GetTransmogItemLabel(itemInvComponent.GetItemLocalizedNameByName(transmogAppearance)));
+			tooltipData.SetMemberFlashString("IconPath", itemInvComponent.GetItemIconPathByName(transmogAppearance) );
+		}
 		
 		return tooltipData;
+	}
+
+	public function GetTransmogItemLabel(itemName : string) : string
+	{
+		var transmogItemLabel : string; 
+
+		transmogItemLabel = GetLocStringByKeyExt("panel_reforge_tooltip_name");
+		transmogItemLabel = StrReplace(transmogItemLabel, "{x}", StrUpper(GetLocStringByKeyExt(itemName)));
+		return transmogItemLabel;
 	}
 	
 	private function addRecipeInfo( item: SItemUniqueId, itemInvComponent : CInventoryComponent, out description : string )
@@ -820,7 +862,7 @@ class W3TooltipComponent
 		
 		setType = GetWitcherPlayer().GetSetBonusStatus( itemId, desc1, desc2, isActive1, isActive2 );
 		
-		if( setType != EIST_Undefined )
+		if( setType != EIST_Undefined && setType != EIST_Viper ) 
 		{
 			currentCount = GetWitcherPlayer().GetSetPartsEquipped( setType );
 			requiredCount = theGame.params.ITEMS_REQUIRED_FOR_MAJOR_SET_BONUS;
@@ -1013,6 +1055,12 @@ class W3TooltipComponent
 				{
 					oilBonusValue = "<font color=\"#FF0000\">" + oilBonusValue +  " " + oilStatFirst.attributeName + " (" + oilLocName + ")(" + oilCharges + "/" + oilMaxCharges + ")"+ "</font>";
 				}
+				
+				else if (GetWitcherPlayer().CanUseSkill(S_Alchemy_s06) && GetWitcherPlayer().GetSkillLevel(S_Alchemy_s06) > 2)
+				{
+					oilBonusValue = oilBonusValue +  " " + oilStatFirst.attributeName + " (" + oilLocName + ")";
+				}
+				
 				else
 				{
 					oilBonusValue = oilBonusValue +  " " + oilStatFirst.attributeName + " (" + oilLocName + ")(" + oilCharges + "/" + oilMaxCharges + ")";
@@ -1272,7 +1320,7 @@ class W3TooltipComponent
 						}
 						else
 						{
-							equippedItemData = GetBaseItemData(equipedItemId, m_playerInv, isShopItem, itemId, m_playerInv);
+							equippedItemData = GetBaseItemData(equipedItemId, m_playerInv, isShopItem, itemId, m_itemInv);
 						}
 						selectedItemData.SetMemberFlashObject("equippedItemData", equippedItemData);
 					}
@@ -1605,19 +1653,21 @@ class W3TooltipComponent
 		return "";
 	}
 	
-	private function GetGwintCardDescription(cardIndex:int):string
+	private function GetGwintCardDescription( itemName: name ):string
 	{
 		var cardString : string;
-		var gwintManager : CR4GwintManager;
+		var gwintManager : CR4GwintManager = theGame.GetGwintManager();
 		var cardDefinition : SCardDefinition;
+		var cardDefinitions : array<SCardDefinition>;
 		var tempStr : string;
+		var cardName: name;
 		var abilityName : string;
 		var abilityDescription : string;
+		var i: int;
+
+		cardName = gwintManager.GetCardNameFromItemName(itemName);
 		
-		gwintManager = theGame.GetGwintManager();
-		cardDefinition = gwintManager.GetCardDefinition(cardIndex);
-		
-		if (cardDefinition.index == -1)
+		if ( !gwintManager.GetGwentCard( cardName, cardDefinition ) )
 		{
 			return "Failed to get card definition";
 		}
@@ -1648,7 +1698,7 @@ class W3TooltipComponent
 		
 		cardString += "<br/>" + GetLocStringByKeyExt("gwint_tooltip_card_type") + ": ";
 		
-		if (cardDefinition.index >= 1000) 
+		if (theGame.GetGwintManager().IsKingCard(cardDefinition)) 
 		{
 			cardString += "<font color='#7b7877'>" + GetLocStringByKeyExt("gwint_tooltip_card_type_leader") + "</font>";
 			
@@ -1866,7 +1916,7 @@ class W3TooltipComponent
 			cardString += "<br/>" + GetLocStringByKeyExt("gwint_tut_unitcardspecialability_title") + ": " + "<font color='#7b7877'>" + abilityName + "<br/>" + abilityDescription + "</font>";
 		}
 		
-		if (gwintManager.HasCardInCollection(cardIndex))
+		if (gwintManager.HasCardInCollection(cardName))
 		{
 			cardString += "<br/><font color = '#1E8823'>" + GetLocStringByKeyExt("panel_alchemy_exception_already_cooked") + "</font>";
 		}
@@ -1981,7 +2031,7 @@ class W3TooltipComponent
 		return rec;
 	}
 	
-	public function GetAerondightTooltipDescription( sword : SItemUniqueId ) : string
+	public function GetAerondightTooltipDescription( itemInvComponent : CInventoryComponent, sword : SItemUniqueId ) : string
 	{
 		var uniqueDesc		: string;
 		var argsString		: array<string>;
@@ -1996,7 +2046,7 @@ class W3TooltipComponent
 		argsString.Clear();
 		
 		
-		val_1 = thePlayer.inv.GetItemModifierFloat( sword, 'PermDamageBoost' );
+		val_1 = itemInvComponent.GetItemModifierFloat( sword, 'PermDamageBoost' );
 		
 		
 		if( val_1 > 0 )
@@ -2009,7 +2059,7 @@ class W3TooltipComponent
 		}
 		
 		
-		val_2 = thePlayer.GetLevel() - thePlayer.inv.GetItemLevel( sword ) + 1;
+		val_2 = thePlayer.GetLevel() - itemInvComponent.GetItemLevel( sword ) + 1;
 		
 		dm.GetAbilityAttributeValue( 'AerondightEffect', 'stacks_per_level', min, max );		
 		val_2 *= min.valueAdditive;

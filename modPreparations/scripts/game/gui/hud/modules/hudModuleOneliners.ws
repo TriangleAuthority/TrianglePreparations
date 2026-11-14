@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 struct OnelinerDefinition
 {
@@ -22,6 +22,10 @@ class CR4HudModuleOneliners extends CR4HudModuleBase
 
 	event  OnConfigUI()
 	{
+		
+		var inGameConfigWrapper : CInGameConfigWrapper;
+	
+	
 		m_anchorName = "ScaleOnly";
 		
 		m_flashModule 			= GetModuleFlash();
@@ -38,6 +42,10 @@ class CR4HudModuleOneliners extends CR4HudModuleBase
 		{
 			m_hud.UpdateHudConfig('OnelinersModule', true);
 		}
+		
+		
+		inGameConfigWrapper = (CInGameConfigWrapper)theGame.GetInGameConfigWrapper();
+		onelinerScale = StringToInt(inGameConfigWrapper.GetVarValue('Hud', 'OnelinerScale'));
 	}
 	
 	
@@ -79,7 +87,10 @@ class CR4HudModuleOneliners extends CR4HudModuleBase
 	{
 		var oneliner : OnelinerDefinition;
 		
-		LogChannel( 'Oneliner', "SHOW " + ID + ": " + value + " [" + target.GetName() + "]" );
+		
+		
+		
+		value = "<font size = '"+ IntToString( 25 + onelinerScale ) + "' >" + value + "</font>";
 		
 		if( theGame.isDialogDisplayDisabled )
 		{
@@ -121,6 +132,26 @@ class CR4HudModuleOneliners extends CR4HudModuleBase
 	{
 		return false;
 	}
+	
+	
+	private var onelinerScale : int;
+	default onelinerScale = 0;
+	
+	public function SetOnelinerScale(scale : int)
+	{
+		onelinerScale = scale;
+	}
+}
+
+
+exec function olscale( s : int )
+{
+	var hud : CR4ScriptedHud;
+	var module : CR4HudModuleOneliners;
+
+	hud = (CR4ScriptedHud)theGame.GetHud();
+	module = (CR4HudModuleOneliners)hud.GetHudModule("OnelinersModule");
+	module.SetOnelinerScale( s );
 }
 
 exec function sayoneliner( value : string, id : int )

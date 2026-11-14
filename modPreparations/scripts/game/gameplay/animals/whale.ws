@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 enum EWhaleMovementPatern
 {
 	EWMP_bySpawnPoint,
@@ -108,8 +104,8 @@ statemachine class W3WhaleArea extends CEntity
 	
 	default minSpawnDistance = 35.f;
 	default maxSpawnDistance = 60.f;
-	default spawnFrequencyMin = 15.f;
-	default spawnFrequencyMax = 25.f;
+	default spawnFrequencyMin = 35.f;
+	default spawnFrequencyMax = 55.f;
 	default whaleSpawnOffsetY = 120.f; 
 	default movementPatern = EWMP_awayFromPlayer;
 	

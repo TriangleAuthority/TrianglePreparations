@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class W3Petard extends CThrowable
 {
 	
@@ -40,12 +36,12 @@ class W3Petard extends CThrowable
 		hint alignToNormal = "If set entity will align it's Z axis with collision normal";
 		
 	
-	private const var FX_TRAIL 						: name;								
+	protected const var FX_TRAIL 					: name;								
 	private const var FX_CLUSTER 					: name;								
 	
 	protected var itemName							: name;								
-	private var targetPos 							: Vector;							
-	private var isProximity							: bool;								
+	protected var targetPos 						: Vector;							
+	protected var isProximity						: bool;								
 	private var isInWater							: bool;								
 	private var isInDeepWater  						: bool;								
 	private var isStuck								: bool;								
@@ -56,7 +52,7 @@ class W3Petard extends CThrowable
 	protected var stopCollisions					: bool;								
 	protected var previousTargets					: array<CGameplayEntity>;			
 	protected var targetsSinceLastCheck				: array<CGameplayEntity>;			
-	private var	wasInTutorialTrigger				: bool;								
+	protected var	wasInTutorialTrigger			: bool;								
 	private var decalRemainingTimes					: array< SPetardShownDecals > ;		
 	protected var impactNormal						: Vector;
 	protected saved var hasImpactFireDamage			: bool;
@@ -88,6 +84,10 @@ class W3Petard extends CThrowable
 		var boneIndex : int;
 		var orientationTarget	: EOrientationTarget;
 		var slideTargetActor : CActor;
+		
+		
+		var dist, x, y, maxThrowRange : float;
+		var playerPos : Vector;
 		
 		if ( animEventName == 'ProjectileThrow' )
 		{
@@ -129,6 +129,17 @@ class W3Petard extends CThrowable
 						throwPos = GetOwner().GetWorldForward() * 8 + GetOwner().GetWorldPosition();		
 				}
 			}
+			
+			
+			playerPos = thePlayer.GetWorldPosition();
+			dist = VecDistance(throwPos,playerPos);
+			maxThrowRange = theGame.params.MAX_THROW_RANGE;
+			if(dist > maxThrowRange)
+			{
+				throwPos.X = playerPos.X + maxThrowRange/dist * (throwPos.X - playerPos.X);
+				throwPos.Y = playerPos.Y + maxThrowRange/dist * (throwPos.Y - playerPos.Y);
+			}
+			
 			
 			ThrowProjectile( throwPos );
 		}
@@ -253,6 +264,8 @@ class W3Petard extends CThrowable
 	{		
 		var phantom : CPhantomComponent;
 		var inv : CInventoryComponent;
+		var freeBombValue : SAbilityAttributeValue;
+		var isFreeBomb : bool;
 			
 		
 		phantom = (CPhantomComponent)GetComponent('snappingCollisionGroupNames');
@@ -286,13 +299,25 @@ class W3Petard extends CThrowable
 		else
 		{
 			
-			if(!FactsDoesExist("debug_fact_inf_bombs"))
+			isFreeBomb = false;
+			if ( thePlayer.CanUseSkill( S_Perk_39 ) )
+			{
+				freeBombValue = thePlayer.GetSkillAttributeValue(S_Perk_39, 'free_bomb', false, true) * thePlayer.GetSkillLevel(S_Perk_39);
+				isFreeBomb = RandRange(100) < ( CalculateAttributeValue(freeBombValue) * 100 );
+			}
+
+			
+			if(!FactsDoesExist("debug_fact_inf_bombs") && !isFreeBomb)
 				thePlayer.inv.SingletonItemRemoveAmmo(itemId, 1);
 				
 			
 			if( thePlayer.inv.GetItemQuantity(itemId) < 1 )		
 				thePlayer.ClearSelectedItemId();
-			else if( !GetWitcherPlayer().IsSetBonusActive( EISB_Wolf_2 ) )
+			
+			
+			
+			else if( !GetWitcherPlayer().IsSetBonusActive( EISB_RedWolf_1 ) )
+			
 			{
 				GetWitcherPlayer().AddBombThrowDelay(itemId);
 			}
@@ -310,7 +335,7 @@ class W3Petard extends CThrowable
 		var actorsInAoE : array<CActor>;
 		var i : int;
 		var collisionGroups : array<name>;
-
+		
 		BreakAttachment();
 		if( target.HasTag('AddRagdollCollision'))
 		{
@@ -363,7 +388,12 @@ class W3Petard extends CThrowable
 			PlayEffectSingle(FX_TRAIL);
 		}
 		wasThrown = true;
+		
+		
+		
 	}
+	
+	
 	
 	
 	
@@ -379,6 +409,7 @@ class W3Petard extends CThrowable
 		var entity : CEntity;
 		var rot : EulerAngles;
 		var rotMatrix, m1, m2, m3 : Matrix;
+		var waterEntity : CEntity; 
 		
 		if(stopCollisions)
 			return true;
@@ -426,7 +457,7 @@ class W3Petard extends CThrowable
 		
 		
 		
-		theGame.VibrateControllerVeryHard();	
+		
 			
 		
 		if ( hitCollisionsGroups.Contains( 'Water' ) )
@@ -444,10 +475,24 @@ class W3Petard extends CThrowable
 				isInDeepWater = true;
 			
 			
-			if(isInDeepWater)
+			
+			
+			if(isInWater && !waterFXPlayed)
 			{
 				template = (CEntityTemplate)LoadResource("water_splash_small");
-				theGame.CreateEntity(template, GetWorldPosition(), GetWorldRotation());
+				waterEntity = theGame.CreateEntity(template, petardPos, thePlayer.GetWorldRotation());				
+				if(isInDeepWater)
+					waterEntity.PlayEffect('splash_big');
+				else
+					waterEntity.PlayEffect('splash');
+				waterFXPlayed = true;
+				waterEntity.AddTag('bomb_water_splash');
+				waterEntity.DestroyAfter(6.f);
+				waterEntity.SoundEvent("fx_water_object_splash_small");
+			}
+			
+			if(isInDeepWater)
+			{
 				stopCollisions = true;
 				DestroyAfter(3);
 			}
@@ -485,6 +530,8 @@ class W3Petard extends CThrowable
 			
 		}
 	}
+	
+	private var waterFXPlayed : bool;
 	
 	
 	
@@ -527,7 +574,7 @@ class W3Petard extends CThrowable
 		var i : int;
 		var victimTags, attackerTags : array<name>;
 		var dist, camShakeStr, camShakeStrFrac : float;
-		var temp, isPerk16Active : bool;
+		var temp, isImmuneToBombDamageBySkill : bool;
 		var phantom : CPhantomComponent;
 		var meshes : array<CComponent>;
 		var mesh : CMeshComponent;
@@ -558,7 +605,9 @@ class W3Petard extends CThrowable
 		}
 		
 		
-		if(!isCluster && !ignoreBombSkills && (W3PlayerWitcher)GetOwner() && GetWitcherPlayer().CanUseSkill(S_Alchemy_s11) && !HasTag('Snowball'))
+
+		if(!isCluster && !ignoreBombSkills && (W3PlayerWitcher)GetOwner() && GetWitcherPlayer().CanUseSkill(S_Alchemy_s11) && !HasTag('Snowball') )
+
 		{
 			ProcessClusterBombs();
 			return;
@@ -599,9 +648,9 @@ class W3Petard extends CThrowable
 		if(collidedTarget && !targets.Contains(collidedTarget))
 			targets.PushBack(collidedTarget);
 			
-		if( caster == GetWitcherPlayer() && GetWitcherPlayer().CanUseSkill( S_Perk_16 ) )
+		if( caster == GetWitcherPlayer() && GetWitcherPlayer().CanUseSkill( S_Perk_39 ) )
 		{
-			isPerk16Active = true;
+			isImmuneToBombDamageBySkill = true;
 		}
 		
 		for( i=targets.Size() - 1; i >= 0; i -= 1)
@@ -640,7 +689,7 @@ class W3Petard extends CThrowable
 				
 			}
 			
-			if ( targets[i] == GetWitcherPlayer() && isPerk16Active )
+			if ( targets[i] == GetWitcherPlayer() && isImmuneToBombDamageBySkill )
 			{
 				targets.EraseFast( i );
 			}	
@@ -681,7 +730,7 @@ class W3Petard extends CThrowable
 		
 		
 		ProcessEffectPlayFXs(true);
-				
+
 		if(loopDuration > 0)
 		{
 			ProcessLoopEffect();
@@ -691,7 +740,7 @@ class W3Petard extends CThrowable
 			OnTimeEndedFunction(0);
 		}
 	}
-	
+
 	protected function SnapComponents(isImpact : bool)
 	{
 		var params : SPetardParams;
@@ -1082,12 +1131,18 @@ class W3Petard extends CThrowable
 		else
 			hitType = EHRT_None;
 		
+		
+		DoTBuff = new W3BuffDoTParams in this;
+		DoTBuff.isFromBomb = true;
+		
 		if( (W3PlayerWitcher)GetOwner() && GetWitcherPlayer().CanUseSkill( S_Perk_20 ) )
 		{
-			DoTBuff = new W3BuffDoTParams in this;
 			DoTBuff.isPerk20Active = true;
 			canUsePerk20 = true;				
 		}
+		
+		
+		
 		
 		for(i=0; i<targets.Size(); i+=1)
 		{	
@@ -1159,10 +1214,10 @@ class W3Petard extends CThrowable
 			for(j=0; j<params.buffs.Size(); j+=1)
 			{
 				
-				if( canUsePerk20 )
-				{
-					params.buffs[j].effectCustomParam = DoTBuff;
-				}
+				
+				
+				params.buffs[j].effectCustomParam = DoTBuff;
+				
 				
 				action.AddEffectInfo(params.buffs[j].effectType, params.buffs[j].effectDuration, params.buffs[j].effectCustomValue, params.buffs[j].effectAbilityName, params.buffs[j].effectCustomParam, params.buffs[j].applyChance);
 			}
@@ -1238,7 +1293,7 @@ class W3Petard extends CThrowable
 	private function ProcessClusterBombs()
 	{
 		var target : CActor = thePlayer.GetTarget();
-		var i, clusterNbr : int;
+		var i, j, clusterNbr : int;
 		var cluster : W3Petard;
 		var targetPosCluster, clusterInitPos : Vector;
 		var angle, velocity, distLen : float;
@@ -1249,6 +1304,7 @@ class W3Petard extends CThrowable
 		var distanceToTarget : float;
 		var projectileFlightTime : float;
 		var collisionGroups : array<name>;
+		var clusterParams : SPetardParams;
 	
 		clusterInitPos = GetWorldPosition();
 		clusterInitPos.Z += radius + 0.15;
@@ -1275,6 +1331,14 @@ class W3Petard extends CThrowable
 			angle = (9 - distLen) * 10;					
 			velocity = 4 + distLen/2;					
 			
+			
+			clusterParams = cluster.GetImpactParams();
+			for(j=0; j<clusterParams.damages.Size(); j+=1)
+			{
+				clusterParams.damages[j].dmgVal *= 0.4;
+			}
+			cluster.SetImpactParams(clusterParams);
+
 			
 			if( target.HasTag('AddRagdollCollision'))
 			{
@@ -1376,6 +1440,8 @@ class W3Petard extends CThrowable
 		return dismemberOnKill;
 	}
 	
+	public function SetImpactParams(params: SPetardParams) {impactParams = params;}
+	public function GetImpactParams() : SPetardParams	{return impactParams;}
 	public function GetImpactRange() : float			{return impactParams.range;}
 	public function GetAoERange() : float				{return loopParams.range;}
 	public function IsStuck() : bool					{return isStuck;}

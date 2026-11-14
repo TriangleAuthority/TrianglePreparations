@@ -1,14 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
 abstract class W3CriticalDOTEffect extends W3DamageOverTimeEffect
 {
 	protected var criticalStateType 		: ECriticalStateType;				
@@ -129,6 +123,8 @@ abstract class W3CriticalDOTEffect extends W3DamageOverTimeEffect
 		var boatComp : CBoatComponent;
 		var params : W3BuffDoTParams;
 		var perk20Bonus : SAbilityAttributeValue;
+		
+		var skillPassiveMod : float; 
 				
 		
 		if(IsImmuneToAllDamage(100000))		
@@ -139,11 +135,25 @@ abstract class W3CriticalDOTEffect extends W3DamageOverTimeEffect
 		
 		params = (W3BuffDoTParams)customParams;
 		
-		if( params && params.isPerk20Active )
+		
+		if( params )
 		{
-			perk20Bonus = GetWitcherPlayer().GetSkillAttributeValue( S_Perk_20, 'dmg_multiplier', false, false);
-			effectValue.valueAdditive *= ( 1 + perk20Bonus.valueMultiplicative );
+			if( params.isFromBomb )
+			{
+				skillPassiveMod = CalculateAttributeValue(GetWitcherPlayer().GetAttributeValue('potion_duration'));
+				effectValue.valueAdditive *= ( 1 + skillPassiveMod );
+			}
+			
+			if( params.isPerk20Active )
+			{
+				
+				
+				
+			}
 		}
+		
+		
+		
 			
 		
 		super.OnEffectAdded(customParams);
@@ -229,7 +239,7 @@ abstract class W3CriticalDOTEffect extends W3DamageOverTimeEffect
 		
 		
 		if(isOnPlayer)
-			theGame.VibrateControllerVeryHard();	
+			theGame.HapticStart( "classic_vibro_large_oneshot" );
 	}
 	
 	event OnEffectRemoved()

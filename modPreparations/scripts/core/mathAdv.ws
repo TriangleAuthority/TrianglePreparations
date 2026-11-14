@@ -1,15 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
 import function t_Identity(  a : EngineQsTransform );
 import function t_SetIdentity() : EngineQsTransform;
 
@@ -471,4 +464,19 @@ function SignOrZeroF( value : float )	: float
 	}
 	
 	return 0.0f;
+}
+
+
+
+function ProjectPointToLine(point : Vector, lineA : Vector , lineB : Vector) : Vector
+{
+	var u : Vector;
+	var v : Vector;
+	var u_normed : Vector;
+
+	u = lineA - lineB;
+	v = point - lineA;
+
+	u_normed = VecNormalize(u);
+	return lineA + u_normed * VecDot(v,u_normed);
 }

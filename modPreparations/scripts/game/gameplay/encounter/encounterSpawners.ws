@@ -1,10 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
 import abstract class ISpawnTreeSpawnerInitializer extends ISpawnTreeInitializer
 {
 };
@@ -45,3 +43,33 @@ enum EEncounterSpawnGroup
 	ESG_SecondaryCommunity,
 	ESG_OptionalCommunity,
 };
+
+
+
+ function GetEncounterGroupDefaultLimit(group : EEncounterSpawnGroup) : int
+{
+	
+	
+	
+	
+	
+
+	if ( group == ESG_Important )
+	{
+		return 100;
+	}
+	else if ( group == ESG_CoreCommunity )
+	{
+		return 60;
+	}
+	else if ( group == ESG_SecondaryCommunity )
+	{
+		return 60;
+	}
+	else if ( group == ESG_OptionalCommunity )
+	{
+		return 20;
+	}
+
+	return 20;
+}

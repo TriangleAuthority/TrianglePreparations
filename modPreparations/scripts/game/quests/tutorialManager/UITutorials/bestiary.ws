@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 state Bestiary in W3TutorialManagerUIHandler extends TutHandlerBaseState
 {
 	private const var BESTIARY_DESCRIPTION, BESTIARY_CLOSE, OPEN_BESTIARY : name;
@@ -40,8 +37,8 @@ state Bestiary in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		if(closedByParentMenu || isClosing)
 			return true;
 			
-		if(hintName == BESTIARY_DESCRIPTION)
-			ShowHint(BESTIARY_CLOSE, 0.02f, 0.65f, ETHDT_Infinite);
+		
+		
 	}
 	
 	event OnMenuClosing(menuName : name)

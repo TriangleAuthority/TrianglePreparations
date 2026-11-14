@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 state Shop in W3TutorialManagerUIHandler extends TutHandlerBaseState
 {
 	private const var DESCRIPTION, BUY, CLOSE : name;
@@ -24,7 +21,7 @@ state Shop in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		
 		isClosing = false;
 		
-		ShowHint(DESCRIPTION, SHOP_POS_X, SHOP_POS_Y);
+		
 	}
 			
 	event OnLeaveState( nextStateName : name )
@@ -42,16 +39,7 @@ state Shop in W3TutorialManagerUIHandler extends TutHandlerBaseState
 	
 	event OnTutorialClosed(hintName : name, closedByParentMenu : bool)
 	{
-		if(hintName == DESCRIPTION && !closedByParentMenu && !isClosing)
-		{
-			CloseStateHint(DESCRIPTION);
-			ShowHint(BUY, SHOP_POS_X, SHOP_POS_Y);
-		}
-		else if(hintName == BUY && !closedByParentMenu && !isClosing)
-		{
-			CloseStateHint(BUY);
-			ShowHint(CLOSE, SHOP_POS_X, SHOP_POS_Y);
-		}
+		
 	}
 	
 	event OnBoughtItem()

@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CR4GlossaryPlacesMenu extends CR4ListBaseMenu
 {	
 	default DATA_BINDING_NAME 		= "glossary.places.list";
@@ -49,11 +45,7 @@ class CR4GlossaryPlacesMenu extends CR4ListBaseMenu
 		
 		l_entry = (CJournalPlace)m_journalManager.GetEntryByTag( tag );
 		str = l_entry.GetImage();
-		if( str == "" )
-		{
-			m_flashValueStorage.SetFlashString("glossary.places.sublist.image","empty_texture.PNG");
-		}
-		else
+		if( str != "" )
 		{
 			m_flashValueStorage.SetFlashString("glossary.places.sublist.image",str);
 		}

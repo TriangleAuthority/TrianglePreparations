@@ -1,13 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
 class CAIAnimalBase extends CAIBaseTree
 {
 	default aiTreeName = "resdef:ai\animal_base";
@@ -797,6 +792,8 @@ class CAIAnimalCombatDeer extends CAIAnimalCombat
 	default maxFleeWalkDistance				= 30.0;
 	default stopFleeingDistance 			= 50;
 };
+
+
    
 
 class CAIAnimalCombatHorse extends CAIAnimalCombat
@@ -819,6 +816,8 @@ class CAIAnimalCombatHorse extends CAIAnimalCombat
 		shakeRiderTree.OnCreated();
 	}
 };
+
+
 
 
 class CAIAnimalCharmed extends CAIIdleTree

@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-  
-
-
-
 import class IPerformableAction extends CObject
 {
 	import final function Trigger( parnt : CEntity );
@@ -141,6 +137,7 @@ import class CGameplayEntity extends CPeristentEntity
 	
 	import var aimVector : Vector;
 	editable var iconOffset	: Vector;
+	editable var iconUseComponent : bool;
 	
 	public	var highlighted			: bool;					
 	

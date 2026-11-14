@@ -1,24 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
-
-import class CGwintMenuInitData extends CObject
-{
-	import public var deckName : name;
-	import public var difficulty : EGwintDifficultyMode;
-	import public var aggression : EGwintAggressionMode;
-	import public var allowMultipleMatches : bool;
-};
-
 class CR4GwintMenu extends CR4MenuBase
 {
 
@@ -130,4 +114,4 @@ class CR4GwintMenu extends CR4MenuBase
 	{
 	}
 
-} 
+}

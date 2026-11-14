@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 struct SSignProjectile
 {
@@ -22,13 +22,15 @@ abstract class W3SignProjectile extends CProjectileTrajectory
 	protected var action 		: W3DamageAction;
 	protected var signSkill 	: ESkill;
 	protected var wantedTarget	: CGameplayEntity;
-	protected var signEntity 	: W3SignEntity;
+	public var signEntity 	: W3SignEntity;
 	default signSkill = S_SUndefined;
 
 	protected var hitEntities 	: array< CGameplayEntity >;
 	protected var attackRange 	: CAIAttackRange;
 		
 	protected var isReusable	: bool; 
+	
+	protected var isSupercharged : bool; 
 
 	public function ExtInit( signOwner : W3SignOwner, sign : ESkill, signEnt : W3SignEntity, optional reusable : bool )
 	{
@@ -64,7 +66,7 @@ abstract class W3SignProjectile extends CProjectileTrajectory
 			victim = NULL;
 			
 		
-		if ( (signSkill != S_Magic_s02) && (!victim || !victim.IsAlive()) )
+		if ( (signSkill != S_Magic_s02) && (signSkill != S_Magic_s28) && (!victim || !victim.IsAlive()) )
 		{
 			return false;
 		}

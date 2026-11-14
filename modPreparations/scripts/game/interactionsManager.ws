@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 import class CInteractionsManager extends IGameSystem
 {	
 	private var activeInteraction : CInteractionComponent;
@@ -42,7 +39,8 @@ import class CInteractionsManager extends IGameSystem
 		{
 			return IsPressed( action );
 		}
-		else if ( thePlayer.GetHowLongSprintButtonWasPressed() > 0.12f )
+		
+		else if ( thePlayer.GetHowLongSprintButtonWasPressed() > 0.2f )
 		{
 			theInput.GetPadKeysForAction('Sprint', outSprintKeys );
 			theInput.GetPadKeysForAction(action.aName, outInteractionKeys );

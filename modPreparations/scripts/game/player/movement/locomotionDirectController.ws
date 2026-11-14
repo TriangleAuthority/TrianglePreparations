@@ -1,9 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
 import class CR4LocomotionDirectController extends CObject
 {
 	import protected var agent : CMovingAgentComponent;
@@ -89,7 +88,7 @@ class CR4LocomotionPlayerControllerScript extends CR4LocomotionDirectControllerS
 		player.SetIsWalking( false );
 		
 		movingAgentComponent.SetGameplayRelativeMoveSpeed( 0.0f );
-		movingAgentComponent.SetGameplayMoveDirection( 0.0f );
+		movingAgentComponent.UnsetGameplayMoveDirection();
 		
 		stopCheckEnabled = false;
 			
@@ -280,18 +279,28 @@ class CR4LocomotionPlayerControllerScript extends CR4LocomotionDirectControllerS
 		{
 			player.OnExitShallowWater();
 		}
+
 		
-		
-		
-		if ( _inputLocoEnabled )
+		if ( player.IsSwimming() && moveSpeed <= 0.f)
 		{
-			worldMoveDirection = _inputHeading180LastCached;
+			ResetMoveDirection();
+			worldMoveDirection = player.GetHeading();
+		}
+		else
+		{
+			
+			if ( _inputLocoEnabled )
+			{
+				worldMoveDirection = _inputHeading180LastCached;
+			}
+			
+			else if ( moveSpeed > 0.f )
+			{
+				worldMoveDirection 	= (localMoveDirection * -180.0f) + playerYaw;
+			}
 		}
 		
-		else if ( moveSpeed > 0.f )
-		{
-			worldMoveDirection 	= (localMoveDirection * -180.0f) + playerYaw;
-		}
+		
 		
 		if( player.IsOnBoat() )
 		{
@@ -305,6 +314,8 @@ class CR4LocomotionPlayerControllerScript extends CR4LocomotionDirectControllerS
 			
 			if ( !player.IsInputHeadingReady() )
 				moveSpeed = 0;
+				
+				
 			
 			if( VecLengthSquared( movingAgentComponent.GetVelocity() ) < 0.25f && player.GetCurrentStateName() != 'AimThrow' )
 			{
@@ -356,6 +367,20 @@ class CR4LocomotionPlayerControllerScript extends CR4LocomotionDirectControllerS
 		
 		player.SetIsWalking( moveSpeed > 0.1f );
 		player.SetIsRunning( moveSpeed > 0.85f ); 
+	}
+
+	function OnTeleported()
+	{
+		
+
+		if ( player.IsSwimming() )
+		{
+			ResetMoveDirection();
+			worldMoveDirection = player.GetHeading();
+			moveSpeed = 0;
+			angularInputSpeed = 0;
+			cachedMoveSpeed = 0;
+		}
 	}
 	
 	private function UpdateInputReadyness()
@@ -454,8 +479,7 @@ class CR4LocomotionPlayerControllerScript extends CR4LocomotionDirectControllerS
 		{
 			_inputMagLastCached = _inputMagCurr;
 		}
-	}
-	
+	}	
 	
 	private function MakeInputReady()
 	{
@@ -855,14 +879,21 @@ class CR4LocomotionPlayerControllerScript extends CR4LocomotionDirectControllerS
 		}
 		
 		else if( !thePlayer.IsActionAllowed( EIAB_Sprint ) && thePlayer.IsActionAllowed( EIAB_RunAndSprint ) && !thePlayer.IsCombatMusicEnabled() )
-		{			
+		{	
 			if ( speed <= 0.f )
 			{
 				player.playerMoveType = PMT_Idle;
 			}
 			else if( thePlayer.IsSprintActionPressed() )
 			{
-				if ( speed > 0.8f )
+				
+				if(theInput.LastUsedGamepad() && thePlayer.GetLeftStickSprint() && thePlayer.IsInInterior() && !thePlayer.GetIsSprintToggled())
+				{
+					speed = MapF( MinF( speed, speedRunning ), 0.0f, speedRunning, 0.0f,  speedWalkingMax );
+					player.playerMoveType = PMT_Walk;
+				}	
+				
+				else if ( speed > 0.8f )
 				{
 					speed = MinF( speed, speedRunning );
 					player.playerMoveType = PMT_Run;
@@ -885,7 +916,7 @@ class CR4LocomotionPlayerControllerScript extends CR4LocomotionDirectControllerS
 			if ( theInput.LastUsedGamepad() )
 			{
 				thePlayer.SetWalkToggle(false);
-				thePlayer.SetSprintToggle(false);
+				
 			}
 			
 			if ( speed <= 0.f )
@@ -1040,9 +1071,17 @@ class CR4LocomotionPlayerControllerScript extends CR4LocomotionDirectControllerS
 			}
 		}
 		
-		if ( player.playerMoveType <= PMT_Walk )
-		{
-			thePlayer.SetSprintToggle( false );
+		if ( player.playerMoveType < PMT_Walk || (player.playerMoveType <= PMT_Run && !theGame.IsFocusModeActive() && !thePlayer.IsInAir()) )	
+		{	
+			if(thePlayer.IsInInterior() && player.playerMoveType >= PMT_Walk )
+			{
+				if(thePlayer.IsInCombat() && thePlayer.GetStatPercents(BCS_Stamina) <= 0.f)
+					thePlayer.SetSprintToggle( false );
+			}
+			else if(!thePlayer.IsActionAllowed( EIAB_Sprint ) && thePlayer.IsActionAllowed( EIAB_RunAndSprint ) && player.playerMoveType >= PMT_Walk)
+			{}
+			else
+				thePlayer.SetSprintToggle( false );
 		}
 		
 		
@@ -1106,6 +1145,8 @@ class CR4LocomotionPlayerControllerScript extends CR4LocomotionDirectControllerS
 		var useHeadingWS		: float;
 		var useFacingWS			: float;
 		var target				: CGameplayEntity;
+		var targetPos			: Vector;
+		var boneIndex			: int;
 		
 		var canFaceTarget		: bool;
 		var playerToTargetVec	: Vector;
@@ -1143,7 +1184,16 @@ class CR4LocomotionPlayerControllerScript extends CR4LocomotionDirectControllerS
 
 			if ( target )
 			{		
-				playerToTargetVec = target.GetWorldPosition()- player.GetWorldPosition();
+				if ( (CActor)target )
+				{
+					player.GetNearestTargetablePositionToPlayer( (CActor)target, targetPos, boneIndex );
+					playerToTargetVec = targetPos - player.GetWorldPosition();
+				}
+				else
+				{
+					playerToTargetVec = target.GetWorldPosition() - player.GetWorldPosition();
+				}
+					
 			
 				if ( !canFaceTarget )
 				{

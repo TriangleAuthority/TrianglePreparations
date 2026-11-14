@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 enum EFloatingValueType
 {
@@ -206,7 +206,7 @@ class CR4HudModuleEnemyFocus extends CR4HudModuleBase
 		var l_targetScreenPos			: Vector;
 		var l_dodgeFeedbackTarget		: CActor;
 		var l_isBoss					: bool;
-		var screenMargin : float = 0.025;
+		var screenMargin : float = 0.085; 
 		var marginLeftTop : Vector;
 		var marginRightBottom : Vector;
 		var hud : CR4ScriptedHud;
@@ -354,6 +354,10 @@ class CR4HudModuleEnemyFocus extends CR4HudModuleBase
 
 			
 			l_currentHealthPercentage = CeilF( 100 * l_target.GetHealthPercents() );	
+			if ( l_target.IsAlive() && l_currentHealthPercentage < 1 ) 
+			{
+				l_currentHealthPercentage = 1;
+			}						
 			if ( m_lastHealthPercentage != l_currentHealthPercentage )
 			{
 				m_lastHealthPercentage = l_currentHealthPercentage;	
@@ -558,9 +562,9 @@ class CR4HudModuleEnemyFocus extends CR4HudModuleBase
 		}
 	}
 	
-	public function SetShowHardLock( set : bool )
+	public function SetShowHardLock( value : bool )
 	{
-		m_fxSetShowHardLock.InvokeSelfOneArg( FlashArgBool( set ) );
+		m_fxSetShowHardLock.InvokeSelfOneArg( FlashArgBool( value ) );
 	}
 	
 	protected function UpdateScale( scale : float, flashModule : CScriptedFlashSprite ) : bool 
@@ -604,6 +608,7 @@ class CR4HudModuleEnemyFocus extends CR4HudModuleBase
 					case 'QuestAvailable':
 					case 'QuestAvailableHoS':
 					case 'QuestAvailableBaW':
+					case 'QuestAvailableLy':
 						questIcon = "QuestGiverSide";
 						break;
 					case 'MonsterQuest':
@@ -632,13 +637,12 @@ exec function dodgeFeedback()
 	}
 }
 
-exec function hardlock( set : bool )
+exec function hardlock( value : bool )
 {
 	var hud : CR4ScriptedHud;
 	var module : CR4HudModuleEnemyFocus;
 
 	hud = (CR4ScriptedHud)theGame.GetHud();
 	module = (CR4HudModuleEnemyFocus)hud.GetHudModule("EnemyFocusModule");
-	module.SetShowHardLock( set );
+	module.SetShowHardLock( value );
 }
-

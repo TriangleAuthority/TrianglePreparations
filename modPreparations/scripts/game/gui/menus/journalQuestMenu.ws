@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 struct JournalDescriptionText
 {
 	var order:int;
@@ -15,6 +11,12 @@ struct JournalDescriptionText
 	var currentEntry:CJournalQuestDescriptionEntry;
 }
 
+class W3JournalInitData extends W3MenuInitData
+{
+	public var questTag : name;
+}
+
+
 class CR4JournalQuestMenu extends CR4ListBaseMenu
 {	
 	default DATA_BINDING_NAME 		= "journal.quest.list";
@@ -22,6 +24,7 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 	default DATA_BINDING_NAME_DESCRIPTION	= "journal.quest.description";
 		
 	var allQuests						: array<CJournalQuest>;
+	var questCountIncremental			: int;
 	var currentObjectives				: array<CJournalQuestObjective>;
 	var initialTrackedQuest				: CJournalQuest;
 	var bDisplayCompleted				: bool;
@@ -67,6 +70,7 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 		
 		m_fxSetExpansionTexture.InvokeSelfTwoArgs( FlashArgInt( 1 ), FlashArgString( GetEpTextureName( 1 ) ) );
 		m_fxSetExpansionTexture.InvokeSelfTwoArgs( FlashArgInt( 2 ), FlashArgString( GetEpTextureName( 2 ) ) );
+		m_fxSetExpansionTexture.InvokeSelfTwoArgs( FlashArgInt( 3 ), FlashArgString( GetEpTextureName( 3 ) ) );
 		
 		m_initSelection = true;
 		
@@ -116,7 +120,15 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 		var tempQuests					: array<CJournalBase>;
 		var questTemp					: CJournalQuest;
 		var i							: int;
+
 		
+
+		var mainArr, sideArr, monsterArr, treasureArr, ep1Arr, ep2Arr, completedArr, failedArr : array<CJournalQuest>;
+
+		var l_questStatus			: EJournalStatus;
+		var l_questType				: int;
+		
+
 		m_journalManager.GetActivatedOfType( 'CJournalQuest', tempQuests );
 		
 		initialTrackedQuest = m_journalManager.GetTrackedQuest();
@@ -132,7 +144,169 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 				
 			}
 		}
+		
+		
+		
+		if( allQuests.Size() > 0 )
+		{
+			
+			for( i = 0; i < allQuests.Size(); i+= 1 )
+			{
+				l_questType	= allQuests[i].GetType();
+				l_questStatus = m_journalManager.GetEntryStatus(allQuests[i]);
+
+				if (l_questStatus == JS_Active)
+				{
+					switch (l_questType)
+					{
+					case 0: 
+					case 1: 
+						mainArr.PushBack(allQuests[i]);
+						break;
+					case 2: 
+						sideArr.PushBack(allQuests[i]);
+						break;
+					case 3: 
+						monsterArr.PushBack(allQuests[i]);
+						break;
+					case 4: 
+						treasureArr.PushBack(allQuests[i]);
+						break;
+
+					
+					case 6: 
+						ep1Arr.PushBack(allQuests[i]);
+						break;
+					case 7: 
+						ep2Arr.PushBack(allQuests[i]);
+						break;
+					}
+				}
+				else if (l_questStatus == JS_Success)
+				{
+					completedArr.PushBack(allQuests[i]);
+				}
+				else if (l_questStatus == JS_Failed)
+				{
+					failedArr.PushBack(allQuests[i]);
+				}
+			}
+			
+			
+			mainArr = SortArrayByWorld(mainArr);
+			sideArr = SortArrayByWorld(sideArr);
+			monsterArr = SortArrayByWorld(monsterArr);
+			treasureArr = SortArrayByWorld(treasureArr);
+
+			ep1Arr = SortArrayByWorld(ep1Arr);
+			ep2Arr = SortArrayByWorld(ep2Arr);
+			completedArr = SortArrayAlphabetically(completedArr);
+			failedArr = SortArrayAlphabetically(failedArr);
+
+			
+			allQuests.Clear();
+			for( i = 0; i < mainArr.Size(); i+= 1 )
+			{
+				allQuests.PushBack(mainArr[i]);
+			}
+			for( i = 0; i < sideArr.Size(); i+= 1 )
+			{
+				allQuests.PushBack(sideArr[i]);
+			}
+			for( i = 0; i < monsterArr.Size(); i+= 1 )
+			{
+				allQuests.PushBack(monsterArr[i]);
+			}
+			for( i = 0; i < treasureArr.Size(); i+= 1 )
+			{
+				allQuests.PushBack(treasureArr[i]);
+			}
+
+			for( i = 0; i < ep1Arr.Size(); i+= 1 )
+			{
+				allQuests.PushBack(ep1Arr[i]);
+			}
+			for( i = 0; i < ep2Arr.Size(); i+= 1 )
+			{
+				allQuests.PushBack(ep2Arr[i]);
+			}
+			for( i = 0; i < completedArr.Size(); i+= 1 )
+			{
+				allQuests.PushBack(completedArr[i]);
+			}
+			for( i = 0; i < failedArr.Size(); i+= 1 )
+			{
+				allQuests.PushBack(failedArr[i]);
+			}
+		}
+		
 	}
+
+	private function GetQuestCategoryIndex( l_questType	: int, l_questStatus : EJournalStatus ) : int
+	{
+		if (l_questStatus == JS_Active)
+		{
+			switch (l_questType)
+			{
+			case 0: 
+			case 1: 
+				return 0; break;
+			case 2: 
+				return 1; break;
+			case 3: 
+				return 2; break;
+			case 4: 
+				return 3; break;
+
+			
+			case 6: 
+				return 5; break;
+			case 7: 
+				return 6; break;
+			}
+		}
+		else if (l_questStatus == JS_Success)
+		{
+			return 7;
+		}
+		else if (l_questStatus == JS_Failed)
+		{
+			return 8;
+		}
+
+		return 0;
+	}
+
+
+	private function SortArrayAlphabetically( arr : array<CJournalQuest> ) : array<CJournalQuest>
+	{
+		var tempArray : array<CJournalQuest>;
+		var sortingArray : array<string>;
+		var i, j : int;
+
+		for( i = 0; i < arr.Size(); i+= 1 )
+		{
+			sortingArray.PushBack(GetLocStringById( arr[i].GetTitleStringId() ));
+		}
+		ArraySortStrings( sortingArray );
+		for( i = 0; i < sortingArray.Size(); i+= 1 )
+		{
+			for( j = 0; j < arr.Size(); j+= 1 )
+			{
+				if( sortingArray[i] == GetLocStringById( arr[j].GetTitleStringId() ) )
+				{
+					tempArray.PushBack(arr[j]);
+					arr.Erase(j);
+					break;
+				}
+			}
+		}
+
+		return tempArray;
+	}
+	
+
+
 		
 	event OnObjectiveRead( tag : name )
 	{
@@ -289,7 +463,12 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 		var l_questStatus			: EJournalStatus;
 		var l_Tag					: name;
 		var questLevel				: int;
-		
+		var journalInitData			: W3JournalInitData;
+
+		questCountIncremental = 0;
+
+		journalInitData = (W3JournalInitData)GetMenuInitData();
+
 		l_questsFlashArray = m_flashValueStorage.CreateTempFlashArray();
 		length = allQuests.Size();
 		
@@ -302,17 +481,23 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 			if( l_questStatus != JS_Inactive )
 			{
 				l_questsFlashArray.PushBackFlashObject( generateFlashObjectForQuest( l_quest, m_initSelection ) );
+				questCountIncremental += 1;
 				
 				l_questIsTracked = ( (m_journalManager.GetTrackedQuest().guid == l_quest.guid) && ( l_questStatus == JS_Active ) );
 				l_Tag = l_quest.GetUniqueScriptTag();
 				
 				if( l_questIsTracked || l_questIsSelected )
 				{
-					OnEntrySelected(l_Tag);
+					if(!journalInitData)
+						OnEntrySelected(l_Tag);
+				}
+				if(journalInitData && l_Tag == journalInitData.questTag)
+				{
+					OnEntrySelected(journalInitData.questTag);
 				}
 			}
 		}
-		
+
 		if( l_questsFlashArray.GetLength() > 0 )
 		{
 			m_flashValueStorage.SetFlashArray( DATA_BINDING_NAME, l_questsFlashArray );
@@ -326,21 +511,6 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 		m_initSelection = false;
 	}
 	
-	private function GetEpTag( targetQuest : CJournalQuest ) : string
-	{
-		var epIndex : int;
-		epIndex = targetQuest.GetContentType();
-		if ( epIndex == 1 )
-		{
-			return "ep1tag";
-		}
-		else if ( epIndex == 2 )
-		{
-			return "ep2tag";
-		}
-		return "";
-	}
-	
 	private function generateFlashObjectForQuest( targetQuest : CJournalQuest, optional initSelection : bool  ) : CScriptedFlashObject
 	{
 		var l_questsDataFlashObject : CScriptedFlashObject;
@@ -351,7 +521,7 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 		var questCount				: int;
 		var questLevel				: int;
 		var lvlDiff 				: int;
-		var l_questWorld			: int;
+		var l_questWorld			: name;
 		
 		var l_Tag					: name;
 		var l_GroupTag				: name;
@@ -369,11 +539,14 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 		
 		var l_questIsTracked		: bool;
 		
-		var currentArea				: EAreaName;
+		var currentArea				: name;
 		var questLevels 			: C2dArray;
+		var journalInitData			: W3JournalInitData;
+
+		journalInitData = (W3JournalInitData)GetMenuInitData();
 		
 		questLevelsCount 	= theGame.questLevelsContainer.Size();
-		currentArea 		= theGame.GetCommonMapManager().GetCurrentJournalArea();
+		theGame.GetCommonMapManager().GetCurrentJournalArea( currentArea );
 		
 		l_questStatus 		= m_journalManager.GetEntryStatus(targetQuest);
 		
@@ -467,10 +640,11 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 			case 4: 
 				l_dropdownLabel = GetLocStringByKeyExt("panel_journal_legend_treasurehunt");
 				break;
-			case 5: 
+
+			case 6: 
 				l_dropdownLabel = GetLocStringByKeyExt("panel_journal_legend_ep1");
 				break;
-			case 6: 
+			case 7: 
 				l_dropdownLabel = GetLocStringByKeyExt("panel_journal_legend_ep2");
 				break;
 			}
@@ -501,8 +675,18 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 		
 		if (initSelection)
 		{
-			l_questsDataFlashObject.SetMemberFlashBool(  "dropDownOpened", l_questIsTracked );
-			l_questsDataFlashObject.SetMemberFlashBool( "selected", l_questIsTracked );
+			if(journalInitData)
+			{
+				l_questsDataFlashObject.SetMemberFlashBool(  "dropDownOpened", l_Tag == journalInitData.questTag );
+				l_questsDataFlashObject.SetMemberFlashBool( "selected", l_Tag == journalInitData.questTag );
+				l_questsDataFlashObject.SetMemberFlashBool( "forceFirst", l_Tag == journalInitData.questTag );
+			}
+			else
+			{
+				l_questsDataFlashObject.SetMemberFlashBool(  "dropDownOpened", l_questIsTracked );
+				l_questsDataFlashObject.SetMemberFlashBool( "selected", l_questIsTracked );
+			}
+			
 			
 		}
 		else
@@ -511,12 +695,14 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 			l_questsDataFlashObject.SetMemberFlashBool( "selected", ( l_Tag == currentTag ) );
 		}
 		
+		l_questsDataFlashObject.SetMemberFlashInt( "originalCat", GetQuestCategoryIndex(l_questType,l_questStatus) );
+		l_questsDataFlashObject.SetMemberFlashInt( "originalId", questCountIncremental);
 		l_questsDataFlashObject.SetMemberFlashInt( "isStory", l_questType ); 
 		l_questsDataFlashObject.SetMemberFlashInt( "epIndex", targetQuest.GetContentType() );
 		l_questsDataFlashObject.SetMemberFlashString( "iconPath", GetQuestIconByType( targetQuest.GetType(), targetQuest.GetContentType() ) );		
 		l_questsDataFlashObject.SetMemberFlashBool( "isNew", l_questIsNew );
-		l_questsDataFlashObject.SetMemberFlashInt( "questWorld", l_questWorld );
-		l_questsDataFlashObject.SetMemberFlashInt( "curWorld", currentArea );
+		l_questsDataFlashObject.SetMemberFlashUInt( "questWorld", NameToFlashUInt( l_questWorld ) );
+		l_questsDataFlashObject.SetMemberFlashUInt( "curWorld", NameToFlashUInt( currentArea ) );
 		
 		
 		l_questsDataFlashObject.SetMemberFlashInt( "status", l_questStatus );
@@ -534,7 +720,7 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 		return l_questsDataFlashObject;
 	}
 	
-	function GetQuestIconByType( type : eQuestType, optional epIndex : int ) : string
+	private function GetQuestIconByType( type : eQuestType, optional epIndex : int ) : string
 	{
 		var retStr : string;
 		retStr = "icons/quests/";
@@ -593,6 +779,7 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 					break;
 			}
 		}
+
 
 		return retStr;
 	}
@@ -681,51 +868,6 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 		m_flashValueStorage.SetFlashString( DATA_BINDING_NAME_SUBLIST+".questname", GetLocStringById(locID));
 		
 		m_fxUpdateExpansionIcon.InvokeSelfOneArg( FlashArgInt( questEntry.GetContentType() ) );
-	}
-	
-	function GetAreaName( questEntry : CJournalQuest ) : name
-	{
-		var l_questArea						: name;
-		
-		switch ( questEntry.GetWorld() )
-		{
-			case AN_Undefined:
-				l_questArea = 'panel_journal_filters_area_any';
-				break;
-			case AN_NMLandNovigrad:
-				l_questArea = 'panel_journal_filters_area_no_mans_land';
-				break;
-			case AN_Skellige_ArdSkellig:
-				l_questArea = 'panel_journal_filters_area_skellige';
-				break;
-			case AN_Kaer_Morhen:
-				l_questArea = 'panel_journal_filters_area_kaer_morhen';
-				break;
-			case AN_Prologue_Village:
-				l_questArea = 'panel_journal_filters_area_prolgue_village';
-				break;
-
-			
-			case AN_Wyzima:
-				l_questArea = 'panel_journal_filters_area_wyzima';
-				break;
-			case AN_Island_of_Myst:
-				l_questArea = 'panel_journal_filters_area_island_of_myst';
-				break;
-			case AN_Spiral:
-				l_questArea = 'panel_journal_filters_area_spiral';
-				break;
-			case AN_Prologue_Village_Winter:
-				l_questArea = 'panel_journal_filters_area_prolgue_village';
-				break;
-			case AN_Velen:
-				l_questArea = 'panel_journal_filters_area_velen';
-				break;
-			case (EAreaName)AN_Dlc_Bob:
-				l_questArea = 'panel_journal_filters_area_bob';
-				break;
-		}
-		return l_questArea;
 	}
 
 	function GetDescription( currentQuest : CJournalQuest ) : string
@@ -944,7 +1086,9 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 			|| dm.ItemHasTag(itemsNames[item], 'SilverOil') 
 			|| dm.ItemHasTag(itemsNames[item], 'SteelOil') 
 			|| category == 'petard' 
-			|| category == 'bolt' )
+			|| category == 'bolt' 
+
+			)
 		{
 			weight = 0;
 		}
@@ -1007,4 +1151,107 @@ class CR4JournalQuestMenu extends CR4ListBaseMenu
 		}
 		return "";	
 	}
+}
+
+
+function GetAreaName( questEntry : CJournalQuest ) : name
+{
+	var l_questArea						: name;
+	var worldName: name;
+
+	worldName = questEntry.GetWorld();
+	
+	switch ( worldName )
+	{
+		case 'AN_NMLandNovigrad':
+			l_questArea = 'panel_journal_filters_area_no_mans_land';
+			break;
+		case 'AN_Skellige_ArdSkellig':
+			l_questArea = 'panel_journal_filters_area_skellige';
+			break;
+		case 'AN_Kaer_Morhen':
+			l_questArea = 'panel_journal_filters_area_kaer_morhen';
+			break;
+		case 'AN_Prologue_Village':
+			l_questArea = 'panel_journal_filters_area_prolgue_village';
+			break;
+
+		
+		case 'AN_Wyzima':
+			l_questArea = 'panel_journal_filters_area_wyzima';
+			break;
+		case 'AN_Island_of_Myst':
+			l_questArea = 'panel_journal_filters_area_island_of_myst';
+			break;
+		case 'AN_Spiral':
+			l_questArea = 'panel_journal_filters_area_spiral';
+			break;
+		case 'AN_Prologue_Village_Winter':
+			l_questArea = 'panel_journal_filters_area_prolgue_village';
+			break;
+		case 'AN_Velen':
+			l_questArea = 'panel_journal_filters_area_velen';
+			break;
+		case 'AN_Dlc_Bob':
+			l_questArea = 'panel_journal_filters_area_bob';
+			break;
+		case 'AN_Bob':
+			l_questArea = 'panel_journal_filters_area_bob';
+			break;
+
+		default:
+			l_questArea = 'panel_journal_filters_area_any';
+			break;
+	}
+	return l_questArea;
+}
+
+function SortArrayByWorld( arr : array<CJournalQuest> ) : array<CJournalQuest>
+{
+	var tempArray, curWorldArr, nonCurWorldArr : array<CJournalQuest>;
+	var trackedQuest : CJournalQuest;
+	var i : int;
+	var currentArea	 : name;
+	var l_journalManager		: CWitcherJournalManager;	
+
+	l_journalManager = theGame.GetJournalManager();
+
+	theGame.GetCommonMapManager().GetCurrentJournalArea( currentArea );
+
+	for( i = 0; i < arr.Size(); i+= 1 )
+	{
+		if( l_journalManager.GetTrackedQuest().guid == arr[i].guid &&  l_journalManager.GetEntryStatus(arr[i]) == JS_Active )
+		{
+			trackedQuest = arr[i];
+		}
+		if(arr[i].GetWorld() == currentArea)
+		{
+			curWorldArr.PushBack(arr[i]);
+		}
+		else
+		{
+			nonCurWorldArr.PushBack(arr[i]);
+		}
+	}
+
+	if(trackedQuest)
+	{
+		tempArray.PushBack(trackedQuest);
+	}
+	for( i = 0; i < curWorldArr.Size(); i+= 1 )
+	{
+		if(trackedQuest != curWorldArr[i])
+		{
+			tempArray.PushBack(curWorldArr[i]);
+		}
+	}
+	for( i = 0; i < nonCurWorldArr.Size(); i+= 1 )
+	{
+		if(trackedQuest != nonCurWorldArr[i])
+		{
+			tempArray.PushBack(nonCurWorldArr[i]);
+		}			
+	}
+
+	return tempArray;
 }

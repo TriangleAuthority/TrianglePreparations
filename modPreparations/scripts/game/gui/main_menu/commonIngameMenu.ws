@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CR4CommonIngameMenu extends CR4MenuBase
 {
 	private var m_menuData 	  		: array< SMenuTab >;
@@ -16,14 +12,28 @@ class CR4CommonIngameMenu extends CR4MenuBase
 	event  OnConfigUI()
 	{
 		var menuName : name;
+		var selectionPopupRef : CR4ItemSelectionPopup; 
 		
 		
-		if ((!thePlayer.IsAlive() && !thePlayer.OnCheckUnconscious()) || theGame.HasBlackscreenRequested() || theGame.IsDialogOrCutscenePlaying() )
+		if ((!thePlayer.IsAlive() && !thePlayer.OnCheckUnconscious()) || theGame.HasBlackscreenRequested() || FactsQuerySum("nge_pause_menu_disabled") > 0 ) 
 		{
 			CloseMenu();
 		}
 		else
 		{
+			
+			if(theGame.IsDialogOrCutscenePlaying())
+				theSound.SoundEvent("music_pause");
+			
+			
+			
+			selectionPopupRef = (CR4ItemSelectionPopup)theGame.GetGuiManager().GetPopup('ItemSelectionPopup');
+			if (selectionPopupRef)
+			{
+				theGame.ClosePopup('ItemSelectionPopup');
+			}
+			
+			
 			m_hideTutorial = true;
 			m_forceHideTutorial = true;
 			super.OnConfigUI();
@@ -31,7 +41,7 @@ class CR4CommonIngameMenu extends CR4MenuBase
 			
 			theGame.GetGuiManager().RequestMouseCursor(true);
 			
-			if (theInput.LastUsedPCInput())
+			if (theInput.IsMousePresent())
 			{
 				theGame.MoveMouseTo(0.17, 0.36);
 			}
@@ -54,6 +64,11 @@ class CR4CommonIngameMenu extends CR4MenuBase
 	
 	event  OnClosingMenu()
 	{
+		
+		if(theGame.IsDialogOrCutscenePlaying())
+			theSound.SoundEvent("music_resume");
+		
+		
 		super.OnClosingMenu();
 		
 		if (m_configUICalled)

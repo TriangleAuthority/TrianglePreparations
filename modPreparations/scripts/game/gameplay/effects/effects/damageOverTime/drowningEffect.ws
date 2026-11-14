@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 class W3Effect_Drowning extends W3DamageOverTimeEffect
 {
 	var m_NoSaveLockInt : int;
@@ -36,7 +33,13 @@ class W3Effect_Drowning extends W3DamageOverTimeEffect
 	}
 	
 	event OnUpdate(dt : float)
-	{
+	{	
+		var inGameConfigWrapper : CInGameConfigWrapper;
+		var isAccessibilityAirDrainDisabled : bool;
+
+		inGameConfigWrapper = (CInGameConfigWrapper)theGame.GetInGameConfigWrapper();
+		isAccessibilityAirDrainDisabled = inGameConfigWrapper.GetVarValue('Accessibility', 'NoAirDrain') == "true";
+
 		super.OnUpdate(dt);
 
 		submergeDepth = mac.GetSubmergeDepth();
@@ -58,7 +61,7 @@ class W3Effect_Drowning extends W3DamageOverTimeEffect
 		}
 		
 		
-		if( target.GetStat(BCS_Air) > 0 || ( isOnPlayer && !thePlayer.OnCheckDiving() ) )
+		if( target.GetStat(BCS_Air) > 0 || ( isOnPlayer && !thePlayer.OnCheckDiving() ) || isAccessibilityAirDrainDisabled )
 		{
 			isActive = false;
 			return false;

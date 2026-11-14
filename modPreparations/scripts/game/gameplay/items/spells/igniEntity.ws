@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 struct SIgniEffects
 {
@@ -29,6 +29,14 @@ struct SIgniChannelDT
 
 statemachine class W3IgniEntity extends W3SignEntity
 {
+	
+	protected var burnEffectPlayed : bool;
+	public function GetBurnEffectPlayed() : bool
+	{
+		return burnEffectPlayed;
+	}
+	
+
 	private var collisionFxEntity, rangeFxEntity	: CEntity;				
 	private var channelBurnTestDT : array<SIgniChannelDT>;					
 	private var lastCollisionFxPos : Vector;								
@@ -93,7 +101,7 @@ statemachine class W3IgniEntity extends W3SignEntity
 		projectileCollision.PushBack( 'Corpse' );
 		projectileCollision.PushBack( 'ParticleCollider' ); 
 	
-		if ( owner.ChangeAspect( this, S_Magic_s02 ) )
+		if ( owner.ChangeAspect( this, S_Magic_s02 ) || owner.ChangeAspect( this, S_Magic_s28 ) )
 		{
 			CacheActionBuffsFromSkill();
 			GotoState( 'IgniChanneled' );
@@ -110,8 +118,10 @@ statemachine class W3IgniEntity extends W3SignEntity
 	protected function FillActionBuffsFromSkill(act : W3DamageAction)
 	{
 		
-		if(fireMode != 2)
-			super.FillActionBuffsFromSkill(act);
+		
+		
+		
+		super.FillActionBuffsFromSkill(act);
 	}
 	
 	
@@ -171,7 +181,8 @@ statemachine class W3IgniEntity extends W3SignEntity
 		{
 			if(!IsAlternateCast() && owner.CanUseSkill(S_Magic_s07))
 			{
-				PlayEffect( effects[fireMode].throwEffectSpellPower );
+				PlayEffect( effects[fireMode].throwEffect ); 
+				PlayEffect( effects[fireMode].throwEffectSpellPower );				
 			}
 			else
 			{
@@ -496,7 +507,13 @@ state IgniChanneled in W3IgniEntity extends Channeling
 			if(currTime - lastTime > 0)	
 				ProcessThrow(currTime - lastTime);
 				
-			lastTime = currTime;			
+			lastTime = currTime;	
+	
+			
+			if(parent.IsEffectActive('burn', false) || parent.IsEffectActive('burn_upgrade', false))
+				parent.burnEffectPlayed = true;
+			
+		
 			SleepOneFrame();
 		}
 	}

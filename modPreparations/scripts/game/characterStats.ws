@@ -1,14 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
 function StatNameToEnum(n : name) : EBaseCharacterStats
 {
 	switch(n)
@@ -23,6 +17,7 @@ function StatNameToEnum(n : name) : EBaseCharacterStats
 		case 'panic' : 				return BCS_Panic;
 		case 'panicStatic' :		return BCS_PanicStatic;
 		case 'swimmingStamina' :	return BCS_SwimmingStamina;
+		case 'rested' 	:			return BCS_Rested;
 		default:					return BCS_Undefined;
 	}
 }
@@ -41,6 +36,7 @@ function StatEnumToName(s : EBaseCharacterStats) : name
 		case BCS_Panic	:			return 'panic';
 		case BCS_PanicStatic :		return 'panicStatic';
 		case BCS_SwimmingStamina :	return 'swimmingStamina';
+		case BCS_Rested :			return 'rested';
 		default:					return '';
 	}
 }

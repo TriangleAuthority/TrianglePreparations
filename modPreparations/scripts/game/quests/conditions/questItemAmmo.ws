@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class W3QuestCond_ItemAmmo_AmmoListener extends IGlobalEventScriptedListener
 {
 	public var condition : W3QuestCond_ItemAmmo;
@@ -45,6 +41,12 @@ class W3QuestCond_ItemAmmo extends CQuestScriptedCondition
 
 	function RegisterAmmoListener( flag : bool )
 	{
+		if (ammoListener && flag)
+			return;
+	
+		if (!ammoListener && !flag)
+			return;
+		
 		if ( flag )
 		{
 			ammoListener = new W3QuestCond_ItemAmmo_AmmoListener in this;
@@ -67,6 +69,13 @@ class W3QuestCond_ItemAmmo extends CQuestScriptedCondition
 		{
 			return;
 		}
+		
+		if (inventoryListener && flag)
+			return;
+	
+		if (!inventoryListener && !flag)
+			return;
+			
 		if ( flag )
 		{
 			inventoryListener = new W3QuestCond_ItemAmmo_InventoryListener in this;

@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class W3LevelManager
 {
 	private var owner : W3PlayerWitcher;
@@ -120,6 +116,9 @@ class W3LevelManager
 				points[EExperiencePoint].used = expForCurrentLevel;
 			}
 		}
+
+		
+		theTelemetry.LogWithValue(TE_HERO_LEVEL_UP, level);
 	}
 	
 	public final function ResetCharacterDev()
@@ -292,6 +291,8 @@ class W3LevelManager
 				hudWolfHeadModule.ShowLevelUpIndicator(show);
 			}
 		}
+
+		( ( W3PlayerAbilityManager ) GetWitcherPlayer().abilityManager ).UpdateSkillSlots();
 	}
 	
 	
@@ -470,4 +471,16 @@ class W3LevelManager
 		
 		AddPoints( ESkillPoint, 10, false );
 	}
+	
+	
+	public function NGE_SetUsedPoints(amount : int)
+	{
+		points[ ESkillPoint ].used = amount;
+	}
+	
+	public function NGE_SetFreePoints(amount : int)
+	{
+		points[ ESkillPoint ].free = amount;
+	}
+	
 }

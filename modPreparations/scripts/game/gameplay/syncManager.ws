@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 import struct SAnimationSequencePartDefinition
 {
 	import var animation							: name;
@@ -65,12 +61,16 @@ statemachine class W3SyncAnimationManager
 	public var dlcFinishersLeftSide			: array< CR4FinisherDLC >;
 	public var dlcFinishersRightSide		: array< CR4FinisherDLC >;
 	
+	var blockedActionsPettingDog					: array<EInputActionBlock>;
+	
 	public function CreateNewSyncInstance( out index : int ) : CAnimationManualSlotSyncInstance
 	{
 		var newSyncInstance : CAnimationManualSlotSyncInstance;
 		
 		newSyncInstance = new CAnimationManualSlotSyncInstance in this;
 		syncInstances.PushBack( newSyncInstance );
+		
+		InitializeBlockActionsPettingDog();
 		
 		index = syncInstances.Size() - 1;
 		
@@ -88,6 +88,48 @@ statemachine class W3SyncAnimationManager
 	{
 		syncInstances.Remove( instance );
 	}
+	
+	function InitializeBlockActionsPettingDog( )
+	{
+		blockedActionsPettingDog.PushBack(EIAB_CallHorse);
+		blockedActionsPettingDog.PushBack(EIAB_Movement);
+		blockedActionsPettingDog.PushBack(EIAB_Fists);
+		blockedActionsPettingDog.PushBack(EIAB_Jump);
+		blockedActionsPettingDog.PushBack(EIAB_RunAndSprint);
+		blockedActionsPettingDog.PushBack(EIAB_UsableItem);
+		blockedActionsPettingDog.PushBack(EIAB_Dodge);
+		blockedActionsPettingDog.PushBack(EIAB_Roll);
+		blockedActionsPettingDog.PushBack(EIAB_SwordAttack);
+		blockedActionsPettingDog.PushBack(EIAB_Sprint);
+		blockedActionsPettingDog.PushBack(EIAB_Explorations);
+		blockedActionsPettingDog.PushBack(EIAB_Counter);
+		blockedActionsPettingDog.PushBack(EIAB_LightAttacks);
+		blockedActionsPettingDog.PushBack(EIAB_HeavyAttacks);
+		blockedActionsPettingDog.PushBack(EIAB_SpecialAttackLight);
+		blockedActionsPettingDog.PushBack(EIAB_SpecialAttackHeavy);
+		blockedActionsPettingDog.PushBack(EIAB_MeditationWaiting);
+	}
+	
+	public function BlockActionsPettingDog( block : bool )
+	{
+		var i : int;
+		
+		if ( blockedActionsPettingDog.Size() > 0 )
+		{
+			for ( i = 0 ; i < blockedActionsPettingDog.Size() ; i += 1 )
+			{
+				if ( block )
+				{
+					thePlayer.BlockAction( blockedActionsPettingDog[i], 'PettingDog' );
+				}
+				else
+				{
+					thePlayer.UnblockAction( blockedActionsPettingDog[i], 'PettingDog' );
+				}
+			}
+		}
+	}
+	
 	
 	public function SetupSimpleSyncAnim( syncAction : name, master, slave : CEntity ) : bool
 	{
@@ -229,13 +271,13 @@ statemachine class W3SyncAnimationManager
 				slaveSequencePart.disableProxyCollisions = true;
 				
 				
-		
+				
 				
 				
 				
 				slaveDef.parts.PushBack( slaveSequencePart );
 				slaveDef.entity							= slave;
-		
+				
 				slaveDef.manualSlotName					= 'FinisherSlot';
 				slaveDef.freezeAtEnd					= false;
 				
@@ -590,7 +632,7 @@ statemachine class W3SyncAnimationManager
 			case 'SirenCrawlFinisher':
 			{
 				
-				masterSequencePart.animation		= 'man_attack';
+				masterSequencePart.animation		= 'man_ger_crawl_finish';
 				masterSequencePart.syncType			= AMST_SyncMatchEvents;
 				masterSequencePart.syncEventName	= 'SyncEvent';
 				masterSequencePart.shouldSlide		= true;
@@ -1149,13 +1191,13 @@ statemachine class W3SyncAnimationManager
 				slaveSequencePart.disableProxyCollisions = true;
 				
 				
-		
+				
 				
 				
 				
 				slaveDef.parts.PushBack( slaveSequencePart );
 				slaveDef.entity							= slave;
-		
+				
 				slaveDef.manualSlotName					= 'GAMEPLAY_SLOT';
 				slaveDef.freezeAtEnd					= true;
 				
@@ -1447,13 +1489,15 @@ statemachine class W3SyncAnimationManager
 		var rot : EulerAngles;
 		
 		var finisherAnim : bool;
+		var ignoreMasterFinisherAnim 				: bool; 
 		var pos : Vector;
 		
 		var syncAnimName	: name;
 		
 		var node, node1 : CNode; 
 		var rot0, rot1 : EulerAngles;
-		
+
+
 		syncInstance = CreateNewSyncInstance( instanceIndex );
 		
 		
@@ -1726,6 +1770,188 @@ statemachine class W3SyncAnimationManager
 				
 				break;	
 			}
+			
+			case 'PetHorse':
+			{
+				rot = slave.GetWorldRotation();
+				
+				
+				if( VecDistance(master.GetWorldPosition(), slave.GetWorldPosition() + VecConeRand(slave.GetHeading() - 90, 0, 1,1)) < VecDistance(master.GetWorldPosition(), slave.GetWorldPosition() + VecConeRand(slave.GetHeading() + 90, 0, 1,1))  )
+				{
+					
+					masterSequencePart.animation			= 'high_standing_determined_gesture_preparing_horse1b';	
+					masterSequencePart.finalPosition		= slave.GetWorldPosition() + VecConeRand(slave.GetHeading() - 90, 0, 0.82,0.82) + VecConeRand(slave.GetHeading(), 0, 0.5,0.5);				
+					masterSequencePart.finalHeading			= rot.Yaw + 95;
+				}
+				else
+				{
+					
+					masterSequencePart.animation			= 'high_standing_determined_gesture_preparing_horse2';	
+					masterSequencePart.finalPosition		= slave.GetWorldPosition() + VecConeRand(slave.GetHeading() + 90, 0, 0.82,0.82) + VecConeRand(slave.GetHeading(), 0, 0.3,0.3);				
+					masterSequencePart.finalHeading			= rot.Yaw - 90;
+				}
+				
+				masterSequencePart.syncType				= AMST_SyncBeginning;
+				masterSequencePart.syncEventName		= 'SyncEvent';
+				masterSequencePart.shouldSlide			= true;
+				masterSequencePart.shouldRotate			= true;
+				masterSequencePart.blendInTime			= 0.5f;
+				masterSequencePart.blendOutTime			= 1.2f;
+				masterSequencePart.sequenceIndex		= 0;
+				
+				masterDef.parts.PushBack( masterSequencePart );
+				masterDef.entity						= master;
+				masterDef.manualSlotName				= 'GAMEPLAY_SLOT';
+				masterDef.freezeAtEnd					= false;
+				
+				
+				slaveSequencePart.animation				= 'horse_breathing_slow';			
+				slaveSequencePart.syncType				= AMST_SyncBeginning;
+				slaveSequencePart.syncEventName			= 'SyncEvent';
+				slaveSequencePart.shouldSlide			= false;
+				slaveSequencePart.blendInTime			= 0.5f;
+				slaveSequencePart.blendOutTime			= 0.5f;
+				slaveSequencePart.sequenceIndex			= 0;
+				
+				slaveDef.parts.PushBack( slaveSequencePart );
+				slaveDef.entity							= slave;
+				slaveDef.manualSlotName					= 'EXP_SLOT';
+				slaveDef.freezeAtEnd					= false;
+				
+				break;
+			}
+			case 'PetDogLie':
+			{
+				BlockActionsPettingDog(true);
+				rot = slave.GetWorldRotation();
+				pos = GetActorPosition( slave );
+				
+				
+				masterSequencePart.animation			= 'man_geralt_stand_pet_dog_lying';
+				masterSequencePart.syncType				= AMST_SyncBeginning;
+				masterSequencePart.syncEventName		= 'SyncEvent';
+				masterSequencePart.shouldSlide			= true;
+				masterSequencePart.shouldRotate			= true;
+				masterSequencePart.finalPosition		= slave.GetWorldPosition() - 1.12f * VecNormalize( VecFromHeading( rot.Yaw + 180 )) + 0.25f * VecNormalize( VecFromHeading( rot.Yaw + 90 ));
+				masterSequencePart.finalHeading			= rot.Yaw + 190;
+				masterSequencePart.blendInTime			= 0.2f;
+				masterSequencePart.blendOutTime			= 0.2f;
+				masterSequencePart.sequenceIndex		= 0;
+				
+				masterDef.parts.PushBack( masterSequencePart );
+				masterDef.entity						= master;
+				masterDef.manualSlotName				= 'GAMEPLAY_SLOT';
+				masterDef.freezeAtEnd					= false;
+				masterDef.raiseForceEventOnEnd			= 'ForceIdle';
+				
+				
+				slaveSequencePart.animation				= 'geralt_stand_pet_dog_lying_to_idle';
+				slaveSequencePart.syncType				= AMST_SyncBeginning;
+				slaveSequencePart.syncEventName			= 'SyncEvent';
+				slaveSequencePart.shouldSlide			= false;
+				slaveSequencePart.blendInTime			= 0.3f;
+				slaveSequencePart.blendOutTime			= 0.2f;
+				slaveSequencePart.sequenceIndex			= 0;
+				
+				slaveDef.parts.PushBack( slaveSequencePart );
+				slaveDef.entity			= slave;
+				slaveDef.manualSlotName	= 'GAMEPLAY_SLOT';
+				slaveDef.freezeAtEnd	= false;
+				slaveDef.raiseEventOnEnd = 'Lie';
+				
+				masterEntity = (CGameplayEntity)master;
+				slaveEntity = (CGameplayEntity)slave;
+				
+				break;
+			}
+			case 'PetDog':
+			{
+				BlockActionsPettingDog(true);
+				rot = slave.GetWorldRotation();
+				pos = GetActorPosition( slave );
+				
+				
+				masterSequencePart.animation			= 'man_geralt_stand_pet_dog';
+				masterSequencePart.syncType				= AMST_SyncBeginning;
+				masterSequencePart.syncEventName		= 'SyncEvent';
+				masterSequencePart.shouldSlide			= true;
+				masterSequencePart.shouldRotate			= true;
+				masterSequencePart.finalPosition		= slave.GetWorldPosition() - 1.05f * VecNormalize( VecFromHeading( rot.Yaw + 180 )) + 0.1f * VecNormalize( VecFromHeading( rot.Yaw + 90 ));
+				masterSequencePart.finalHeading			= rot.Yaw + 190;
+				masterSequencePart.blendInTime			= 0.2f;
+				masterSequencePart.blendOutTime			= 0.2f;
+				masterSequencePart.sequenceIndex		= 0;
+				
+				masterDef.parts.PushBack( masterSequencePart );
+				masterDef.entity						= master;
+				masterDef.manualSlotName				= 'GAMEPLAY_SLOT';
+				masterDef.freezeAtEnd					= false;
+				masterDef.raiseForceEventOnEnd			= 'ForceIdle';
+				
+				
+				slaveSequencePart.animation				= 'geralt_stand_pet_dog';
+				slaveSequencePart.syncType				= AMST_SyncBeginning;
+				slaveSequencePart.syncEventName			= 'SyncEvent';
+				slaveSequencePart.shouldSlide			= false;
+				slaveSequencePart.blendInTime			= 0.3f;
+				slaveSequencePart.blendOutTime			= 0.3f;
+				slaveSequencePart.sequenceIndex			= 0;
+				
+				slaveDef.parts.PushBack( slaveSequencePart );
+				slaveDef.entity			= slave;
+				slaveDef.manualSlotName	= 'GAMEPLAY_SLOT';
+				slaveDef.freezeAtEnd	= false;
+				
+				masterEntity = (CGameplayEntity)master;
+				slaveEntity = (CGameplayEntity)slave;
+				
+				break;
+			}
+			case 'PetWildDog':
+			{
+				BlockActionsPettingDog(true);
+				rot = slave.GetWorldRotation();
+				pos = GetActorPosition( slave );
+				
+				
+				masterSequencePart.animation			= 'man_geralt_stand_pet_wild_dog';
+				masterSequencePart.syncType				= AMST_SyncBeginning;
+				masterSequencePart.syncEventName		= 'SyncEvent';
+				masterSequencePart.shouldSlide			= true;
+				masterSequencePart.shouldRotate			= true;
+				masterSequencePart.finalPosition		= slave.GetWorldPosition() - 1.5f * VecNormalize( VecFromHeading( rot.Yaw + 180 )) - 0.0 * VecNormalize( VecFromHeading( rot.Yaw + 90 ));
+				masterSequencePart.finalHeading			= rot.Yaw + 180;
+				masterSequencePart.blendInTime			= 0.2f;
+				masterSequencePart.blendOutTime			= 0.2f;
+				masterSequencePart.sequenceIndex		= 0;
+				
+				masterDef.parts.PushBack( masterSequencePart );
+				masterDef.entity						= master;
+				masterDef.manualSlotName				= 'GAMEPLAY_SLOT';
+				masterDef.freezeAtEnd					= false;
+				masterDef.raiseForceEventOnEnd			= 'ForceIdle';
+				
+				
+				slaveSequencePart.animation				= 'geralt_stand_pet_wild_dog';
+				slaveSequencePart.syncType				= AMST_SyncBeginning;
+				slaveSequencePart.syncEventName			= 'SyncEvent';
+				slaveSequencePart.shouldSlide			= false;
+				slaveSequencePart.blendInTime			= 0.3f;
+				slaveSequencePart.blendOutTime			= 0.3f;
+				slaveSequencePart.sequenceIndex			= 0;
+				
+				slaveDef.parts.PushBack( slaveSequencePart );
+				slaveDef.entity			= slave;
+				slaveDef.manualSlotName	= 'GAMEPLAY_SLOT';
+				slaveDef.freezeAtEnd	= false;
+				
+				masterEntity = (CGameplayEntity)master;
+				slaveEntity = (CGameplayEntity)slave;
+				
+				break;
+			}
+
+			
 			default : 
 			{
 				syncInstances.Remove( syncInstance );
@@ -1749,7 +1975,7 @@ statemachine class W3SyncAnimationManager
 		{
 			actorMaster.SignalGameplayEventParamInt( 'SetupSyncInstance', instanceIndex );
 			actorMaster.SignalGameplayEventParamInt( 'SetupSequenceIndex', sequenceIndex );
-			if ( finisherAnim )
+			if ( finisherAnim && !ignoreMasterFinisherAnim)
 				actorMaster.SignalGameplayEvent( 'PlayFinisherSyncedAnim' );
 			else
 				actorMaster.SignalGameplayEvent( 'PlaySyncedAnim' );
@@ -1776,6 +2002,8 @@ statemachine class W3SyncAnimationManager
 			else
 				actorSlave.SignalGameplayEvent( 'PlaySyncedAnim' );
 		}
+
+
 		
 		
 		
@@ -1833,18 +2061,38 @@ statemachine class W3SyncAnimationManager
 		if ( thePlayer.GetCombatIdleStance() <= 0.f )
 		{
 			syncAnimsNames.PushBack( 'man_finisher_02_lp' );
+			syncAnimsNames.PushBack( 'man_finisher_02_lp' );
+			syncAnimsNames.PushBack( 'man_finisher_02_lp' );
+			syncAnimsNames.PushBack( 'man_finisher_02_lp' );
 			syncAnimsNames.PushBack( 'man_finisher_04_lp' );
 			syncAnimsNames.PushBack( 'man_finisher_06_lp' );
 			syncAnimsNames.PushBack( 'man_finisher_07_lp' );
+			syncAnimsNames.PushBack( 'man_finisher_07_lp' );
+			syncAnimsNames.PushBack( 'man_finisher_08_lp' );
 			syncAnimsNames.PushBack( 'man_finisher_08_lp' );
 			size = dlcFinishersLeftSide.Size();
 			for( i = 0; i < size; i += 1 )
 			{
 				syncAnimsNames.PushBack( dlcFinishersLeftSide[i].finisherAnimName );
-			}			
+				if(dlcFinishersLeftSide[i].finisherAnimName == 'man_finisher_dlc_legs_lp')
+				{
+					syncAnimsNames.PushBack( dlcFinishersLeftSide[i].finisherAnimName );
+					syncAnimsNames.PushBack( dlcFinishersLeftSide[i].finisherAnimName );
+					syncAnimsNames.PushBack( dlcFinishersLeftSide[i].finisherAnimName );
+				}
+			}
+
+			
+			syncAnimsNames.PushBack('man_finisher_sword_v3_lp_remaster');
+			syncAnimsNames.PushBack('man_finisher_sword_v3_lp_remaster');
+			syncAnimsNames.PushBack('man_finisher_sword_v3_lp_remaster');
+			syncAnimsNames.PushBack('man_finisher_sword_v3_lp_remaster');
 		}
 		else
 		{
+			syncAnimsNames.PushBack( 'man_finisher_01_rp' );
+			syncAnimsNames.PushBack( 'man_finisher_01_rp' );
+			syncAnimsNames.PushBack( 'man_finisher_01_rp' );
 			syncAnimsNames.PushBack( 'man_finisher_01_rp' );
 			syncAnimsNames.PushBack( 'man_finisher_03_rp' );
 			syncAnimsNames.PushBack( 'man_finisher_05_rp' );
@@ -1852,6 +2100,35 @@ statemachine class W3SyncAnimationManager
 			for( i = 0; i < size; i += 1 )
 			{
 				syncAnimsNames.PushBack( dlcFinishersRightSide[i].finisherAnimName );
+				if(dlcFinishersRightSide[i].finisherAnimName == 'man_finisher_dlc_legs_rp')
+				{
+					syncAnimsNames.PushBack( dlcFinishersRightSide[i].finisherAnimName );
+					syncAnimsNames.PushBack( dlcFinishersRightSide[i].finisherAnimName );
+					syncAnimsNames.PushBack( dlcFinishersRightSide[i].finisherAnimName );
+				}
+				else if(dlcFinishersRightSide[i].finisherAnimName == 'man_finisher_dlc_head_rp')
+				{
+					syncAnimsNames.PushBack( dlcFinishersRightSide[i].finisherAnimName );
+					syncAnimsNames.PushBack( dlcFinishersRightSide[i].finisherAnimName );
+				}
+				else if(dlcFinishersRightSide[i].finisherAnimName == 'man_finisher_dlc_neck_rp')
+				{
+					syncAnimsNames.PushBack( dlcFinishersRightSide[i].finisherAnimName );
+					syncAnimsNames.PushBack( dlcFinishersRightSide[i].finisherAnimName );
+				}
+			}
+
+			
+			syncAnimsNames.PushBack( 'man_finisher_sword_v2_rp_remaster' );
+			syncAnimsNames.PushBack( 'man_finisher_sword_v2_rp_remaster' );
+			syncAnimsNames.PushBack( 'man_finisher_sword_v2_rp_remaster' );
+
+			if ( thePlayer.CanUseSkill( S_Magic_s33 ) )
+			{
+				syncAnimsNames.PushBack( 'man_finisher_aard_01_rp_remaster' );
+				syncAnimsNames.PushBack( 'man_finisher_aard_01_rp_remaster' );
+				syncAnimsNames.PushBack( 'man_finisher_aard_01_rp_remaster' );
+				syncAnimsNames.PushBack( 'man_finisher_aard_01_rp_remaster' );
 			}
 		}
 		return syncAnimsNames[ RandRange( syncAnimsNames.Size(),  0 ) ];
@@ -1880,8 +2157,8 @@ statemachine class W3SyncAnimationManager
 		
 		animation.animation = animationName;
 		animation.priority = CAP_Highest;
-		animation.blendIn = 0.f;
-		animation.blendOut = 0.5f;
+		animation.blendIn = 0.5f;	
+		animation.blendOut = 1.5f;	
 		animation.weight = 1.f;
 		animation.speed	= 1.0f;
 		animation.reset = true;
@@ -1984,6 +2261,7 @@ statemachine class W3SyncAnimationManager
 					case 'man_finisher_06_lp':	finisherCameraAnimName = 'man_finisher_06_lp_camera_right'; break;
 					case 'man_finisher_07_lp':	finisherCameraAnimName = 'man_finisher_07_lp_camera_right'; break;
 					case 'man_finisher_08_lp':	finisherCameraAnimName = 'man_finisher_08_lp_camera_right'; break;
+					case 'man_finisher_sword_v3_lp_remaster':	finisherCameraAnimName = 'man_finisher_sword_v3_lp_remaster_camera_right'; break;
 					default : finisherCameraAnimName = 'man_finisher_02_lp_camera_right'; checkDLCs = true; break;
 				}
 			}
@@ -1996,6 +2274,7 @@ statemachine class W3SyncAnimationManager
 					case 'man_finisher_06_lp':	finisherCameraAnimName = 'man_finisher_06_lp_camera_back'; break;
 					case 'man_finisher_07_lp':	finisherCameraAnimName = 'man_finisher_07_lp_camera_back'; break;
 					case 'man_finisher_08_lp':	finisherCameraAnimName = 'man_finisher_08_lp_camera_back'; break;
+					case 'man_finisher_sword_v3_lp_remaster':	finisherCameraAnimName = 'man_finisher_sword_v3_lp_remaster_camera_back'; break;
 					default : finisherCameraAnimName = 'man_finisher_02_lp_camera_back'; checkDLCs = true; break;
 				}
 			}
@@ -2008,6 +2287,7 @@ statemachine class W3SyncAnimationManager
 					case 'man_finisher_06_lp':	finisherCameraAnimName = 'man_finisher_06_lp_camera_left'; break;
 					case 'man_finisher_07_lp':	finisherCameraAnimName = 'man_finisher_07_lp_camera_left'; break;
 					case 'man_finisher_08_lp':	finisherCameraAnimName = 'man_finisher_08_lp_camera_left'; break;
+					case 'man_finisher_sword_v3_lp_remaster':	finisherCameraAnimName = 'man_finisher_sword_v3_lp_remaster_camera_left'; break;
 					default : finisherCameraAnimName = 'man_finisher_02_lp_camera_left'; checkDLCs = true; break;
 				}
 			}
@@ -2020,6 +2300,7 @@ statemachine class W3SyncAnimationManager
 					case 'man_finisher_06_lp':	finisherCameraAnimName = 'man_finisher_06_lp_camera_front'; break;
 					case 'man_finisher_07_lp':	finisherCameraAnimName = 'man_finisher_07_lp_camera_front'; break;
 					case 'man_finisher_08_lp':	finisherCameraAnimName = 'man_finisher_08_lp_camera_front'; break;
+					case 'man_finisher_sword_v3_lp_remaster':	finisherCameraAnimName = 'man_finisher_sword_v3_lp_remaster_camera_front'; break;
 					default : finisherCameraAnimName = 'man_finisher_02_lp_camera_front'; checkDLCs = true; break;
 				}
 			}
@@ -2037,6 +2318,8 @@ statemachine class W3SyncAnimationManager
 					case 'man_finisher_01_rp':	finisherCameraAnimName = 'man_finisher_01_rp_camera_right'; break;
 					case 'man_finisher_03_rp':	finisherCameraAnimName = 'man_finisher_03_rp_camera_right'; break;
 					case 'man_finisher_05_rp':	finisherCameraAnimName = 'man_finisher_05_rp_camera_right'; break;
+					case 'man_finisher_aard_01_rp_remaster': finisherCameraAnimName = 'man_finisher_aard_01_rp_remaster_camera_right'; break;
+					case 'man_finisher_sword_v2_rp_remaster': finisherCameraAnimName = 'man_finisher_sword_v2_rp_remaster_camera_right'; break;
 					default : finisherCameraAnimName = 'man_finisher_01_rp_camera_right'; checkDLCs = true; break;
 				}
 			}
@@ -2047,6 +2330,8 @@ statemachine class W3SyncAnimationManager
 					case 'man_finisher_01_rp':	finisherCameraAnimName = 'man_finisher_01_rp_camera_back'; break;
 					case 'man_finisher_03_rp':	finisherCameraAnimName = 'man_finisher_03_rp_camera_back'; break;
 					case 'man_finisher_05_rp':	finisherCameraAnimName = 'man_finisher_05_rp_camera_back'; break;
+					case 'man_finisher_aard_01_rp_remaster': finisherCameraAnimName = 'man_finisher_aard_01_rp_remaster_camera_back'; break;
+					case 'man_finisher_sword_v2_rp_remaster': finisherCameraAnimName = 'man_finisher_sword_v2_rp_remaster_camera_back'; break;
 					default : finisherCameraAnimName = 'man_finisher_01_rp_camera_back'; checkDLCs = true; break;
 				}
 			}
@@ -2057,6 +2342,8 @@ statemachine class W3SyncAnimationManager
 					case 'man_finisher_01_rp':	finisherCameraAnimName = 'man_finisher_01_rp_camera_left'; break;
 					case 'man_finisher_03_rp':	finisherCameraAnimName = 'man_finisher_03_rp_camera_left'; break;
 					case 'man_finisher_05_rp':	finisherCameraAnimName = 'man_finisher_05_rp_camera_left'; break;
+					case 'man_finisher_aard_01_rp_remaster': finisherCameraAnimName = 'man_finisher_aard_01_rp_remaster_camera_left'; break;
+					case 'man_finisher_sword_v2_rp_remaster': finisherCameraAnimName = 'man_finisher_sword_v2_rp_remaster_camera_left'; break;
 					default : finisherCameraAnimName = 'man_finisher_01_rp_camera_left'; checkDLCs = true; break;
 				}
 			}
@@ -2067,6 +2354,8 @@ statemachine class W3SyncAnimationManager
 					case 'man_finisher_01_rp':	finisherCameraAnimName = 'man_finisher_01_rp_camera_front'; break;
 					case 'man_finisher_03_rp':	finisherCameraAnimName = 'man_finisher_03_rp_camera_front'; break;
 					case 'man_finisher_05_rp':	finisherCameraAnimName = 'man_finisher_05_rp_camera_front'; break;
+					case 'man_finisher_aard_01_rp_remaster': finisherCameraAnimName = 'man_finisher_aard_01_rp_remaster_camera_front'; break;
+					case 'man_finisher_sword_v2_rp_remaster': finisherCameraAnimName = 'man_finisher_sword_v2_rp_remaster_camera_front'; break;
 					default : finisherCameraAnimName = 'man_finisher_01_rp_camera_front'; checkDLCs = true; break;
 				}
 			}
@@ -2075,7 +2364,7 @@ statemachine class W3SyncAnimationManager
 			{
 				GetDLCFinisherCameraAnimName( finisherAnimName, FinisherRight, i, finisherCameraAnimName ); 
 			}
-		}	
+		}
 		
 		return finisherCameraAnimName;
 	}
@@ -2221,6 +2510,7 @@ state Active in W3SyncAnimationManager
 		parent.slaveEntity.OnSyncAnimEnd();
 		
 		
+		parent.BlockActionsPettingDog(false);
 		thePlayer.UnblockAction(EIAB_Interactions, 'SyncManager' );
 		thePlayer.UnblockAction(EIAB_FastTravel, 'SyncManager' );
 		thePlayer.BlockAllActions( 'BTTaskPlaySyncAnim', false );

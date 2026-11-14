@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 struct SFocusInteractionIcon
 {
@@ -52,11 +52,16 @@ class CR4HudModuleInteractions extends CR4HudModuleBase
 	private const var FOCUS_INTERACION_RADIUS					: float;	default FOCUS_INTERACION_RADIUS						= 10;	
 	private const var FOCUS_INTERACTION_OPAQUE_ICON_RADIUS		: float;	default FOCUS_INTERACTION_OPAQUE_ICON_RADIUS		= 100;	
 	private const var FOCUS_INTERACTION_TRANSPARENT_ICON_RADIUS	: float;	default FOCUS_INTERACTION_TRANSPARENT_ICON_RADIUS	= 500;	
+	
+	
+	private var hud : CR4ScriptedHud;
+	private var isIconVisible : bool;
+	
  
 	event  OnConfigUI()
 	{		
 		var flashModule : CScriptedFlashSprite;
-		
+
 		flashModule 			= GetModuleFlash();
 		m_anchorName = "ScaleOnly";
 		m_fxEnableHoldIndicator						= flashModule.GetMemberFlashFunction( "EnableHoldIndicator" );
@@ -87,6 +92,9 @@ class CR4HudModuleInteractions extends CR4HudModuleBase
 		ShowElement( false ); 
 		
 		theGame.GetGuiManager().checkHoldIndicator();
+		
+		
+		hud = (CR4ScriptedHud)theGame.GetHud();		
 	}
 	
 	event  OnRequestShowHold()
@@ -127,6 +135,12 @@ class CR4HudModuleInteractions extends CR4HudModuleBase
 		var keys				: array< EInputKey >;
 		
 		var showInteractionIcon : bool;
+		
+		
+		var screenMargin : float = 0.085; 
+		var marginLeftTop : Vector;
+		var marginRightBottom : Vector;	
+		
 
 		
 		
@@ -190,6 +204,8 @@ class CR4HudModuleInteractions extends CR4HudModuleBase
 
 				m_fxSetInteractionKeyIconAndTextSFF.InvokeSelfFourArgs( FlashArgInt( key ), FlashArgInt( key2 ), FlashArgString( actionName ), FlashArgString( GetLocStringByKeyExt( actionText ) ) );
 				m_fxSetVisibilityExSFF.InvokeSelfFiveArgs( FlashArgBool( true ), FlashArgBool( false ), FlashArgBool( true ), FlashArgBool( showInteractionIcon ), FlashArgBool( true ) );
+				
+				isIconVisible = true;
 			}
 			else if ( displayEntity )
 			{
@@ -197,22 +213,51 @@ class CR4HudModuleInteractions extends CR4HudModuleBase
 				{
 					m_fxSetInteractionIconAndTextSFF.InvokeSelfTwoArgs( FlashArgString( actionName ), FlashArgString( GetLocStringByKeyExt( actionText ) ) );
 					m_fxSetVisibilityExSFF.InvokeSelfFiveArgs( FlashArgBool( true ), FlashArgBool( true ), FlashArgBool( true ), FlashArgBool( false ), FlashArgBool( true ) );
+					
+					isIconVisible = true;
 				}
 				else
 				{
 					m_fxSetVisibilityExSFF.InvokeSelfFiveArgs( FlashArgBool( true ), FlashArgBool( false ), FlashArgBool( true ), FlashArgBool( false ), FlashArgBool( false ) );
+					
+					isIconVisible = true;
 				}
 			}
 			else
 			{
 				m_fxSetVisibilitySFF.InvokeSelfTwoArgs( FlashArgBool( false ), FlashArgBool( false ) );
+				
+				isIconVisible = false;
 			}
 		}
 		
 		if ( _interactionEntity )
 		{
 			if ( GetInteractionScreenPosition( _interactionEntity, _interactionEntityComponent, screenPos ) )
-			{
+			{			
+				
+				marginLeftTop     = hud.GetScaleformPoint( screenMargin,     screenMargin );
+				marginRightBottom = hud.GetScaleformPoint( 1 - screenMargin, 1 - screenMargin );
+
+				if ( screenPos.X < marginLeftTop.X )
+				{
+					screenPos.X = marginLeftTop.X;
+				}
+				else if ( screenPos.X > marginRightBottom.X )
+				{
+					screenPos.X = marginRightBottom.X;
+				}
+				
+				if ( screenPos.Y < marginLeftTop.Y )
+				{
+					screenPos.Y = marginLeftTop.Y;
+				}
+				else if ( screenPos.Y > marginRightBottom.Y )
+				{
+					screenPos.Y = marginRightBottom.Y;
+				}
+				
+			
 				m_fxSetPositionsSFF.InvokeSelfTwoArgs( FlashArgNumber( screenPos.X ), FlashArgNumber( screenPos.Y ) );			
 			}
 		}
@@ -220,6 +265,29 @@ class CR4HudModuleInteractions extends CR4HudModuleBase
 		{
 			if ( GetInteractionScreenPosition( displayEntity, NULL, screenPos ) )
 			{
+				
+				marginLeftTop     = hud.GetScaleformPoint( screenMargin,     screenMargin );
+				marginRightBottom = hud.GetScaleformPoint( 1 - screenMargin, 1 - screenMargin );
+
+				if ( screenPos.X < marginLeftTop.X )
+				{
+					screenPos.X = marginLeftTop.X;
+				}
+				else if ( screenPos.X > marginRightBottom.X )
+				{
+					screenPos.X = marginRightBottom.X;
+				}
+				
+				if ( screenPos.Y < marginLeftTop.Y )
+				{
+					screenPos.Y = marginLeftTop.Y;
+				}
+				else if ( screenPos.Y > marginRightBottom.Y )
+				{
+					screenPos.Y = marginRightBottom.Y;
+				}
+				
+			
 				m_fxSetPositionsSFF.InvokeSelfTwoArgs( FlashArgNumber( screenPos.X ), FlashArgNumber( screenPos.Y ) );
 			}
 		}
@@ -307,12 +375,23 @@ class CR4HudModuleInteractions extends CR4HudModuleBase
 	
 	function GetInteractionScreenPosition( interactionEntity : CEntity, interactionComponent : CInteractionComponent, out screenPos : Vector, optional normalized : bool ) : bool
 	{
+		var targetEntity			: CGameplayEntity;
+
 		if ( !interactionEntity )
 		{
 			return false;
 		}
+
+		targetEntity = (CGameplayEntity)interactionEntity;
 		
-		if( (CActor)interactionEntity )
+		if( targetEntity && targetEntity.iconUseComponent )
+		{
+			if ( GetBaseScreenPosition( screenPos, interactionEntity, interactionComponent, , , normalized ) )
+			{
+				return true;
+			}
+		}
+		else if( (CActor)interactionEntity )
 		{
 			if ( GetBaseScreenPosition( screenPos, interactionEntity, , , , normalized ) )
 			{
@@ -349,6 +428,11 @@ class CR4HudModuleInteractions extends CR4HudModuleBase
 		{
 			return false;
 		}
+		
+		
+		if(isIconVisible)
+			return true;
+		
 		
 		
 		if ( GetInteractionScreenPosition( interactionEntity, interactionComponent, screenPos, true ) )
@@ -644,4 +728,3 @@ exec function yen2()
 	module = (CR4HudModuleOneliners)hud.GetHudModule("OnelinersModule");
 	module.OnRemoveOneliner( 12345 );
 }
-

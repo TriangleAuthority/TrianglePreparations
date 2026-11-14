@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CBTTaskSummonCreatures extends CBTTaskAttack
 {
 	var dontResummonUntilMinionsAreDead 		: bool;
@@ -40,7 +36,7 @@ class CBTTaskSummonCreatures extends CBTTaskAttack
 	{
 		if ( preventActivationUntilMinionsAreDead )
 		{
-			return MinionNumberCheck();
+			return NoMinionCheck();
 		}
 		return true;
 	}
@@ -68,8 +64,8 @@ class CBTTaskSummonCreatures extends CBTTaskAttack
 		{
 			SleepOneFrame();
 		}
-		
-		if ( ( dontResummonUntilMinionsAreDead && MinionNumberCheck() ) || !dontResummonUntilMinionsAreDead )
+
+		if ( NoMinionCheck() || !dontResummonUntilMinionsAreDead )
 		{
 			SummonCreatures();
 		}
@@ -111,8 +107,8 @@ class CBTTaskSummonCreatures extends CBTTaskAttack
 						minDistance = cameraToPlayerDistance*1.2;
 						maxDistance = ( maxDistance + ( cameraToPlayerDistance - minDistance ))*1.2;
 					}
-					spawnPos = VecConeRand( (theCamera.GetCameraHeading() ), 180, minDistance, maxDistance );
-					freeSpawnPos = theCamera.GetCameraPosition() - spawnPos;
+					spawnPos = VecConeRand( theCamera.GetCameraHeading(), 360 - (theCamera.GetFov() + 20), minDistance, maxDistance );
+					freeSpawnPos = thePlayer.GetWorldPosition() - spawnPos;
 					theGame.GetWorld().StaticTrace( freeSpawnPos + Vector(0,0,3), freeSpawnPos - Vector(0,0,3), freeSpawnPos, normal );
 				}
 				else
@@ -217,7 +213,7 @@ class CBTTaskSummonCreatures extends CBTTaskAttack
 		}
 	}
 	
-	function MinionNumberCheck() : bool
+	function NoMinionCheck() : bool
 	{
 		var npc : CNewNPC = GetNPC();
 		var i : int;
@@ -247,7 +243,7 @@ class CBTTaskSummonCreatures extends CBTTaskAttack
 		{
 			if ( minions.Size() < 1 )
 			{
-				MinionNumberCheck();
+				NoMinionCheck();
 			}
 			for ( i = 0; i < minions.Size(); i += 1 )
 			{

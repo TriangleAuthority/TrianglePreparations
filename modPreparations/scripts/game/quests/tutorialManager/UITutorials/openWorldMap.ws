@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 state OpenWorldMap in W3TutorialManagerUIHandler extends TutHandlerBaseState
 {
 	private const var OPEN_FAST_MENU, OPEN_MAP : name;
@@ -20,7 +17,7 @@ state OpenWorldMap in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		
 		theGame.GetTutorialSystem().HideTutorialHint( OPEN_FAST_MENU );
 		
-		ShowHint(OPEN_MAP, 0.35f, 0.6f, ETHDT_Infinite, GetHighlightHubMenuMap() );	
+		
 	}
 	
 	event OnLeaveState( nextStateName : name )

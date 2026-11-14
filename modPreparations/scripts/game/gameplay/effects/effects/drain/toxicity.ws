@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 class W3Effect_Toxicity extends CBaseGameplayEffect
 {
 	
@@ -50,7 +47,7 @@ class W3Effect_Toxicity extends CBaseGameplayEffect
 		
 		super.OnEffectAdded(customParams);	
 	}
-	
+
 	
 	
 	event OnUpdate(deltaTime : float)
@@ -59,44 +56,96 @@ class W3Effect_Toxicity extends CBaseGameplayEffect
 		var dmgValue, min, max : SAbilityAttributeValue;
 		var currentStateName 	: name;
 		var currentThreshold	: int;
-	
+
 		super.OnUpdate(deltaTime);
 		
 		
 		toxicity = GetWitcherPlayer().GetStat(BCS_Toxicity, false) / GetWitcherPlayer().GetStatMax(BCS_Toxicity);
 		threshold = GetWitcherPlayer().GetToxicityDamageThreshold();
+
 		
-		
-		if( toxicity >= 0.5f && !isPlayingCameraEffect)
+		if( toxicity >= threshold && !isPlayingCameraEffect)	
 			switchCameraEffect = true;
-		else if(toxicity < 0.5f && isPlayingCameraEffect)
+		else if(toxicity < threshold && isPlayingCameraEffect)	
 			switchCameraEffect = true;
 
 		
 		if( delayToNextVFXUpdate <= 0 )
-		{		
+		{				
 			
 			
-			if(toxicity < 0.25f)		currentThreshold = 0;
-			else if(toxicity < 0.5f)	currentThreshold = 1;
-			else if(toxicity < 0.75f)	currentThreshold = 2;
-			else						currentThreshold = 3;
 			
-			if( toxThresholdEffect != currentThreshold && !target.IsEffectActive('invisible' ) )
+			if(toxicity <= 0.0f)		currentThreshold = 0;
+			else if(toxicity < 0.25f)	currentThreshold = 1;
+			else if(toxicity < 0.5f)	currentThreshold = 2;
+			else if(toxicity < 0.75f)	currentThreshold = 3;
+			else if(toxicity >= 0.75f)	currentThreshold = 4;
+
+			
+			if(  toxThresholdEffect != currentThreshold &&  !target.IsEffectActive('invisible' ) )
 			{
-				toxThresholdEffect = currentThreshold;
+				
+				
+				
+				if (toxThresholdEffect < 0) 
+					toxThresholdEffect = 0;
 				
 				switch ( toxThresholdEffect )
 				{
-					case 0: PlayHeadEffect('toxic_000_025'); break;
-					case 1: PlayHeadEffect('toxic_025_050'); break;
-					case 2: PlayHeadEffect('toxic_050_075'); break;
-					case 3: PlayHeadEffect('toxic_075_100'); break;
+					case 0: 
+						if (currentThreshold > toxThresholdEffect) 
+						{ 
+							PlayHeadEffect('toxic_000_025'); 
+							toxThresholdEffect += 1; 							
+						} 
+						break;
+					case 1: 
+						if (currentThreshold > toxThresholdEffect) 
+						{ 
+							PlayHeadEffect('toxic_025_050'); 
+							toxThresholdEffect += 1; 
+						} 
+						else 
+						{ 
+							PlayHeadEffect('toxic_025_000'); 
+							toxThresholdEffect -= 1; 
+						} 
+						break;
+					case 2: 
+						if (currentThreshold > toxThresholdEffect) 
+						{ 
+							PlayHeadEffect('toxic_050_075'); 
+							toxThresholdEffect += 1; 
+						} 
+						else 
+						{ 
+							PlayHeadEffect('toxic_050_025'); 
+							toxThresholdEffect -= 1; 
+						} 
+						break;
+					case 3: 
+						if (currentThreshold > toxThresholdEffect) 
+						{ 
+							PlayHeadEffect('toxic_075_100'); 
+							toxThresholdEffect += 1; 
+						}
+						else 
+						{ 
+							PlayHeadEffect('toxic_075_050'); 
+							toxThresholdEffect -= 1; 
+						} 
+						break;
+					case 4: 
+						PlayHeadEffect('toxic_100_075'); 
+						toxThresholdEffect -= 1; 
+						break;
 				}
 				
 				
+				
 				delayToNextVFXUpdate = 2;
-			}			
+			}		
+			
 		}
 		else
 		{
@@ -146,7 +195,7 @@ class W3Effect_Toxicity extends CBaseGameplayEffect
 		
 		
 		if(!target.IsInCombat())
-			drainVal *= 2;
+			drainVal *= 1.1; 
 			
 		effectManager.CacheStatUpdate(BCS_Toxicity, drainVal);
 	}
@@ -187,10 +236,13 @@ class W3Effect_Toxicity extends CBaseGameplayEffect
 
 			if ( stop )
 			{
-				head.StopEffect( effect );
+				if ( head.IsEffectActive( effect ) ) 	
+					head.StopEffect( effect );
 			}
 			else
 			{
+				if ( head.IsEffectActive( effect ) ) 	
+					head.StopEffect( effect );			
 				head.PlayEffectSingle( effect );
 			}
 		}
@@ -220,10 +272,12 @@ class W3Effect_Toxicity extends CBaseGameplayEffect
 		PlayHeadEffect( 'toxic_050_075', true );
 		PlayHeadEffect( 'toxic_075_100', true );
 		
-		PlayHeadEffect( 'toxic_025_000', true );
 		PlayHeadEffect( 'toxic_050_025', true );
 		PlayHeadEffect( 'toxic_075_050', true );
 		PlayHeadEffect( 'toxic_100_075', true );
+		
+		
+		PlayHeadEffect( 'toxic_025_000', true ); 
 		
 		toxThresholdEffect = 0;
 	}

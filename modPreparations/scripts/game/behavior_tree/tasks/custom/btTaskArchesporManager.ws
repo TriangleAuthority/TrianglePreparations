@@ -1,44 +1,32 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
-
-
-
-
-
 class BTTaskArchesporManager extends IBehTreeTask
 {
 	protected var data : CArchesporeAICombatStorage;
 	
-	private var npc : CNewNPC;
-	private var allBaseEntities : array<CGameplayEntity>;
-	private var usedPos : array<Vector>;
-	private var entityTemplate : CEntityTemplate;
-	private var anchorPos : Vector;
-	private var privateBulb : W3ArchesporBulb;
-	private var guardArea : CAreaComponent;
-	private var losTestCollisionGroups : array<name>;
+	protected var npc : CNewNPC;
+	protected var allBaseEntities : array<CGameplayEntity>;
+	protected var usedPos : array<Vector>;
+	protected var entityTemplate : CEntityTemplate;
+	protected var anchorPos : Vector;
+	protected var privateBulb : W3ArchesporBulb;
+	protected var guardArea : CAreaComponent;
+	protected var losTestCollisionGroups : array<name>;
 	
 	
 	
-	private var baseEntitiesSearchingRange : float;
-	private var baseEntityTag : name;
-	private var resourceName : string;
-	private var baseEntitiesToSpawnCount : int;
-	private var minDistFromOwner : float;
-	private var maxDistFromOwner : float;
-	private var minDistFromEachOther : float;
-	private var maxDistFromAnchor : float;
-	private var spawnEntitiesAroundPlayer : bool;
+	protected var baseEntitiesSearchingRange : float;
+	protected var baseEntityTag : name;
+	protected var resourceName : string;
+	protected var baseEntitiesToSpawnCount : int;
+	protected var minDistFromOwner : float;
+	protected var maxDistFromOwner : float;
+	protected var minDistFromEachOther : float;
+	protected var maxDistFromAnchor : float;
+	protected var spawnEntitiesAroundPlayer : bool;
 	
 	
 	
@@ -78,7 +66,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		}
 	}
 
-	private function Init()
+	protected function Init()
 	{
 		npc = GetNPC();
 		anchorPos = npc.GetWorldPosition();
@@ -107,7 +95,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		return BTNS_Active;
 	}
 	
-	private function AddToMyBaseEntities( baseEntity : CGameplayEntity )
+	protected function AddToMyBaseEntities( baseEntity : CGameplayEntity )
 	{	
 		if( !data.myBaseEntities.Contains( baseEntity ) )
 		{
@@ -132,7 +120,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		npc.SetBehaviorVariable( 'bulbCount', data.myBaseEntities.Size() );
 	}
 
-	private function UpdateUsedPositions()
+	protected function UpdateUsedPositions()
 	{
 		var i : int;
 	
@@ -184,7 +172,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		spawnEntitiesAroundPlayer = false;
 	}
 	
-	private function FindPosition( aroundPlayer : bool ) : Vector
+	protected function FindPosition( aroundPlayer : bool ) : Vector
 	{
 		var randVec : Vector = Vector( 0.f, 0.f, 0.f );
 		var basePos : Vector;
@@ -211,7 +199,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		return outPos;
 	}
 	
-	private function IsPositionValid( out whereTo : Vector ) : bool
+	protected function IsPositionValid( out whereTo : Vector ) : bool
 	{
 		var newPos, tempStartPos, tempEndPos, tempPos1, tempPos2 : Vector;
 		var radius : float;
@@ -309,7 +297,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		return true;
 	}
 	
-	private function Spawn( position : Vector )
+	protected function Spawn( position : Vector )
 	{
 		var entity : CEntity;
 		var randYaw : float;
@@ -366,7 +354,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		SetCurrentlyUsedBaseEntity( baseEntity );
 	}
 	
-	private function SetCurrentlyUsedBaseEntity( baseEntity : CGameplayEntity )
+	protected function SetCurrentlyUsedBaseEntity( baseEntity : CGameplayEntity )
 	{
 		if( baseEntity )
 		{
@@ -382,7 +370,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		data.currentlyUsedBase = baseEntity;
 	}
 	
-	private function ToggleBaseEntityCollision( baseEntity : CGameplayEntity, val : bool )
+	protected function ToggleBaseEntityCollision( baseEntity : CGameplayEntity, val : bool )
 	{
 		if( val )
 		{
@@ -396,13 +384,13 @@ class BTTaskArchesporManager extends IBehTreeTask
 		}
 	}
 	
-	private function OpenBaseEntity( entity : CGameplayEntity )
+	protected function OpenBaseEntity( entity : CGameplayEntity )
 	{
 		entity.RaiseEvent( 'Open' );
 		entity.SetBehaviorVariable( 'isOverground', 1.0 );
 	}
 	
-	private function CloseBaseEntity( entity : CGameplayEntity, resetUsedBase : bool )
+	protected function CloseBaseEntity( entity : CGameplayEntity, resetUsedBase : bool )
 	{
 		if( data.currentlyUsedBase )
 		{
@@ -454,7 +442,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		return data.myBaseEntities[farthestBaseEntityId];
 	}
 	
-	private function ShootSFXProjectile( position : Vector )
+	protected function ShootSFXProjectile( position : Vector )
 	{
 		var startPos : Vector;
 		var startRot : EulerAngles;
@@ -479,7 +467,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		}
 	}
 	
-	private function InitArchespor()
+	protected function InitArchespor()
 	{
 		npc.ToggleIsOverground( false );
 		InitCollisionGroups();
@@ -498,7 +486,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		losTestCollisionGroups.PushBack( 'Door' );
 	}
 	
-	private function InitArchesporType()
+	protected function InitArchesporType()
 	{
 		if( npc.HasAbility( 'ArchesporHard' ) )
 		{
@@ -519,7 +507,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		}
 	}
 	
-	private function InitArchesporBulbsCount()
+	protected function InitArchesporBulbsCount()
 	{
 		if( npc.HasAbility( 'ArchesporHard' ) )
 		{
@@ -539,7 +527,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		}
 	}
 
-	private function IsTurret() : bool
+	protected function IsTurret() : bool
 	{
 		return npc.HasAbility( 'ArchesporTurret' );
 	}
@@ -602,6 +590,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 				OpenBaseEntity( bulb );
 			}
 		}
+
 		else if( eventName == 'RefreshBaseEntitiesList' )
 		{
 			if( !data.manualBulbCleanup )
@@ -634,7 +623,7 @@ class BTTaskArchesporManager extends IBehTreeTask
 		return true;
 	}
 	
-	private function Cleanup()
+	protected function Cleanup()
 	{
 		var i : int;
 		
@@ -703,12 +692,13 @@ class BTTaskArchesporManagerDef extends IBehTreeTaskDefinition
 {
 	default instanceClass = 'BTTaskArchesporManager';
 
-	function InitializeEvents()
+	function InitializeEvents() 
 	{
 		super.InitializeEvents();
 		listenToGameplayEvents.PushBack( 'CloseAndResetBulb' );
 		listenToGameplayEvents.PushBack( 'CloseBulb' );
 		listenToGameplayEvents.PushBack( 'RepositionToFarthest' );
+
 		listenToGameplayEvents.PushBack( 'RefreshBaseEntitiesList' );
 		listenToGameplayEvents.PushBack( 'OnMonsterCombatStart' );
 		listenToGameplayEvents.PushBack( 'EmergencyCreateBulb' );

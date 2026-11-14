@@ -1,9 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
 abstract class IBehTreeRiderTaskDefinition extends IBehTreeTaskDefinition
 {
 };
@@ -771,36 +770,170 @@ class CBTTaskRiderSetMoveToActionOnHorseDef extends IBehTreeRiderTaskDefinition
 
 class CBTTaskRiderSetMoveAlongPathActionOnHorse extends IBehTreeTask
 {
-	var horseMoveAlongPathAction		: CAIMoveAlongPathAction;
-	var riderData 						: CAIStorageRiderData;
-	function OnActivate() : EBTNodeStatus
-	{
-		riderData.horseScriptedActionTree = horseMoveAlongPathAction;
-		
-		return BTNS_Active;
-	}
-	function Initialize()
-	{
-		riderData = (CAIStorageRiderData)RequestStorageItem( 'RiderData', 'CAIStorageRiderData' );
-	}
+    var horseMoveAlongPathAction : CAIMoveAlongPathAction;
+    var riderData : CAIStorageRiderData;
+
+    
+    var questGeraltMoveOverride : bool;
+    var questGeraltMoveType : EMoveType;
+    var questGeraltMoveSpeed : float;
+
+    function OnActivate() : EBTNodeStatus
+    {
+        riderData.horseScriptedActionTree = horseMoveAlongPathAction;
+
+        questGeraltMoveOverride = false;
+
+        return BTNS_Active;
+    }
+
+    function Initialize()
+    {
+        riderData = (CAIStorageRiderData)RequestStorageItem(
+            'RiderData',
+            'CAIStorageRiderData'
+        );
+    }
+
+    function OnGameplayEvent( eventName : name ) : bool
+    {
+        if( GetActor() != thePlayer )
+            return false;
+
+        if( eventName == 'QuestGeraltRiderWalk' )
+        {
+            questGeraltMoveOverride = true;
+            questGeraltMoveType = MT_Walk;
+            questGeraltMoveSpeed = 1.0f;
+
+            ApplyQuestGeraltMove();
+
+            return true;
+        }
+
+        if( eventName == 'QuestGeraltRiderRun' )
+        {
+            questGeraltMoveOverride = true;
+            questGeraltMoveType = MT_Run;
+            questGeraltMoveSpeed = 2.0f;
+
+            ApplyQuestGeraltMove();
+
+            return true;
+        }
+
+        if( eventName == 'QuestGeraltRiderFastRun' )
+        {
+            questGeraltMoveOverride = true;
+            questGeraltMoveType = MT_FastRun;
+            questGeraltMoveSpeed = 3.0f;
+
+            ApplyQuestGeraltMove();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private function ApplyQuestGeraltMove()
+    {
+        var horseComp : W3HorseComponent;
+        var horseNPC : CNewNPC;
+
+        if( !questGeraltMoveOverride )
+            return;
+
+        if( GetActor() != thePlayer )
+            return;
+
+        if( !riderData.sharedParams.GetHorse() )
+            return;
+
+        if( horseMoveAlongPathAction && horseMoveAlongPathAction.params )
+        {
+            horseMoveAlongPathAction.params.moveType = questGeraltMoveType;
+            horseMoveAlongPathAction.params.moveSpeed = questGeraltMoveSpeed;
+        }
+
+        horseNPC = (CNewNPC)riderData.sharedParams.GetHorse();
+
+        if( !horseNPC )
+            return;
+
+        horseComp = horseNPC.GetHorseComponent();
+
+        if( !horseComp )
+            return;
+
+        horseComp.QuestSetRiderMoveType( questGeraltMoveType );
+        horseComp.QuestSetRiderSpeed( questGeraltMoveSpeed );
+    }
+
+    latent function Main() : EBTNodeStatus
+    {
+        while( true )
+        {
+            if( questGeraltMoveOverride && GetActor() == thePlayer )
+            {
+                ApplyQuestGeraltMove();
+            }
+
+            SleepOneFrame();
+        }
+
+        return BTNS_Completed;
+    }
+
+    function OnDeactivate()
+    {
+        questGeraltMoveOverride = false;
+    }
 }
 
-class CBTTaskRiderSetMoveAlongPathActionOnHorseDef extends IBehTreeRiderTaskDefinition
+
+class CBTTaskRiderSetMoveAlongPathActionOnHorseDef
+    extends IBehTreeRiderTaskDefinition
 {
-	default instanceClass = 'CBTTaskRiderSetMoveAlongPathActionOnHorse';
+    default instanceClass =
+        'CBTTaskRiderSetMoveAlongPathActionOnHorse';
 
-	function OnSpawn( taskGen : IBehTreeTask )
-	{
-		var myParams 	: CAIRiderMoveAlongPathActionParams;
-		var task 		: CBTTaskRiderSetMoveAlongPathActionOnHorse;
-		task = (CBTTaskRiderSetMoveAlongPathActionOnHorse) taskGen;
-		task.horseMoveAlongPathAction 									= new CAIMoveAlongPathAction in this;
-		task.horseMoveAlongPathAction.OnCreated();
-		myParams = (CAIRiderMoveAlongPathActionParams)GetAIParametersByClassName( 'CAIRiderMoveAlongPathActionParams' );
-		myParams.CopyTo( task.horseMoveAlongPathAction.params );
-		task.horseMoveAlongPathAction.OnManualRuntimeCreation();
-	}
+    function InitializeEvents()
+    {
+        super.InitializeEvents();
+
+        listenToGameplayEvents.PushBack( 'QuestGeraltRiderWalk' );
+        listenToGameplayEvents.PushBack( 'QuestGeraltRiderRun' );
+        listenToGameplayEvents.PushBack( 'QuestGeraltRiderFastRun' );
+    }
+
+    function OnSpawn( taskGen : IBehTreeTask )
+    {
+        var myParams : CAIRiderMoveAlongPathActionParams;
+        var task : CBTTaskRiderSetMoveAlongPathActionOnHorse;
+
+        task =
+            (CBTTaskRiderSetMoveAlongPathActionOnHorse)taskGen;
+
+        task.horseMoveAlongPathAction =
+            new CAIMoveAlongPathAction in this;
+
+        task.horseMoveAlongPathAction.OnCreated();
+
+        myParams =
+            (CAIRiderMoveAlongPathActionParams)
+            GetAIParametersByClassName(
+                'CAIRiderMoveAlongPathActionParams'
+            );
+
+        myParams.CopyTo(
+            task.horseMoveAlongPathAction.params
+        );
+
+        task.horseMoveAlongPathAction.OnManualRuntimeCreation();
+    }
 }
+
 
 
 

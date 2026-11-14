@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 import class CR4JournalPlaceEntity extends CGameplayEntity
 {
 	import function GetJournalPlaceEntry() : CJournalBase;
@@ -71,7 +68,7 @@ class W3SettlementTrigger extends CR4JournalPlaceEntity
 		var timeLapseModule : CR4HudModuleTimeLapse;
 		var manager: CCommonMapManager;
 	    var worldPath : string;
-	    var currentArea : EAreaName;
+	    var currentArea : name;
 	    var hubName : string;
 	    
 		hud = (CR4ScriptedHud)theGame.GetHud();

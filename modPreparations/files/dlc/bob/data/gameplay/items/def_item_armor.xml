@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <redxml>
 	<definitions>
 
@@ -194,7 +194,7 @@
 					<slashing_resistance_perc		type="base"	min="0.35"				/>
 					<piercing_resistance_perc		type="base"	min="0.40"				/>
 					<bludgeoning_resistance_perc	type="base"	min="0.30"				/>
-					<rending_resistance_perc		type="base"	min="0.35"				/>
+					<rending_resistance_perc		type="base"	min="0.30"				/>
 					<bleeding_resistance_perc 		type="base" min="0.25" 				/>
 					<staminaRegen_armor_mod			type="mult"	min="-0.10"				/>
 				</ability>
@@ -941,3 +941,4 @@
 
 	</definitions>
 </redxml>
+

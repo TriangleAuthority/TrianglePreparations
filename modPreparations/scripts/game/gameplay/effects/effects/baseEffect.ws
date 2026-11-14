@@ -1,14 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
 class CBaseGameplayEffect extends CObject
 {
 	
@@ -621,6 +615,9 @@ class CBaseGameplayEffect extends CObject
 	public function OnTimeUpdated(dt : float)
 	{	
 		var toxicityThreshold : float;
+		var isDecoction : bool;
+
+		isDecoction = effectType >= EET_Mutagen01 && effectType <= EET_Mutagen28;
 		
 		if( isActive && pauseCounters.Size() == 0)
 		{
@@ -630,17 +627,11 @@ class CBaseGameplayEffect extends CObject
 				timeLeft -= dt;				
 				if( timeLeft <= 0 )
 				{
-					if(isPotionEffect && isOnPlayer && thePlayer.CanUseSkill(S_Alchemy_s03) && effectType != EET_WhiteRaffardDecoction )				
+					if(isPotionEffect && isOnPlayer && thePlayer.CanUseSkill(S_Alchemy_s03) && effectType != EET_WhiteRaffardDecoction && !isDecoction )				
 					{
-						toxicityThreshold = thePlayer.GetStatMax(BCS_Toxicity) * (1 - CalculateAttributeValue( thePlayer.GetSkillAttributeValue(S_Alchemy_s03, 'toxicity_threshold', false, true) ) * thePlayer.GetSkillLevel(S_Alchemy_s03));
-						if(thePlayer.GetStat(BCS_Toxicity, true) > toxicityThreshold)
-						{
-							
-						}
-						else
-						{
-							isActive = false;
-						}						
+						isActive = false;
+
+											
 					}
 					else
 					{
@@ -862,6 +853,21 @@ class CBaseGameplayEffect extends CObject
 		
 		duration = newDuration;
 		timeLeft = newDuration * leftRatio;
+	}
+
+	public function DelayedRecoveryPotionDurationIncrease()
+	{
+		if (isPotionEffect)
+		{
+			if (timeLeft + 5 <= duration)
+			{
+				timeLeft += 5;
+			}
+			else
+			{
+				timeLeft = duration;
+			}
+		}
 	}
 	
 	public function GetTargetEffectName() : name

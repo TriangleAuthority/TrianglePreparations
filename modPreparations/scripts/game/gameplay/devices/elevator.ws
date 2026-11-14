@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class W3ElevatorMechanism extends CEntity
 {
 	editable var radius 			: float;
@@ -93,20 +89,20 @@ class W3ElevatorSwitch extends W3InteractionSwitch
 	
 	final function SetSwitch( elevator : W3ElevatorInteractive )
 	{
-		var set : bool;
+		var onTop : bool;
 		
 		if(elevator && interactionComponent)
 		{
-			set = elevator.IsOnTop();
+			onTop = elevator.IsOnTop();
 			if(switchType == DownSwitch)
 			{
 				if( interactionComponent )
-					interactionComponent.SetEnabled( set );
+					interactionComponent.SetEnabled( onTop );
 			}
 			else
 			{
 				if( interactionComponent )
-					interactionComponent.SetEnabled( !set );
+					interactionComponent.SetEnabled( !onTop );
 			}
 		}
 	}

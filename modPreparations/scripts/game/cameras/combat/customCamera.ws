@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 enum ECameraAnimPriority
 {
@@ -26,6 +26,20 @@ struct SQuestCameraRequest
 	default duration = -1.f;
 	
 	hint lookAtTag = "Tag of an object that the camera should look at (overrides the yaw and pitch)";
+}
+
+struct SQuestCameraPositionOffsetRequest
+{
+	editable var active 			: bool;
+	editable var distance			: float;
+	editable var requestDistance	: bool;
+	editable var zOffset			: float;
+	editable var lookAtOffset		: Vector;
+	editable var lerpTime			: float;
+	editable var cachedZ			: float;
+	editable var cachedLookAt		: Vector;
+	editable var cachedDistance		: float;
+	editable var restore			: bool;
 }
 
 import struct SCustomCameraPreset
@@ -54,7 +68,7 @@ import class CCustomCamera extends CEntity
 	import var allowAutoRotation	: bool;
 	import var fov					: float;
 	
-	import final function Activate( optional blendTime : float );
+	import final function Activate( optional blendTime : float, optional resetPosition : bool );
 	
 	import final function GetActivePivotPositionController() : ICustomCameraPivotPositionController;
 	import final function GetActivePivotRotationController() : ICustomCameraPivotRotationController;
@@ -86,9 +100,19 @@ import class CCustomCamera extends CEntity
 	import final function NextPreset();
 	import final function PrevPreset();
 	
+	import final function GetTilt() : float;
+	import final function SetTilt( tilt : float );
 
 	import final function SetCollisionOffset( offset : Vector );
 	
+	import final function SetNoclip( enable : bool );
+
+	import final function GetCameraWorldPosition() : Vector;
+	import final function GetCameraWorldRotation() : EulerAngles;
+	import final function GetCameraWorldOffset() : Vector;
+	import final function SetCameraWorldPosition( pos : Vector );
+	import final function SetCameraWorldRotation( rot : EulerAngles );
+	import final function UpdateWithoutInput( force : bool );
 	
 	function ResetCollisionOffset()
 	{
@@ -100,6 +124,11 @@ import class CCustomCamera extends CEntity
 	function SetFov( val : float )
 	{
 		fov = val;
+	}
+
+	function GetFov() : float
+	{
+		return fov;
 	}
 	
 	

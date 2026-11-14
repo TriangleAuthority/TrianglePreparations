@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 state CombatSword in W3ReplacerCiri extends Combat
 {
 	event OnEnterState( prevStateName : name )
@@ -24,9 +20,9 @@ state CombatSword in W3ReplacerCiri extends Combat
 	
 	event OnLeaveState( nextStateName : name )
 	{
+		theInput.SetContext(parent.GetExplorationInputContext());
 		Interrupt();
 		super.OnLeaveState(nextStateName);
-		theInput.SetContext(parent.GetExplorationInputContext());
 	}
 	
 	
@@ -720,7 +716,7 @@ state CombatSword in W3ReplacerCiri extends Combat
 	
 	event OnPerformDash()
 	{
-		if ( !parent.IsAlive() )
+		if ( !parent.IsAlive())
 			return false;
 		
 		if ( thePlayer.IsTerrainTooSteepToRunUp() )
@@ -731,7 +727,7 @@ state CombatSword in W3ReplacerCiri extends Combat
 	
 	event OnPerformDashAttack()
 	{
-		if ( !parent.IsAlive() )
+		if ( !parent.IsAlive())
 			return false;
 		
 		if ( thePlayer.IsTerrainTooSteepToRunUp() )
@@ -812,7 +808,6 @@ state CombatSword in W3ReplacerCiri extends Combat
 				parent.SetCanPlayHitAnim(true);
 				
 				SpecialAttackSphereCleanup();
-				
 				parent.AddCustomOrientationTarget( OT_Actor, 'CiriSpecialAttack');
 				parent.SetBehaviorVariable( 'isPerformingSpecialAttack', 1.f );
 				parent.SetBehaviorVariable( 'isCompletingSpecialAttack', 0.f );
@@ -844,11 +839,9 @@ state CombatSword in W3ReplacerCiri extends Combat
 			if ( !startAttack && !isCompletingSpecialAttack )
 			{
 				parent.RemoveTimer( 'SpecialAttackTimer' );
-				
 				parent.SetBehaviorVariable( 'isPerformingSpecialAttack', 0.f );
 				isCompletingSpecialAttack = true;
 				parent.specialAttackCamera = false;
-				
 				CompleteSpecialAttack();
 				parent.RemoveCustomOrientationTarget('CiriSpecialAttack');
 			}
@@ -887,14 +880,22 @@ state CombatSword in W3ReplacerCiri extends Combat
 				
 			}
 		}
-		else 
+		else if(!startAttack) 
 		{
-			if ( !startAttack && !isCompletingSpecialAttack )
+			if ( !isCompletingSpecialAttack )
 			{
 				isCompletingSpecialAttack = true;
 				parent.specialAttackCamera = false;
 				CompleteSpecialAttackHeavy();
 				parent.RemoveCustomOrientationTarget('CiriSpecialAttack');
+			}
+			else 
+			{
+				parent.EnableSpecialAttackHeavyCollsion(false);			
+				parent.MakeInvulnerable(false);
+			
+				parent.SetBehaviorVariable( 'isPerformingSpecialAttack', 0.f );
+				isCompletingSpecialAttack = false;
 			}
 		}
 	}
@@ -932,7 +933,6 @@ state CombatSword in W3ReplacerCiri extends Combat
 		var slideDuration		: float;
 		var collision			: array<CName>;
 		var res					: bool;
-		
 		
 		distance = VecDistance( parent.GetWorldPosition(), ((CActor)parent.slideTarget).PredictWorldPosition( 0.2f ) );
 		if ( attackDash && ( !parent.slideTarget || distance < ((CActor)parent.slideTarget).GetRadius() + parent.GetRadius() + 2.5f ) )
@@ -989,9 +989,7 @@ state CombatSword in W3ReplacerCiri extends Combat
 		angleDist = AngleNormalize(heading + 180);
 		
 		parent.SetBehaviorVariable( 'playerEvadeDirection', (int)evadeDirection );
-		
 		parent.SetBehaviorVariable( 'requestedDodgeDirection', angleDist );
-		
 		parent.SetBehaviorVariable( 'isPerformingSpecialAttack', 1.f );
 		
 		if ( parent.RaiseForceEvent( 'CombatAction' ) )
@@ -1117,15 +1115,15 @@ state CombatSword in W3ReplacerCiri extends Combat
 			parent.SetBehaviorVariable( 'playerEvadeDirection', (int)evadeDirection );
 			
 			Appear();
-			
+
 			parent.SetBehaviorVariable( 'isPerformingSpecialAttack', 0.f );
 			
 			parent.EnableCharacterCollisions(true);
 			
 			
-			
+
 			parent.SetIsCurrentlyDodging(false);
-			
+
 			if ( attackDash )
 			{
 				OnPerformAttack(theGame.params.ATTACK_NAME_LIGHT);
@@ -1229,6 +1227,10 @@ state CombatSword in W3ReplacerCiri extends Combat
 		parent.AddBuffImmunity_AllNegative( 'CiriSpecial', true );
 		parent.StopEffect('critical_poison');
 		
+		
+		parent.MakeInvulnerable(true);
+		
+		
 		if ( jumpBehindTarget )
 		{
 			lastTarget = (CActor)parent.slideTarget;
@@ -1320,6 +1322,10 @@ state CombatSword in W3ReplacerCiri extends Combat
 		
 		Appear();
 		parent.RemoveBuffImmunity_AllNegative( 'CiriSpecial' );
+		
+		
+		parent.MakeInvulnerable(false);
+		
 	}
 	
 	
@@ -1375,12 +1381,11 @@ state CombatSword in W3ReplacerCiri extends Combat
 		}
 		
 		
-		
 		parent.SetBehaviorVariable( 'isPerformingSpecialAttack', 0.f );
 		isCompletingSpecialAttack = false;
 	}
 	
-	private function PerformSpecialAttackHeavyCleanup()
+	cleanup function PerformSpecialAttackHeavyCleanup()
 	{
 		parent.SetBehaviorVariable( 'isCompletingSpecialAttack', 1.f );
 		parent.EnableSpecialAttackHeavyCollsion(false);
@@ -1422,6 +1427,9 @@ state CombatSword in W3ReplacerCiri extends Combat
 		parent.SetBehaviorVariable( 'isPerformingSpecialAttack', 0.f );
 		isCompletingSpecialAttack = false;
 		parent.MakeInvulnerable(false);
+		
+		parent.RemoveBuffImmunity_AllNegative( 'CiriSpecial' );
+		
 		parent.SetBehaviorVariable( 'specialAttackInPlace', 1.f );
 		Appear();
 	}
@@ -1819,7 +1827,7 @@ state CombatSword in W3ReplacerCiri extends Combat
 	{
 		super.OnGameCameraPostTick( moveData, dt );
 		
-		if ( !parent.IsCameraLockedToTarget() && parent.GetPlayerCombatStance() == PCS_AlertNear )
+		if ( !parent.IsCameraLockedToTarget() && parent.GetPlayerCombatStance() == PCS_AlertNear && !parent.GetCmbtCamera() ) 
 		{
 			moveData.pivotRotationController.SetDesiredHeading( VecHeading(theCamera.GetCameraDirection()) );
 		}

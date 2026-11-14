@@ -1,15 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
 import struct SAnimationTrajectoryPlayerInput
 {
 	import var localToWorld : Matrix;
@@ -55,5 +48,3 @@ import class AnimationTrajectoryPlayerScriptWrapper extends CObject
 	import public final latent function WaitForSyncTime() : bool;
 	import public final latent function WaitForFinish() : bool;
 }
-
-

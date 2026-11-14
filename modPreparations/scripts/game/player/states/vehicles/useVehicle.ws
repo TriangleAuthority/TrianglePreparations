@@ -1,21 +1,19 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 import state UseVehicle in CPlayer extends Base
 {
 	event OnEnterState( prevStateName : name )
 	{
+
 		
 	}
 	
 	event OnLeaveState( nextStateName : name )
 	{
+
 		
 	}
 	
@@ -436,7 +434,7 @@ state UseGenericVehicle in CR4Player extends UseVehicle
 		
 		if ( parent.IsCameraLockedToTarget() )
 		{
-			DampFloatSpring( camera.fov, fovVel, 60.0, 1.0, dt );
+			DampFloatSpring( camera.fov, fovVel, parent.GetExplorationCameraFov(), 1.0, dt );
 			playerToTargetVector = parent.GetDisplayTarget().GetWorldPosition() - parent.GetWorldPosition();
 			playerToTargetDist = VecLength( playerToTargetVector );
 			
@@ -466,6 +464,10 @@ state UseGenericVehicle in CR4Player extends UseVehicle
 			parent.OnGameCameraPostTick( moveData, dt );
 			return true;			
 		}
+
+		
+		if (thePlayer.IsQuestCameraRequestActive())
+			return parent.OnGameCameraPostTick( moveData, dt );	
 	}	
 }
 
@@ -1590,6 +1592,9 @@ state CastSign in W3VehicleCombatManager
 		if( animEventName == 'cast_begin' )
 		{
 			witcher.ProcessSignEvent( 'horse_cast_begin' );
+			
+			
+			thePlayer.PlayBattleCry( 'ChillOutHorse', 0.45f, true, true );
 		}
 	}
 	

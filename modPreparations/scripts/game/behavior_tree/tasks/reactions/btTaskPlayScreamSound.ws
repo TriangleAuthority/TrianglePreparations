@@ -1,13 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
 class CBTTaskPlayScreamSound extends IBehTreeTask
 {
 	public var minFrequency : float;
@@ -103,4 +98,3 @@ class CBTTaskPlayScreamSoundDef extends IBehTreeTaskDefinition
 	default minFrequency = -1;
 	default maxFrequency = -1;
 }
-

@@ -1,13 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
 enum EActionHitAnim
 {
 	EAHA_Default,		
@@ -78,6 +73,7 @@ class W3DamageAction extends CDamageData
 	protected var wasFrozen	: bool;									
 	protected var mutation4Triggered : bool;						
 	protected var didReturnDamageToAttacker : bool;					
+	protected var simulateOnly : bool;								
 	
 	
 	private var DOTdt : float;										
@@ -87,6 +83,7 @@ class W3DamageAction extends CDamageData
 	private var isActionRanged : bool;
 	private var isActionWitcherSign : bool;
 	private var isActionEnvironment : bool;
+
 	
 	default hitAnimationPlayType 			= EAHA_Default;
 	default cannotReturnDamage 				= false;
@@ -107,6 +104,7 @@ class W3DamageAction extends CDamageData
 	default underwaterDisplayDamageHack 	= false;
 	default parryStagger					= false;
 	default bouncedArrow					= false;
+	default simulateOnly					= false;
 		
 	public function Initialize( att : CGameplayEntity, vict : CGameplayEntity, caus : IScriptable, src : string, hrt : EHitReactionType, pwrStatType : ECharacterPowerStats, isM : bool, isR : bool, isW : bool, isE : bool, optional hitFX_ : name, optional hitBackFX_ : name, optional hitParriedFX_ : name, optional hitBackParriedFX_ : name)
 	{
@@ -627,7 +625,7 @@ class W3DamageAction extends CDamageData
 	public final function IsActionRanged() : bool			{return isActionRanged;}
 	public final function IsActionWitcherSign() : bool		{return isActionWitcherSign;}	
 	public final function IsActionEnvironment() : bool		{return isActionEnvironment;}
-	
+
 	public final function IsParryStagger() : bool				{return parryStagger;}
 	public final function SetParryStagger()						{parryStagger = true;}
 	public final function ProcessBuffsIfNoDamage() : bool		{return shouldProcessBuffsIfNoDamage;}
@@ -647,7 +645,7 @@ class W3DamageAction extends CDamageData
 	
 	public final function SetEndsQuen(b : bool)					{endsQuen = b;}
 	public final function EndsQuen() : bool						{return endsQuen;}
-	public final function SetArmorReducedDamageToZero()			{armorReducedDamageToZero = true;}
+	public final function SetArmorReducedDamageToZero( b : bool )	{armorReducedDamageToZero = b;} 
 	public final function DidArmorReduceDamageToZero() : bool	{return armorReducedDamageToZero;}
 	public final function SetUnderwaterDisplayDamageHack()		{underwaterDisplayDamageHack = true;}
 	public final function GetUnderwaterDisplayDamageHack() : bool	{return underwaterDisplayDamageHack;}
@@ -666,6 +664,8 @@ class W3DamageAction extends CDamageData
 	public final function GetMutation4Triggered() : bool		{return mutation4Triggered;}
 	public final function WasDamageReturnedToAttacker() : bool  {return didReturnDamageToAttacker;}
 	public final function SetWasDamageReturnedToAttacker( b : bool ) {didReturnDamageToAttacker = b;}
+	public final function SetSimulateOnly( toggle : bool ) 		{simulateOnly = toggle;}
+	public final function GetSimulateOnly() : bool				{return simulateOnly;}
 
 	public final function SetCriticalHit()
 	{
@@ -707,7 +707,10 @@ class W3DamageAction extends CDamageData
 		var burning : W3Effect_Burning;
 		
 		
-		isOk = ( attacker == thePlayer && IsActionWitcherSign() && IsCriticalHit() && GetWitcherPlayer().IsMutationActive(EPMT_Mutation2) );
+		
+		
+		isOk = ( attacker == thePlayer && IsActionWitcherSign() && IsCriticalHit() && ( GetWitcherPlayer().IsMutationActive(EPMT_Mutation2) || GetWitcherPlayer().IsSuperchargedSign() ) );
+		
 		
 		
 		if( !isOk )
@@ -717,5 +720,11 @@ class W3DamageAction extends CDamageData
 		}
 		
 		return isOk;
+	}
+	
+	
+	public final function GetPowerStatType() : ECharacterPowerStats
+	{
+		return powerStatType;
 	}
 }

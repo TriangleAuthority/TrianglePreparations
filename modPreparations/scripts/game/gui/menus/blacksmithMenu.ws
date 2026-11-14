@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CR4BlacksmithMenu extends CR4MenuBase
 {
 	private var _disassembleInv 		: W3GuiDisassembleInventoryComponent;
@@ -652,7 +648,7 @@ class CR4BlacksmithMenu extends CR4MenuBase
 			
 			_fixerInventory.AddMoney(price * m_lastConfirmedDisassembleQuantity);
 			_inv.RemoveMoney(price * m_lastConfirmedDisassembleQuantity);
-			if ( _inv.GetItemEnhancementCount(item) > 0 )
+			if ( _inv.GetItemEnhancementCount(item) > 0 && !_inv.IsItemEnchanted( item ) )
 			{
 				_inv.GetItemEnhancementItems(item, runesList);
 				for (idx = 0; idx <  runesList.Size(); idx+=1)
@@ -1080,7 +1076,7 @@ class CR4BlacksmithMenu extends CR4MenuBase
 		
 	}
 	
-	event  OnAppendGFxButton(actionId:int, gamepadNavCode:String, keyboardKeyCode:int, label:String, holdPrefix:bool)
+	event  OnAppendGFxButton(actionId:int, gamepadNavCode:String, keyboardKeyCode:int, label:String, holdPrefix:bool, optional holdDuration:float)
 	{
 		var newButtonDef:SKeyBinding;
 		
@@ -1093,6 +1089,8 @@ class CR4BlacksmithMenu extends CR4MenuBase
 		{
 			newButtonDef.LocalizationKey = GetHoldLabel() + " " + GetLocStringByKeyExt(label);
 			newButtonDef.IsLocalized = true;
+			newButtonDef.IsHold = true;
+			newButtonDef.HoldDuration = holdDuration;
 		}
 		else
 		{

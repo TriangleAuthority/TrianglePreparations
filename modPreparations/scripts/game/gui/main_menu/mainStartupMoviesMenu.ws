@@ -1,14 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
 struct SMovieData
 {
 	var movieName : string;
@@ -61,11 +55,18 @@ class CR4StartupMoviesMenu extends CR4MenuBase
 		m_MovieData.Clear();
 		
 		
-		if( theGame.GetPlatform() == Platform_PC ) 
+		if( theGame.GetPlatform() == Platform_PC || theGame.GetPlatform() == Platform_PC_GDK ) 
 		{
-			movieData.movieName = "gamestart/bumpers/bumpers.usm";
 			movieData.isSkipable = true;
 			movieData.showLogo = false;
+			
+			movieData.movieName = "gamestart/bumpers/disclaimers.usm";
+			m_MovieData.PushBack(movieData);
+
+			movieData.movieName = "gamestart/bumpers/legal.usm";
+			m_MovieData.PushBack(movieData);
+
+			movieData.movieName = "gamestart/bumpers/logo.usm";
 			m_MovieData.PushBack(movieData);
 		}
 	}
@@ -163,10 +164,17 @@ class CR4StartupMoviesMenu extends CR4MenuBase
 	function SetButtons()
 	{	
 		var ButtonsDef	: array<SMenuButtonDef>;
+		var padNavCode : string = "gamepad_X";
+
+		if (theGame.GetPlatform() == Platform_Switch2_Ounce)
+		{
+			padNavCode = "escape-gamepad_B";
+		}
+
 		m_defaultInputBindings.Clear();
 		if( m_MovieData[m_CurrentMovieID].isSkipable )
 		{
-			AddInputBinding("panel_button_dialogue_skip", "gamepad_X", 32 );
+			AddInputBinding("panel_button_dialogue_skip", padNavCode, 32 );
 		}
 		UpdateInputFeedback();
 	}	

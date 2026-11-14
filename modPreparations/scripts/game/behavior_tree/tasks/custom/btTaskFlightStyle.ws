@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CBTTaskFlightStyle extends IBehTreeTask
 {
 	var GlideChance				: float;
@@ -161,4 +157,3 @@ class CBTTaskFlightStyleDef extends IBehTreeTaskDefinition
 	default BackToRegularChance = 1.0;
 	default altitude = 4.f;
 }
-

@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 class W3GuiPlayerInventoryComponent extends W3GuiBaseInventoryComponent
 {
@@ -31,6 +31,11 @@ class W3GuiPlayerInventoryComponent extends W3GuiBaseInventoryComponent
 	
 	public var previewItems    : array<SItemUniqueId>;
 	public var dyePreviewSlots : array<SItemUniqueId>;
+	
+	
+	public var checkTagsOR : bool;
+	default checkTagsOR = false;
+	
 	
 	protected function InvalidateItems( items : array<SItemUniqueId> ) 
 	{
@@ -367,6 +372,14 @@ class W3GuiPlayerInventoryComponent extends W3GuiBaseInventoryComponent
 		{
 			playerInv.GetItemStats(equipedItemId, equipedItemStats);
 			playerInv.GetItemPrimaryStat(equipedItemId, eqPrimaryStatLabel, eqPrimaryStatValue);
+
+			if( playerInv.ItemHasTag( equipedItemId, 'Aerondight' ) )
+			{
+				if( playerInv.GetItemModifierFloat( equipedItemId, 'PermDamageBoost' ) >= 0.f )
+				{
+					eqPrimaryStatValue += playerInv.GetItemModifierFloat( equipedItemId, 'PermDamageBoost' );
+				}
+			}
 		}
 		
 		dontCompare = itemCategory == 'potion' || itemCategory == 'petard' || itemCategory == 'oil';
@@ -614,7 +627,7 @@ class W3GuiPlayerInventoryComponent extends W3GuiBaseInventoryComponent
 			targetGridSection = 1;
 		}
 		else
-		if( _inv.IsItemWeapon( itemId ) || _inv.ItemHasTag( itemId, 'WeaponUpgrade' ) || _inv.ItemHasTag( itemId, 'WeaponReapairKit' ) || _inv.IsItemBolt( itemId ) ||  _inv.IsItemUsable( itemId ) || _inv.IsQuickSlotItem( itemId ) )
+		if( _inv.IsItemWeapon( itemId ) || _inv.ItemHasTag( itemId, 'WeaponUpgrade' ) || _inv.ItemHasTag( itemId, 'WeaponReapairKit' ) || _inv.ItemHasTag( itemId, 'Sharpstone' ) || _inv.IsItemBolt( itemId ) ||  _inv.IsItemUsable( itemId ) || _inv.IsQuickSlotItem( itemId ) )
 		{
 			targetGridSection = 0;
 		}
@@ -789,14 +802,30 @@ class W3GuiPlayerInventoryComponent extends W3GuiBaseInventoryComponent
 	{
 		var i, len:int;
 		len = filterTagList.Size();
-		for (i = 0; i < len; i+=1)
+		
+		if(!checkTagsOR)
 		{
-			if (!_inv.ItemHasTag(item, filterTagList[i]))
+			for (i = 0; i < len; i+=1)
 			{
-				return false;
+				if (!_inv.ItemHasTag(item, filterTagList[i]))
+				{
+					return false;
+				}
 			}
+			return true;
 		}
-		return true;
+		else
+		{
+			for (i = 0; i < len; i+=1)
+			{
+				if (_inv.ItemHasTag(item, filterTagList[i]))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
 	}
 
 	
@@ -1019,6 +1048,25 @@ function GetItemRarityDescriptionFromInt( quality : int ) : string
 			return "<font color='#934913'>"+GetLocStringByKeyExt("panel_inventory_item_rarity_type_relic")+"</font>";	
 		case 5:
 			return "<font color='#197319'>"+GetLocStringByKeyExt("panel_inventory_item_rarity_type_set")+"</font>";
+		default:
+			return "";
+	}
+}
+
+function GetItemRarityColorFromInt( quality : int ) : string
+{
+	switch(quality)
+	{
+		case 1:													  
+			return "<font color='#7b7877'>";
+		case 2:
+			return "<font color='#3661dc'>";
+		case 3:
+			return "<font color='#959500'>";
+		case 4:
+			return "<font color='#934913'>";
+		case 5:
+			return "<font color='#197319'>";
 		default:
 			return "";
 	}

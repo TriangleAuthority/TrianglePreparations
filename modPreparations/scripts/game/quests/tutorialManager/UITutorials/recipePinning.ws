@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 state RecipePinning in W3TutorialManagerUIHandler extends TutHandlerBaseState
 {
@@ -17,7 +17,7 @@ state RecipePinning in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		
 		isClosing = false;
 		
-		ShowHint(PIN, POS_ALCHEMY_X, POS_ALCHEMY_Y);
+		ShowHint(PIN, POS_ALCHEMY_X, POS_ALCHEMY_Y - 0.035);
 	}
 	
 	event OnLeaveState( nextStateName : name )
@@ -48,9 +48,6 @@ state RecipePinning in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		if(closedByParentMenu || isClosing)
 			return true;
 			
-		if(hintName == PIN)
-		{
-			ShowHint(SHOP, POS_ALCHEMY_X, POS_ALCHEMY_Y);
-		}		
+		
 	}	
 }

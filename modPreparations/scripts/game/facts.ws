@@ -1,17 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
-
-
 struct SFactParameters
 {
 	editable var ID			: string;
@@ -20,7 +11,7 @@ struct SFactParameters
 }
 
 
-import function FactsAdd( ID : string, optional value : int, optional validFor : int  );
+import function FactsAdd( ID : string, optional value : int, optional validFor : int , optional telemetryEvent : bool , optional storyScenePlayer : CStoryScenePlayer );
 
 
 import function FactsQuerySum( ID : string ) : int;

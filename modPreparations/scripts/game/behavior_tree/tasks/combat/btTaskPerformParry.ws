@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CBTTaskPerformParry extends CBTTaskPlayAnimationEventDecorator
 {
 	public var activationTimeLimitBonusHeavy 	: float;
@@ -156,7 +152,16 @@ class CBTTaskPerformParry extends CBTTaskPlayAnimationEventDecorator
 	{
 		var actor : CActor = GetActor();
 		
-		parryChance = MaxF(0, 100*CalculateAttributeValue(actor.GetAttributeValue('parry_chance')));
+		
+		var multiplier : float;
+
+		if( FactsQuerySum("NewGamePlus") > 0 )
+			multiplier = 1.15;
+		else
+			multiplier = 1.0;
+		
+		
+		parryChance = MaxF(0, ClampF(multiplier*100*CalculateAttributeValue(actor.GetAttributeValue('parry_chance')),0,100));	
 		counterChance = MaxF(0, 100*CalculateAttributeValue(actor.GetAttributeValue('counter_chance')));
 		counterMultiplier = (int)MaxF(0, 100*CalculateAttributeValue(actor.GetAttributeValue('counter_chance_per_hit')));
 		hitsToCounter = (int)MaxF(0, CalculateAttributeValue(actor.GetAttributeValue('hits_to_roll_counter')));

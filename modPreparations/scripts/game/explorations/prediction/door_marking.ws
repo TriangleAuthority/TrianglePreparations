@@ -1,13 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
 enum EDoorMarkingState
 {
 	EDMCT_Nothing		,
@@ -20,6 +15,7 @@ enum EDoorMarkingState
 class CDoorMarking extends CScriptedComponent
 {	
 	private editable	var	changeCamera	: bool;				default	changeCamera	= true;
+	private editable	var doCalculations	: bool;				default doCalculations  = true; 
 	
 	private				var	calculated		: bool;
 	private				var	pointA			: Vector;
@@ -89,6 +85,15 @@ class CDoorMarking extends CScriptedComponent
 	
 	public function GetClosestPointAndNormal( out outPoint : Vector, out outNormal : Vector )
 	{
+		
+		if(!doCalculations)
+		{
+			outPoint = Vector(0,0,-9000);
+			outNormal = Vector(0,0,0);
+			return;
+		}
+		
+	
 		
 		if( !calculated )
 		{

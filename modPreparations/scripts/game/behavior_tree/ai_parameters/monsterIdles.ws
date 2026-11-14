@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CAIMonsterIdle extends CAIIdleTree
 {
 	editable inlined var params : CAIMonsterIdleParams;
@@ -104,6 +100,8 @@ class CAIEchinopsIdleDecorator extends CAIMonsterIdleDecorator
 {
 	default aiTreeName = "dlc\bob\data\gameplay\trees\monster_echinops_idle_logic.w2behtree";
 }
+
+
 
 
 class CAIMonsterIdleDecoratorParams extends CAIIdleParameters
@@ -675,3 +673,20 @@ class CAIMonsterIdleDecoratorGravehag extends CAIMonsterIdleDecorator
 	}
 };
 
+
+
+
+class CAIFrogIdleDecorator extends CAIMonsterIdleDecorator
+{
+	default aiTreeName = "resdef:ai\idle\toad_idle_decorator";
+	
+	
+	
+	function Init()
+	{		
+		params = new CAIMonsterIdleDecoratorParams in this;
+		params.OnCreated();
+		params.reactionTree = new CAIMonsterReactionsTree in this;
+		params.reactionTree.OnCreated();		
+	}
+}

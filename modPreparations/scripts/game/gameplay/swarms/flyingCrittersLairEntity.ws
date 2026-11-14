@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 import class CSwarmLairEntity extends IBoidLairEntity
 {
@@ -229,6 +229,11 @@ import class CFlyingCrittersLairEntityScript  extends CFlyingCrittersLairEntity
 			{
 				action = new W3DamageAction in this;
 				action.Initialize( this, (CGameplayEntity)entity, this, this.GetName()+"_"+"root_projectile", EHRT_None, CPS_AttackPower,false,false,false,true);
+				
+				
+				action.SetIgnoreArmor( true );
+				
+				
 				action.AddDamage(theGame.params.DAMAGE_NAME_RENDING, damage );
 				
 				

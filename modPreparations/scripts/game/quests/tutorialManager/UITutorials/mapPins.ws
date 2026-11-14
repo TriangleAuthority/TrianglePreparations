@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 state MapPins in W3TutorialManagerUIHandler extends TutHandlerBaseState
 {
@@ -39,13 +39,16 @@ state MapPins in W3TutorialManagerUIHandler extends TutHandlerBaseState
 			return true;
 		}		
 		
-		else if(hintName == PLACE_PINS)
+		QuitState();
+		return true;
+
+		if(hintName == PLACE_PINS)
 		{
-			ShowHint(CUSTOM_PINS, POS_MAP_X, POS_MAP_Y, ETHDT_Input);
+			
 		}
 		else if(hintName == CUSTOM_PINS)
 		{
-			ShowHint(PINS_MAX_COUNT, POS_MAP_X, POS_MAP_Y, ETHDT_Input);
+			
 		}
 		else if(hintName == PINS_MAX_COUNT)
 		{

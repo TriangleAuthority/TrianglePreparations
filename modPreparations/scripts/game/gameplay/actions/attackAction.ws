@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class W3Action_Attack extends W3DamageAction
 {
 	private var weaponId : SItemUniqueId; 			
@@ -205,7 +201,10 @@ class W3Action_Attack extends W3DamageAction
 		
 		if( theGame.GetDefinitionsManager().AbilityHasTag( attackName, theGame.params.ATTACK_NO_DAMAGE ) )
 		{
-			if(effectType == EET_Bleeding)
+			
+			
+			if(effectType == EET_Bleeding || effectType == EET_Bleeding1 || effectType == EET_Bleeding2 || effectType == EET_Bleeding3)
+			
 				return;
 		}
 		
@@ -242,7 +241,7 @@ class W3Action_Attack extends W3DamageAction
 	
 	public function GetPowerStatValue() : SAbilityAttributeValue
 	{
-		var min, max, result, horseDamageBonus : SAbilityAttributeValue;
+		var min, max, result, horseDamageBonus, tempAttr : SAbilityAttributeValue;
 		var witcherAttacker : W3PlayerWitcher;
 		var temp : name;
 		var actorVictim, actorAttacker : CActor;
@@ -313,6 +312,20 @@ class W3Action_Attack extends W3DamageAction
 			if(witcherAttacker.HasRecentlyCountered() && witcherAttacker.CanUseSkill(S_Sword_s11))
 			{
 				result += witcherAttacker.GetSkillAttributeValue(S_Sword_s11, PowerStatEnumToName(CPS_AttackPower), false, true) * witcherAttacker.GetSkillLevel(S_Sword_s11);
+			}
+
+			
+			if((witcherAttacker.HasRecentlyCountered() || witcherAttacker.HasRecentlyDodged()) && witcherAttacker.CanUseSkill(S_Sword_s31) && attackName != 'counter_attack_light')
+			{
+				tempAttr = witcherAttacker.GetSkillAttributeValue(S_Sword_s31, PowerStatEnumToName(CPS_AttackPower), false, true) * witcherAttacker.GetSkillLevel(S_Sword_s31);
+				if(attackName == 'bolt')
+				{
+					
+					tempAttr.valueMultiplicative *= CalculateAttributeValue(witcherAttacker.GetSkillAttributeValue(S_Sword_s31, 'crossbow_multiplier', false, true));
+					tempAttr.valueAdditive += result.valueAdditive;
+				}
+
+				result += tempAttr;
 			}
 			
 			

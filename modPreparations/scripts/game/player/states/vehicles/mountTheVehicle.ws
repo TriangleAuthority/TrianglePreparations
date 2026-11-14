@@ -1,10 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
 state MountTheVehicle in CR4Player extends Base
 {
 	protected var vehicle 		: CVehicleComponent;
@@ -78,7 +76,16 @@ state MountTheVehicle in CR4Player extends Base
 	event OnGameCameraPostTick( out moveData : SCameraMovementData, dt : float )
 	{
 		var vehicleHeading : float;
-	
+		
+		
+		if( (W3HorseComponent)vehicle && thePlayer.GetHorseCamera())
+		{
+			moveData.pivotDistanceController.SetDesiredDistance( 1.5f );
+			DampVectorSpring( moveData.cameraLocalSpaceOffset, moveData.cameraLocalSpaceOffsetVel, Vector( 0.8f, -0.7f, 0.1f ), 1.0f, dt );
+			return true;
+		}
+		
+
 		vehicleHeading = vehicle.GetHeading();
 		moveData.pivotRotationController.SetDesiredHeading( vehicleHeading, 0.25 );
 		

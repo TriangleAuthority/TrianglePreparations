@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CR4GlossaryBestiaryMenu extends CR4ListBaseMenu
 {	
 	default DATA_BINDING_NAME 		= "glossary.bestiary.list";
@@ -307,7 +303,7 @@ class CR4GlossaryBestiaryMenu extends CR4ListBaseMenu
 		
 		itemsNames = l_creature.GetItemsUsedAgainstCreature();
 		itemsFlashArray = CreateItems(itemsNames);
-		
+
 		if( itemsFlashArray && itemsFlashArray.GetLength() > 0 )
 		{
 			m_flashValueStorage.SetFlashBool("journal.rewards.panel.visible",true);
@@ -368,6 +364,8 @@ class CR4GlossaryBestiaryMenu extends CR4ListBaseMenu
 		for( i = 0; i < itemsNames.Size(); i += 1 )
 		{
 			curName = itemsNames[i];
+
+
 			
 			TryGetSignData(curName, curLocName, curIconPath);
 			if (curLocName == "")
@@ -387,6 +385,7 @@ class CR4GlossaryBestiaryMenu extends CR4ListBaseMenu
 			l_flashObject.SetMemberFlashInt( "price", 0 ); 		
 			l_flashObject.SetMemberFlashString( "userData", "");
 			l_flashObject.SetMemberFlashString( "category", "" );
+			l_flashObject.SetMemberFlashString("itemName", NameToString(curName));
 			l_flashArray.PushBackFlashObject(l_flashObject);
 		}
 		
@@ -475,6 +474,28 @@ class CR4GlossaryBestiaryMenu extends CR4ListBaseMenu
 	{
 		
 		
+	}
+
+	event  OnCloseMenu()
+	{
+		var commonMenu : CR4CommonMenu;
+		var glossaryMainMenu : CR4GlossaryMainMenu;
+		
+		commonMenu = (CR4CommonMenu)m_parentMenu;
+		glossaryMainMenu = (CR4GlossaryMainMenu)m_parentMenu;
+		
+		if( commonMenu )
+		{
+			commonMenu.ChildRequestCloseMenu();
+		}
+		if(glossaryMainMenu)
+		{
+			glossaryMainMenu.ChildRequestCloseMenu();
+		}
+		
+		theSound.SoundEvent( 'gui_global_quit' );
+		
+		CloseMenu();
 	}
 }
 

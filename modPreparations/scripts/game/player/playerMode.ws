@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 enum EPlayerMode
 {
 	PM_Normal,
@@ -59,6 +56,12 @@ class W3PlayerMode
 	
 	public function EnableMode( mode : EPlayerMode, enable : bool )
 	{
+		
+		var hud : CR4ScriptedHud;
+		var minimapModule : CR4HudModuleMinimap2;
+		var objectiveModule : CR4HudModuleQuests;
+		
+	
 		if ( mode == PM_Combat )
 		{
 			if(enable)
@@ -73,8 +76,48 @@ class W3PlayerMode
 				{
 					thePlayer.PlayBattleCry( 'BattleCryMonstersStart', 0.10f );
 				}
+				
+				
+				hud = (CR4ScriptedHud)theGame.GetHud();
+				if(hud)
+				{
+					minimapModule = (CR4HudModuleMinimap2)hud.GetHudModule("Minimap2Module");
+					objectiveModule = (CR4HudModuleQuests)hud.GetHudModule("QuestsModule");
+					
+					if(minimapModule)
+					{
+						minimapModule.SetIsInCombat(true);
+					}
+					
+					if(objectiveModule)
+					{
+						objectiveModule.SetIsInCombat(true);
+					}
+				}				
+				
 			}
-			
+			else
+			{
+				
+				hud = (CR4ScriptedHud)theGame.GetHud();
+				if(hud)
+				{
+					minimapModule = (CR4HudModuleMinimap2)hud.GetHudModule("Minimap2Module");
+					objectiveModule = (CR4HudModuleQuests)hud.GetHudModule("QuestsModule");
+					
+					if(minimapModule)
+					{
+						minimapModule.SetIsInCombat(false);
+					}
+					
+					if(objectiveModule)
+					{
+						objectiveModule.SetIsInCombat(false);
+					}
+				}
+				
+				
+			}
 			
 			combatMode = enable;
 			UpdateCurrentMode();

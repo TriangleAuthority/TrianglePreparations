@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class W3Effect_AirDrainDive extends CBaseGameplayEffect
 {
 	private var effectValueMultInIdle 			: SAbilityAttributeValue;			
@@ -23,6 +19,11 @@ class W3Effect_AirDrainDive extends CBaseGameplayEffect
 		var drain : float;
 		var statee : CR4PlayerStateSwimming;
 		var val : SAbilityAttributeValue;
+		var inGameConfigWrapper : CInGameConfigWrapper;
+		var isAccessibilityAirDrainDisabled : bool;
+		
+		inGameConfigWrapper = (CInGameConfigWrapper)theGame.GetInGameConfigWrapper();			
+		isAccessibilityAirDrainDisabled = inGameConfigWrapper.GetVarValue('Accessibility', 'NoAirDrain') == "true";
 		
 		super.OnUpdate(deltaTime);
 			
@@ -35,7 +36,7 @@ class W3Effect_AirDrainDive extends CBaseGameplayEffect
 		
 		if(target.GetStat(BCS_Air) <= 0)
 		{
-			if ( !target.HasBuff(EET_Drowning) )
+			if ( !target.HasBuff(EET_Drowning) && !isAccessibilityAirDrainDisabled )
 				target.AddEffectDefault(EET_Drowning,NULL,"NoAir");
 		}
 		else
@@ -61,6 +62,9 @@ class W3Effect_AirDrainDive extends CBaseGameplayEffect
 			{
 				drain *= effectValueMultInIdle.valueAdditive;
 			}
+			
+			if ( isAccessibilityAirDrainDisabled )
+				drain = 0;
 			
 			effectManager.CacheStatUpdate(BCS_Air, -drain);
 		}

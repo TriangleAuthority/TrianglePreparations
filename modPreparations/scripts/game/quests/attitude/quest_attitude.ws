@@ -1,13 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
 quest function SetGroupAttitudeQuest( srcGroup : name, dstGroup : name, attitude : EAIAttitude )
 {
 	theGame.SetGlobalAttitude( srcGroup, dstGroup, attitude );
@@ -34,7 +29,7 @@ quest function AssignNPCGroupAttitudeQuest( npcTag : name, attGroup : name )
 		LogQuest("AssignNPCGroupAttitudeQuest: cannot find any NPC with tag <<" + npcTag + ">>, unable to change attitude group to <<" + attGroup + ">>");
 }
 
-quest function AssignNPCTemporaryGroupAttitudeQuest( npcTag : name, attGroup : name, priority : EAttitudeGroupPriority, set : bool )
+quest function AssignNPCTemporaryGroupAttitudeQuest( npcTag : name, attGroup : name, priority : EAttitudeGroupPriority, value : bool )
 {
 	var npcs : array<CNewNPC>;
 	var i : int;
@@ -46,7 +41,7 @@ quest function AssignNPCTemporaryGroupAttitudeQuest( npcTag : name, attGroup : n
 	{
 		if(npcs[i])
 		{
-			if (set)
+			if (value)
 			{
 				npcs[i].SetTemporaryAttitudeGroup( attGroup, priority );
 			}
@@ -118,4 +113,23 @@ quest function ForgetTargetQuest( npcTag : name )
 	}
 	
 	
+}
+
+
+quest function SetAttitudeTowardsNPC( npcTag : name, targetTag : name, attitude : EAIAttitude )
+{
+	var npcs : array<CNewNPC>;
+	var target : CActor;
+	var i : int;
+	
+	theGame.GetNPCsByTag( npcTag, npcs );
+	target = theGame.GetActorByTag( targetTag );
+	
+	if(npcs.Size() > 0 && target)
+	{
+		for ( i=0; i < npcs.Size(); i+=1 )
+		{
+			npcs[i].SetAttitude( target, attitude );
+		}	
+	}
 }

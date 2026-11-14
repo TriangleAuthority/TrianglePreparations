@@ -1,16 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
-
 enum EExplorationStateType
 {
 	EST_None		,
@@ -448,7 +440,7 @@ class CExplorationStateManager extends CSelfUpdatingComponent
 		}
 		
 		
-		if( !m_ActiveB || !theGame.IsActive() || theGame.IsPaused() )
+		if( !m_ActiveB || !theGame.IsActive() || theGame.IsPaused() || theGame.GetPhotomodeEnabled() )
 		{
 			return;
 		}		
@@ -717,13 +709,15 @@ class CExplorationStateManager extends CSelfUpdatingComponent
 		var numLocks	: int;
 		var	i, j		: int;
 		
-		var	heightCur	: int		= 100;
+		var	heightCur	: int		= 215;
 		var textColor	: Color;
 		var auxString	: string;
 		var	auxName		: name;
 		
 		
 		actionLocks	= thePlayer.GetAllActionLocks();
+		
+		thePlayer.GetVisualDebug().AddBar( 'CurrentInputLocks', 5, 200, 300, 15, 0.0f, textColor, "======Current Input Locks======", 0.0f );
 		
 		for( i = 0; i < actionLocks.Size(); i += 1 )
 		{
@@ -734,10 +728,13 @@ class CExplorationStateManager extends CSelfUpdatingComponent
 			for( j = 0; j < actionLocks[i].Size(); j += 1 )
 			{
 				auxString	+= actionLocks[i][j].sourceName + ", ";
+				thePlayer.GetVisualDebug().AddBar( auxName, 5, heightCur, 300, 15, 0.0f, textColor, auxString, 0.0f );
+				heightCur	+= 15;
 			}
-			
-			thePlayer.GetVisualDebug().AddBar( auxName, 5, heightCur, 300, 15, 0.0f, textColor, auxString, 0.0f );
-			heightCur	+= 15;
+			if (actionLocks[i].Size() < 1)
+			{
+				thePlayer.GetVisualDebug().RemoveBar( auxName );
+			}
 		}
 	}
 	
@@ -793,6 +790,13 @@ class CExplorationStateManager extends CSelfUpdatingComponent
 			case 44: return 'IntName 44';
 			case 45: return 'IntName 45';
 			case 46: return 'IntName 46';
+			case 46: return 'IntName 47';
+			case 46: return 'IntName 48';
+			case 46: return 'IntName 49';
+			case 46: return 'IntName 50';
+			case 46: return 'IntName 51';
+			case 46: return 'IntName 52';
+			case 46: return 'IntName 53';
 		}
 	}
 	
@@ -1545,6 +1549,7 @@ class CExplorationStateManager extends CSelfUpdatingComponent
 	{
 		var l_BehaviorEventN	: name;
 		var l_EventIsForcedB	: bool;
+		var l_eventResult		: bool;
 		
 		
 		
@@ -1554,7 +1559,7 @@ class CExplorationStateManager extends CSelfUpdatingComponent
 		{
 			l_BehaviorEventN	= m_StatesSArr[m_StateCurI].GetBehaviorEventName();
 			l_EventIsForcedB	= m_StatesSArr[m_StateCurI].GetBehaviorIsEventForced( m_StateLastN );
-			SendAnimEvent( l_BehaviorEventN, l_EventIsForcedB );
+			l_eventResult = SendAnimEvent( l_BehaviorEventN, l_EventIsForcedB );
 		}
 	}
 	
@@ -1646,6 +1651,8 @@ class CExplorationStateManager extends CSelfUpdatingComponent
 	
 	public function SendAnimEvent( eventName : name, optional forced : bool ) : bool
 	{
+		var res : bool;
+
 		
 		if( forced )
 		{
@@ -1966,5 +1973,15 @@ class CExplorationStateManager extends CSelfUpdatingComponent
 	public function CanReactToHardCriticalState() : bool
 	{
 		return m_StatesSArr[m_StateCurI].CanReactToHardCriticalState();
+	}
+
+	
+	public function GetStateByName( stateName : name ) : CExplorationStateAbstract
+	{
+		var stateIndex : int;
+
+		stateIndex = FindState( stateName );
+
+		return m_StatesSArr[stateIndex];
 	}
 }

@@ -1,17 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
-
-
 import function StrLen( str : string ) : int;
 
 
@@ -88,6 +79,18 @@ import function StringToInt( value : string, optional defValue : int) : int;
 
 
 import function StringToFloat( value : string, optional defValue : float ) : float;
+
+
+import function VectorToString( value : Vector ) : string;
+
+
+import function EulerAnglesToString( value : EulerAngles ) : string;
+
+
+import function StringToVector( value : string, optional defValue : Vector) : Vector;
+
+
+import function StringToEulerAngles( value : string, optional defValue : EulerAngles) : EulerAngles;
 
 
 import function StrUpperUTF( str : string ) : string;
@@ -193,4 +196,21 @@ function StrStartsWith(str : string, subStr : string) : bool
 function StrContains(str : string, subStr : string) : bool
 {
 	return StrFindFirst(str, subStr) >= 0;
+}
+
+function StrSplit(str : string, subStr : string) : array<string>
+{
+	var strLeft : string;
+	var result : array<string>;
+
+	strLeft = str;
+
+	while (StrContains(strLeft, subStr))
+	{
+		result.PushBack(StrBeforeFirst(strLeft, subStr));
+		strLeft = StrAfterFirst(strLeft, subStr);
+	}
+
+	result.PushBack(strLeft);
+	return result;
 }

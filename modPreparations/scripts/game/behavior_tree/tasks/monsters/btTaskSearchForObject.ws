@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CBTTaskSearchForObject extends IBehTreeTask
 {
 	public var range 							: float;
@@ -222,4 +218,3 @@ class CBTTaskSearchForRiftDef extends IBehTreeTaskDefinition
 	default range = 20;
 	default searchOnlyForActiveRifts = true;
 }
-

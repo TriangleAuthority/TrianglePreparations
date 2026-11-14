@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 class W3UIContext extends CObject
 {
@@ -36,13 +36,14 @@ class W3UIContext extends CObject
 		}
 	}
 	
-	protected function AddInputBinding(label:string, padNavCode:string, optional keyboardNavCode:int, optional useInContextMenu:bool, optional IsLocalized:bool)
+	protected function AddInputBinding(label:string, padNavCode:string, optional keyboardNavCode:int, optional useInContextMenu:bool, optional IsLocalized:bool, optional IsHold:bool)
 	{
 		var bindingDef:SKeyBinding;
 		bindingDef.Gamepad_NavCode = padNavCode;
 		bindingDef.Keyboard_KeyCode = keyboardNavCode;
 		bindingDef.LocalizationKey = label;
 		bindingDef.IsLocalized = IsLocalized;
+		bindingDef.IsHold = IsHold;
 		m_inputBindings.PushBack(bindingDef);
 		if (useInContextMenu)
 		{

@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CR4ListBaseMenu extends CR4MenuBase
 {	
 	protected const var DATA_BINDING_NAME				:string; 		default DATA_BINDING_NAME 			= "alchemy.list";
@@ -123,8 +119,16 @@ class CR4ListBaseMenu extends CR4MenuBase
 	
 	protected function HandleMenuLoaded():void
 	{
+		var journalInitData : W3JournalInitData;
 		super.HandleMenuLoaded();
-		OnEntrySelected(currentTag);
+
+		journalInitData = (W3JournalInitData)GetMenuInitData();
+
+		if(journalInitData)
+			OnEntrySelected(journalInitData.questTag);
+		else
+			OnEntrySelected(currentTag);
+		
 	}
 
 	function PopulateData() 

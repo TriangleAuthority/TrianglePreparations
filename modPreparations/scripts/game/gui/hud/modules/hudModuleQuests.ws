@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 enum EUpdateEventType
 {
@@ -46,6 +46,9 @@ class CR4HudModuleQuests extends CR4HudModuleBase
 	{
 		var flashModule : CScriptedFlashSprite;
 		
+		
+		var inGameConfigWrapper : CInGameConfigWrapper;
+		
 		m_anchorName = "mcAnchorQuest";
 		
 		super.OnConfigUI();
@@ -69,6 +72,30 @@ class CR4HudModuleQuests extends CR4HudModuleBase
 		{
 			m_hud.UpdateHudConfig('QuestsModule', true);
 		}
+		
+		
+		inGameConfigWrapper = (CInGameConfigWrapper)theGame.GetInGameConfigWrapper();
+		objectiveDuringFocusCombat = inGameConfigWrapper.GetVarValue('Hud', 'ObjectiveDuringFocusCombat');
+		
+	}
+
+	event  OnTapQuest()
+	{
+		if ( theGame.IsBlackscreenOrFading() || theGame.IsDialogOrCutscenePlaying() )
+		{
+			return false;
+		}
+	
+		if( thePlayer.IsActionAllowed(EIAB_OpenJournal) )
+		{
+			theGame.RequestMenuWithBackground( 'JournalQuestMenu', 'CommonMenu' );
+		}
+		else
+		{
+			thePlayer.DisplayActionDisallowedHudMessage(EIAB_OpenJournal);
+		}
+		
+		return true;
 	}
 	
 	public function OnLevelUp()
@@ -76,12 +103,137 @@ class CR4HudModuleQuests extends CR4HudModuleBase
 		UpdateQuest();
 	}
 
+	
+	private var isInCombat : bool;
+	private var isInFocus : bool;
+	private var dlgPlaying : bool;
+	public function SetIsInDlg(dlg : bool)
+	{
+		if(!objectiveDuringFocusCombat)
+			return;
+	
+		dlgPlaying = dlg;
+		
+		if(dlg)
+		{			
+			currentlyFading = false;
+			isFading = false;
+			SetEnabled(false);
+		}
+		else
+		{
+			currentlyFading = false;
+			isFading = false;
+		}
+	}
+	public function SetIsInCombat(combat : bool)
+	{
+		isInCombat = combat;
+	}
+	
+	public function SetIsInFocus(focus : bool)
+	{
+		isInFocus = focus;
+	}
+	
+	private var objectiveDuringFocusCombat : bool;
+	public function GetObjectiveDuringFocusCombat() : bool
+	{
+		return objectiveDuringFocusCombat;
+	}
+	
+	public function SetObjectiveDuringFocusCombat(enable : bool)
+	{
+		objectiveDuringFocusCombat = enable;
+		if(!objectiveDuringFocusCombat)
+		{
+			if ( m_hud )
+				m_hud.UpdateHudConfig('QuestsModule', true);	
+		}
+		else
+		{
+			fadeInTimer = 5.5;
+		}
+	}
+	
+	private var fadeInTimer : float;
+	private var isFading, currentlyFading : bool;
+	private var fadeOutTime : float;	default fadeOutTime = 0.3f;
+	private var fadeTime : float;
+	
+	private function FadeObjectiveOut(dt : float)
+	{		
+		if(dlgPlaying)
+			return;
+	
+		fadeInTimer -= dt;
+		if(fadeInTimer > 0)
+			return;
+	
+		currentlyFading = true;
+		fadeTime -= dt;
+		GetModuleFlash().SetAlpha( 100 * MaxF( 0, fadeTime / fadeOutTime ) );
+		
+		if(fadeTime <= 0)
+		{
+			SetEnabled(false);
+			currentlyFading = false;
+			isFading = false;
+		}
+	}
+	
+	private function ShowObjectiveOnUpdate()
+	{
+		if(objectiveDuringFocusCombat)
+		{
+			m_hud.UpdateHudConfig('QuestsModule', true);
+			fadeInTimer = 8.0f;
+			isFading = false;
+		}
+	}
+	
+
 	event  OnTick( timeDelta : float )
 	{
 		var i : int;
 		var e : SUpdateEvent;
 		var systemObjectives : array< SJournalQuestObjectiveData >;
 		var sendSystemObjectives : bool = false;
+		
+		
+		var horseRacing : bool;
+		
+		horseRacing = false;
+
+		if(!dlgPlaying && objectiveDuringFocusCombat)
+		{
+			if(thePlayer.GetIsHorseRacing())
+				horseRacing = true;
+		
+			if(currentlyFading || (isFading && !isInFocus && !isInCombat && !horseRacing))
+			{
+				FadeObjectiveOut(timeDelta);
+				
+			}		
+		
+			else if(!currentlyFading && (isInFocus || isInCombat || horseRacing))
+			{
+				if ( m_hud )
+				{
+					m_hud.UpdateHudConfig('QuestsModule', true);
+					fadeInTimer = 5.5f;
+					isFading = false;
+				}
+			}
+			else if (!isFading && GetEnabled())
+			{
+				isFading = true;
+				fadeTime = fadeOutTime;
+				FadeObjectiveOut(timeDelta);
+				
+			}
+		}
+		
 
 		if ( CheckIfUpdateIsAllowed() && m_updateEvents.Size() )
 		{
@@ -101,7 +253,8 @@ class CR4HudModuleQuests extends CR4HudModuleBase
 					case EUET_TrackedQuest:
 						
 						break;
-					case EUET_TrackedQuestObjective:
+					case EUET_TrackedQuestObjective:						
+						ShowObjectiveOnUpdate();	
 						UpdateObjectives();
 						sendSystemObjectives = true;
 						break;
@@ -178,6 +331,8 @@ class CR4HudModuleQuests extends CR4HudModuleBase
 					FactsSet( "tut_switched_objective", 1 );
 				}
 				theGame.GetJournalManager().SetPrevNextHighlightedObjective( true );
+				
+				ShowObjectiveOnUpdate();	
 			}
 		}
 	}
@@ -415,6 +570,7 @@ class CR4HudModuleQuests extends CR4HudModuleBase
 			{
 				objectiveName = "MISSING_OBJECTIVE_NAME: " + data.objectiveEntry.baseName;
 			}
+			
 			l_flashObject.SetMemberFlashString( "name",   objectiveName + GetQuestObjectiveCounterText( data.objectiveEntry ) );
 			l_flashObject.SetMemberFlashBool(   "isHighlighted", ( data.objectiveEntry == _highlightedObjective ) );
 			l_flashObject.SetMemberFlashBool(   "isMutuallyExclusive", data.objectiveEntry.IsMutuallyExclusive() );
@@ -494,6 +650,7 @@ class CR4HudModuleQuests extends CR4HudModuleBase
 		case Side:
 		case MonsterHunt:
 		case TreasureHunt:
+
 			return 0xc0c0c0;
 		}
 		return 0xffffff;

@@ -1,13 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
 class CharacterStatsPopupData extends TextPopupData
 {	
 	var m_flashValueStorage : CScriptedFlashValueStorage;
@@ -422,6 +417,7 @@ function AddCharacterStatSigns(tag : string, varKey:name, locKey:string, iconTag
 	var min, max : float;
 	var sp, mutDmgMod, mutMin, mutMax : SAbilityAttributeValue;
 	var sword : SItemUniqueId;
+	var conjunctionDamageMult : float;
 	
 	statObject = flashMaster.CreateTempFlashObject();
 	
@@ -454,9 +450,25 @@ function AddCharacterStatSigns(tag : string, varKey:name, locKey:string, iconTag
 		if ( GetWitcherPlayer().CanUseSkill(S_Magic_s06) )
 		{
 			valueAbility = GetWitcherPlayer().GetSkillLevel(S_Magic_s06) * CalculateAttributeValue( GetWitcherPlayer().GetSkillAttributeValue( S_Magic_s06, theGame.params.DAMAGE_NAME_FORCE, false, true ) );
-			valueAbility += mutDmgMod.valueBase;
-			valueAbility *= sp.valueMultiplicative;
+			valueAbility += mutDmgMod.valueBase;			
+			
 			valueStr = (string)RoundMath( valueAbility );
+		}
+		else if ( GetWitcherPlayer().CanUseSkill(S_Magic_s33) )
+		{
+			sp = GetWitcherPlayer().GetTotalSignSpellPower(S_Magic_1);
+			valueAbility = GetWitcherPlayer().CalcMagic33Damage();
+			valueAbility += mutDmgMod.valueBase;
+
+			if ( GetWitcherPlayer().CanUseSkill(S_Perk_37 ) )
+			{
+				conjunctionDamageMult = CalculateAttributeValue( thePlayer.GetSkillAttributeValue( S_Perk_37, 'damage_multiplier', false, false ) );
+				conjunctionDamageMult = 1 + thePlayer.GetSkillLevel( S_Perk_37 ) * conjunctionDamageMult;
+				sp.valueMultiplicative *= conjunctionDamageMult;
+			}
+
+			valueAbility *= 1 + (sp.valueMultiplicative - 1) * theGame.params.AARD_SPELL_POWER_MULT;
+			valueStr = FloatToString( RoundMath( valueAbility ) );
 		}
 		else
 			valueStr = "0";
@@ -466,18 +478,35 @@ function AddCharacterStatSigns(tag : string, varKey:name, locKey:string, iconTag
 		sp = GetWitcherPlayer().GetTotalSignSpellPower(S_Magic_2);
 		valueAbility = CalculateAttributeValue( GetWitcherPlayer().GetSkillAttributeValue( S_Magic_2, theGame.params.DAMAGE_NAME_FIRE, false, true ) );
 		valueAbility += mutDmgMod.valueBase;
+
+		if ( GetWitcherPlayer().CanUseSkill(S_Perk_37 ) )
+		{
+			conjunctionDamageMult = CalculateAttributeValue( thePlayer.GetSkillAttributeValue( S_Perk_37, 'damage_multiplier', false, false ) );
+			conjunctionDamageMult = 1 + thePlayer.GetSkillLevel( S_Perk_37 ) * conjunctionDamageMult;
+			sp.valueMultiplicative *= conjunctionDamageMult;
+		}
+
 		valueAbility *= 1 + (sp.valueMultiplicative-1) * theGame.params.IGNI_SPELL_POWER_MILT;		
 		valueStr = (string)RoundMath( valueAbility );
 	}
 	else if ( varKey == 'igni_burnchance' ) 	
 	{  
 		sp = GetWitcherPlayer().GetTotalSignSpellPower(S_Magic_2);
-		valueAbility = sp.valueMultiplicative / theGame.params.MAX_SPELLPOWER_ASSUMED - 4 * theGame.params.NPC_RESIST_PER_LEVEL;
+		
+		
+		valueAbility = ( 1 + LogF( sp.valueMultiplicative ) ) / theGame.params.MAX_SPELLPOWER_ASSUMED - 4 * theGame.params.NPC_RESIST_PER_LEVEL; 
+		
 		if (GetWitcherPlayer().CanUseSkill(S_Magic_s09))
 		{
 			sp = GetWitcherPlayer().GetSkillAttributeValue(S_Magic_s09, 'chance_bonus', false, false);
 			valueAbility += valueAbility * sp.valueMultiplicative * GetWitcherPlayer().GetSkillLevel(S_Magic_s09) + sp.valueAdditive * GetWitcherPlayer().GetSkillLevel(S_Magic_s09);
 		}
+		if (GetWitcherPlayer().CanUseSkill(S_Magic_s08))
+		{
+			sp = GetWitcherPlayer().GetSkillAttributeValue(S_Magic_s08, 'burn_chance_bonus', false, true);
+			valueAbility += sp.valueAdditive * GetWitcherPlayer().GetSkillLevel(S_Magic_s08);
+		}
+		
 		valueStr = (string)Min(100, RoundMath(valueAbility * 100)) + " %";
 	}
 	else if ( varKey == 'quen_damageabs' )
@@ -506,6 +535,14 @@ function AddCharacterStatSigns(tag : string, varKey:name, locKey:string, iconTag
 			sp = GetWitcherPlayer().GetTotalSignSpellPower(S_Magic_s03);
 			valueAbility = CalculateAttributeValue( GetWitcherPlayer().GetSkillAttributeValue( S_Magic_s03, theGame.params.DAMAGE_NAME_SHOCK, false, true ) );
 			valueAbility += mutDmgMod.valueBase;
+
+			if ( GetWitcherPlayer().CanUseSkill(S_Perk_37 ) )
+			{
+				conjunctionDamageMult = CalculateAttributeValue( thePlayer.GetSkillAttributeValue( S_Perk_37, 'damage_multiplier', false, false ) );
+				conjunctionDamageMult = 1 + thePlayer.GetSkillLevel( S_Perk_37 ) * conjunctionDamageMult;
+				sp.valueMultiplicative *= conjunctionDamageMult;
+			}
+
 			valueAbility *= sp.valueMultiplicative;			
 			valueStr = (string)RoundMath( valueAbility );
 		}

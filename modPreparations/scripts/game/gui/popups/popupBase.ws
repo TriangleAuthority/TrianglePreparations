@@ -1,17 +1,14 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class CR4PopupBase extends CR4Popup
 {
 	protected var m_flashValueStorage 	 	: CScriptedFlashValueStorage;
 	protected var m_flashModule     	 	: CScriptedFlashSprite;
 	protected var m_fxSetArabicAligmentMode : CScriptedFlashFunction;
+	protected var m_fxSetGameLanguage		: CScriptedFlashFunction;
 	protected var m_fxSwapAcceptCancel	    : CScriptedFlashFunction;
 
 	protected var m_fxSetControllerType  	: CScriptedFlashFunction;
@@ -31,6 +28,7 @@ class CR4PopupBase extends CR4Popup
 		m_fxSetControllerType 	   = m_flashModule.GetMemberFlashFunction( "setControllerType" );
 		m_fxSetPlatform 		   = m_flashModule.GetMemberFlashFunction( "setPlatform" );
 		m_fxSetArabicAligmentMode  = m_flashModule.GetMemberFlashFunction( "setArabicAligmentMode" );
+		m_fxSetGameLanguage        = m_flashModule.GetMemberFlashFunction( "setGameLanguage" );
 		m_fxSwapAcceptCancel       = m_flashModule.GetMemberFlashFunction( "swapAcceptCancel" );
 		m_fxSetGamepadType		   = m_flashModule.GetMemberFlashFunction( "setGamepadType" );
 		m_fxLockControlScheme	   = m_flashModule.GetMemberFlashFunction( "lockControlScheme" );
@@ -112,6 +110,10 @@ class CR4PopupBase extends CR4Popup
 		if (m_fxSetArabicAligmentMode)
 		{
 			m_fxSetArabicAligmentMode.InvokeSelfOneArg( FlashArgBool( (language == "AR") ) );
+		}
+		if ( m_fxSetGameLanguage )
+		{
+			m_fxSetGameLanguage.InvokeSelfOneArg( FlashArgString( language ) );
 		}
 	}
 	

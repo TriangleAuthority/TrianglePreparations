@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class W3AlchemyManager
 {
 	private var recipes : array<SAlchemyRecipe>;									
@@ -214,7 +210,7 @@ class W3AlchemyManager
 		var i, j, quantity, removedIngQuantity, maxAmmo : int;
 		var recipe : SAlchemyRecipe;
 		var dm : CDefinitionsManagerAccessor;
-		var crossbowID : SItemUniqueId;
+		var crossbowID, sword : SItemUniqueId; 
 		var min, max : SAbilityAttributeValue;
 		var uiStateAlchemy : W3TutorialManagerUIHandlerStateAlchemy;
 		var uiStateAlchemyMutagens : W3TutorialManagerUIHandlerStateAlchemyMutagens;
@@ -226,6 +222,8 @@ class W3AlchemyManager
 		var itemName:name;
 		
 		GetRecipe(recipeName, recipe);
+		
+		witcher = GetWitcherPlayer(); 
 		
 		
 		equippedOnSlot = EES_InvalidSlot;
@@ -273,7 +271,6 @@ class W3AlchemyManager
 			{
 				removedIngQuantity = 0;
 				alchIngs = thePlayer.inv.GetItemsByName(itemName);
-				witcher = GetWitcherPlayer();
 				
 				for(j=0; j<alchIngs.Size(); j+=1)
 				{
@@ -296,6 +293,22 @@ class W3AlchemyManager
 				
 				thePlayer.inv.RemoveItemByName(itemName, recipe.requiredIngredients[i].quantity);
 			}
+			
+			
+			if(recipe.cookedItemType == EACIT_Oil && recipe.level > 1 && thePlayer.inv.IsItemOil(ids[0]))
+			{
+				if( witcher.IsEquippedSwordUpgradedWithOil( false, recipe.requiredIngredients[i].itemName ) )
+				{
+					sword = thePlayer.GetEquippedSword( false );
+					thePlayer.ApplyOil(ids[0], sword);
+				}
+				else if( witcher.IsEquippedSwordUpgradedWithOil( true, recipe.requiredIngredients[i].itemName ) )
+				{
+					sword = thePlayer.GetEquippedSword( true );
+					thePlayer.ApplyOil(ids[0], sword);
+				}
+			}
+			
 		}
 		
 		RemoveLowerLevelItems(recipe);

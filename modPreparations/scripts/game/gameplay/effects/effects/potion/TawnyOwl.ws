@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 class W3Potion_TawnyOwl extends W3RegenEffect
 {
 	default effectType = EET_TawnyOwl;
@@ -32,16 +28,10 @@ class W3Potion_TawnyOwl extends W3RegenEffect
 					if ( thePlayer.CanUseSkill(S_Alchemy_s03) )
 					{
 						toxicityThreshold = thePlayer.GetStatMax(BCS_Toxicity);
-						toxicityThreshold *= 1 - CalculateAttributeValue( thePlayer.GetSkillAttributeValue(S_Alchemy_s03, 'toxicity_threshold', false, true) ) * GetWitcherPlayer().GetSkillLevel(S_Alchemy_s03);
+						toxicityThreshold *= GetWitcherPlayer().GetAlchemyS03Threshold();
 					}
-					if(isPotionEffect && target == thePlayer && thePlayer.CanUseSkill(S_Alchemy_s03) && thePlayer.GetStat(BCS_Toxicity, true) > toxicityThreshold)
-					{
-						
-					}
-					else
-					{
-						isActive = false;		
-					}
+					isActive = false;
+					
 				}
 			}
 			OnUpdate(deltaTime);	

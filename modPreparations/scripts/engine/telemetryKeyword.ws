@@ -1,10 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
 import class CR4TelemetryScriptProxy extends CObject
 {
 	import final function LogWithName( eventType : ER4TelemetryEvents );
@@ -25,4 +23,10 @@ import class CR4TelemetryScriptProxy extends CObject
 	
 	import final function XDPPrintUserStats( statisticName : String );
 	import final function XDPPrintUserAchievement( achievementName : String );
+	import final function TelemetryConsentChanged(telemetryConsent : bool);
+	import final function MarketingConsentChanged(marketingConsent : bool);
+	import final function WasConsentWindowShown() : bool;
+	import final function MarkShownConsentWindow();
+	
+	import final function NoticeMenuDepth(d : int);
 }

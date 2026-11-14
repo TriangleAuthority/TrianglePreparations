@@ -1,16 +1,27 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 import class CR4InteriorAreaComponent extends CTriggerAreaComponent
 {
 	editable var isDarkPlace : bool;	
 		default isDarkPlace = false;
 		hint isDarkPlace = "If set area is considered a dark place (player should use torch / cat potion)";
+		
+		editable var useInteriorDefinitionsForLy : bool;	
+		default useInteriorDefinitionsForLy = true;
+		hint useInteriorDefinitionsForLy = "Use the color, fog and SSAO NV varaibles from the Env defs for interiors";
+		
+		editable var isCave : bool;
+		default isCave = false;
+		hint isCave = "If interior is cave. Only used in postprocessing with useInteriorDefinitions";
+		
+		editable var InteriorDefBlendingEnter : float;
+		default InteriorDefBlendingEnter = 3.f;
+		
+		editable var InteriorDefBlendingExit : float;
+		default InteriorDefBlendingExit = 3.f;
 	
 	editable var allowHorseInThisInterior : bool;
 		default allowHorseInThisInterior = false;
@@ -22,33 +33,45 @@ import class CR4InteriorAreaComponent extends CTriggerAreaComponent
 	
 	event OnPlayerEntered( entered : bool )
 	{
-		switch( movementLock )
-		{
-			case PMLT_NoSprint :
-				thePlayer.interiorTracker.LockSprint( entered );
-			break;
-			case PMLT_NoRun :
-				thePlayer.interiorTracker.LockRun( entered );
-			break;
-		}
+		var environment : CEnvironmentDefinition;
+		var envID : int;
+			switch( movementLock )
+			{
+				case PMLT_NoSprint :
+					thePlayer.interiorTracker.LockSprint( entered );
+				break;
+				case PMLT_NoRun :
+					thePlayer.interiorTracker.LockRun( entered );
+				break;
+			}
+		
+
 		
 		
 	}
 	
 	event OnAreaEnter( area : CTriggerAreaComponent, activator : CComponent )
 	{
+		var inv 	     			: CInventoryComponent;
+
 		if(activator.GetEntity() != thePlayer)
 			return false;
-			
 		
-		if(isDarkPlace)
-			FactsAdd("tut_in_dark_place");
+		
+		
+		
+
 	}
 	
 	event OnAreaExit( area : CTriggerAreaComponent, activator : CComponent )
 	{
+		var inv 	     			: CInventoryComponent;
+
 		if(activator.GetEntity() != thePlayer)
+		{
 			return false;
+		}
+		LogGalaxy(" exited ");
 		
 		
 		if(isDarkPlace)
@@ -59,6 +82,7 @@ import class CR4InteriorAreaComponent extends CTriggerAreaComponent
 			if( FactsQuerySum( "tut_in_dark_place" ) <= 0 )
 			{
 				thePlayer.RemoveBuff( EET_Mutation12Cat );
+
 			}
 		}
 	}

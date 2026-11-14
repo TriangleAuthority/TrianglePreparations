@@ -1,19 +1,17 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 import abstract class W3LockableEntity extends CGameplayEntity
 {	
 	protected editable saved var keyItemName 		: name;			
 	protected editable saved var removeKeyOnUse 	: bool;			
-	private editable var enabledByFact 			: string;		
-	private editable var factOnLockedAttempt 	: string;		
-	private editable var factOnUnlockedByKey 	: string;
+	protected editable var alwaysEnabled				: bool;			
+	private editable var enabledByFact 				: string;		
+	private editable var factOnInteractionActivated	: string;		
+	private editable var factOnLockedAttempt 		: string;		
+	private editable var factOnUnlockedByKey 		: string;
 
 	import protected editable var isEnabledOnSpawn 	: bool;
 	import editable saved var lockedByKey : bool;							
@@ -24,8 +22,9 @@ import abstract class W3LockableEntity extends CGameplayEntity
 	protected var isPlayerInActivationRange : bool;
 	protected var isInteractionBlocked : bool;								
 	
-	hint enabledByFact="If set then container will not be usable if fact does not exist";
-	hint factOnLockedAttempt="Fact added when we try to use interaction on entity locked by key or fact when we don't have the key or fact does not exist";
+	hint alwaysEnabled = "If true then the entity will always be enabled";
+	hint enabledByFact = "If set then container will not be usable if fact does not exist";
+	hint factOnLockedAttempt = "Fact added when we try to use interaction on entity locked by key or fact when we don't have the key or fact does not exist";
 	
 	default lockedByKey 			= false;
 	default removeKeyOnUse 			= true;
@@ -212,8 +211,8 @@ import abstract class W3LockableEntity extends CGameplayEntity
 	
 	public function Enable(e : bool, optional skipInteractionUpdate : bool, optional questForcedEnable : bool)
 	{
-		isEnabled = e;
-		if(e)
+		isEnabled = e || alwaysEnabled;
+		if(isEnabled)
 		{
 			if( lockedByKey )
 			{
@@ -266,7 +265,11 @@ import abstract class W3LockableEntity extends CGameplayEntity
 	event OnInteractionActivated( interactionComponentName : string, activator : CEntity )
 	{
 		if(activator == thePlayer)
+		{
 			isPlayerInActivationRange = true;
+			if (StrLen(factOnInteractionActivated) > 0)
+				FactsSet(factOnInteractionActivated, 1, -1);
+		}
 	}
 	
 	event OnInteractionDeactivated( interactionComponentName : string, activator : CEntity )

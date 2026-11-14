@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 statemachine class WeaponHolster
 {
@@ -237,7 +237,7 @@ statemachine class WeaponHolster
 		else
 		{
 			inGameConfigWrapper = (CInGameConfigWrapper)theGame.GetInGameConfigWrapper();
-			disableAutoSheathe = inGameConfigWrapper.GetVarValue( 'Gameplay', 'DisableAutomaticSwordSheathe' );
+			disableAutoSheathe = inGameConfigWrapper.GetVarValue( 'Accessibility', 'DisableAutomaticSwordSheathe' );
 			
 			if( disableAutoSheathe )
 			{
@@ -554,6 +554,7 @@ state SelectingWeapon in WeaponHolster
 		}	
 		
 		
+
 		
 		thePlayer.SetBehaviorVariable( 'holsterReadyToSkip', 0.0f, true );
 		
@@ -729,6 +730,7 @@ state SelectingWeapon in WeaponHolster
 		actionBlockingExceptions.PushBack(EIAB_Slide);
 		actionBlockingExceptions.PushBack(EIAB_ThrowBomb);
 		actionBlockingExceptions.PushBack(EIAB_Crossbow);
+
 		actionBlockingExceptions.PushBack(EIAB_UsableItem);
 		actionBlockingExceptions.PushBack(EIAB_RadialMenu);
 		actionBlockingExceptions.PushBack(EIAB_OpenInventory);

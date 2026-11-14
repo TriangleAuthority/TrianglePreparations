@@ -1,18 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
-
-
-
-
-
 class CExplorationStateRoll extends CExplorationStateAbstract
 {
 	protected editable			var	m_TimeSafetyEndF		: float;		default m_TimeSafetyEndF			= 3.0f;
@@ -104,7 +94,7 @@ class CExplorationStateRoll extends CExplorationStateAbstract
 			m_ExplorationO.m_MoverO.StopVerticalMovement();
 			m_ExplorationO.m_MoverO.StopAllMovement();
 			
-			theGame.VibrateControllerLight();	
+			
 		}
 		
 		

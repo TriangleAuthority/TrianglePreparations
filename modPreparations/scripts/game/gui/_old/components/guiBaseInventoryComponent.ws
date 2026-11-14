@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 abstract class W3GuiBaseInventoryComponent
 {
 	public var autoCleanNewMark:bool;
@@ -130,12 +126,18 @@ abstract class W3GuiBaseInventoryComponent
 	
 	
 	
+	
+	public var maxItemLimit : int;
+	default maxItemLimit = 9999;
+	
+	
 	public function GetInventoryFlashArray( out flashArray : CScriptedFlashArray, flashObject : CScriptedFlashObject ) : void
 	{
 		var i : int;
 		var item : SItemUniqueId;
 		var rawItems : array< SItemUniqueId >;
 		var l_flashObject : CScriptedFlashObject;
+		var itemCount : int; 
 		
 		_inv.GetAllItems( rawItems );
 		
@@ -144,12 +146,14 @@ abstract class W3GuiBaseInventoryComponent
 		{		
 			item = rawItems[i];
 			
-			if ( ShouldShowItem( item ) )
+			if ( ShouldShowItem( item ) && itemCount < maxItemLimit ) 
 			{
 				
 				l_flashObject = flashObject.CreateFlashObject("red.game.witcher3.menus.common.ItemDataStub");
 				SetInventoryFlashObjectForItem( item, l_flashObject );
 				flashArray.PushBackFlashObject(l_flashObject);
+				
+				itemCount += 1; 
 			}
 		}
 	}	
@@ -325,6 +329,8 @@ abstract class W3GuiBaseInventoryComponent
 		var bRead : bool;
 		var tmp: bool;
 		var chargesCount:int;
+
+		var transmogAppearance : name;
 		
 		uiData = _inv.GetInventoryItemUIData( item );
 		slotType = GetItemEquippedSlot( item );
@@ -332,10 +338,18 @@ abstract class W3GuiBaseInventoryComponent
 		isQuest = _inv.ItemHasTag(item,'Quest');
 		canDrop = !isQuest && !_inv.ItemHasTag(item, 'NoDrop');
 			
-		if( slotType == EES_Quickslot2 ) 
+		if( slotType == EES_Quickslot2 && !_inv.IsItemMask( item ) ) 
 		{
 			slotType = EES_Quickslot1;
 		}
+		
+		
+		if( slotType == EES_Petard2 ) 
+		{
+			slotType = EES_Petard1;
+		}
+		
+		
 		flashObject.SetMemberFlashInt( "id", ItemToFlashUInt(item) );
 		
 		if (!_inv.IsItemOil(item))
@@ -441,7 +455,12 @@ abstract class W3GuiBaseInventoryComponent
 		flashObject.SetMemberFlashBool( "isWeaponUpgrade",  _inv.ItemHasTag(item, 'WeaponUpgrade') );
 		flashObject.SetMemberFlashBool( "isArmorRepairKit", _inv.ItemHasTag(item, 'ArmorReapairKit') );
 		flashObject.SetMemberFlashBool( "isWeaponRepairKit", _inv.ItemHasTag(item, 'WeaponReapairKit') );
+		flashObject.SetMemberFlashBool( "isSharpener", _inv.ItemHasTag(item, 'Sharpstone') );
 		flashObject.SetMemberFlashBool( "isDye", _inv.IsItemDye( item ) );
+		flashObject.SetMemberFlashBool( "isMask", _inv.IsItemMask( item ) ); 
+		
+		
+		flashObject.SetMemberFlashBool( "canBeDyed", !_inv.ItemHasTag(item, 'noDye') );
 		
 		flashObject.SetMemberFlashBool( "showExtendedTooltip", true );
 		
@@ -499,6 +518,16 @@ abstract class W3GuiBaseInventoryComponent
 		
 		
 		flashObject.SetMemberFlashString( "category", _inv.GetItemCategory(item) );
+
+		transmogAppearance = _inv.GetItemTemplateOverride(item);
+		if(_inv.HasTransmogAppearance(item)) {
+			flashObject.SetMemberFlashBool( "transmog", true );
+			flashObject.SetMemberFlashString("iconPath", _inv.GetItemIconPathByName(transmogAppearance) );
+			if(!theGame.GetDefinitionsManager().CanItemBeColoredByName(transmogAppearance))
+			{
+				flashObject.SetMemberFlashString( "itemColor", "" );
+			}
+		}
 		
 	}
 	
@@ -911,5 +940,3 @@ abstract class W3GuiBaseInventoryComponent
 	}
 	
 }
-
-

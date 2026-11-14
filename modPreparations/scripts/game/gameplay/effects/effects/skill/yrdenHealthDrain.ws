@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 class W3Effect_YrdenHealthDrain extends W3DamageOverTimeEffect
 {
 	private var hitFxDelay : float;
@@ -22,13 +19,18 @@ class W3Effect_YrdenHealthDrain extends W3DamageOverTimeEffect
 		hitFxDelay = 0.9 + RandF() / 5;	
 		
 		
-		SetEffectValue();
+		SetEffectValue(); 
 	}
 	
 	
 	protected function SetEffectValue()
 	{
-		effectValue = thePlayer.GetSkillAttributeValue(S_Magic_s11, 'direct_damage_per_sec', false, true) * thePlayer.GetSkillLevel(S_Magic_s11);
+		
+		
+		if(target.HasAbility( 'SkillBoss' ) || target.HasAbility( 'Boss' ) || target.HasAbility('MonsterMHBoss') || target.GetCharacterStats().HasAbilityWithTag('Boss') || (W3MonsterHuntNPC)target || (target.HasTag( 'HideHealthBarModule' ) && !target.HasTag( 'NotBoss' )) )
+		{
+			effectValue.valueMultiplicative *= 0.15;
+		}
 	}
 	
 	event OnUpdate(dt : float)

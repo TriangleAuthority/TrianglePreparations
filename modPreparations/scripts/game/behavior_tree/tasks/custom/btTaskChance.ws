@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 class CBTTaskChance extends IBehTreeTask
 {
@@ -86,4 +86,3 @@ class CBTTaskChanceDef extends IBehTreeTaskDefinition
 	hint chance = "while scaleWithNumberOfOpponents this is a chance for 1 opponent";
 	hint frequency = "how often we Roll the virtual dice";
 }
-

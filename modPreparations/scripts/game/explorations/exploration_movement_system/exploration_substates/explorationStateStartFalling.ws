@@ -1,13 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
-
 enum EFallType
 {
 	FT_Idle		,
@@ -81,6 +76,7 @@ class CExplorationStateStartFalling extends CExplorationStateAbstract
 		
 		
 		thePlayer.OnRangedForceHolster( true );
+
 		
 		
 		if( prevStateName == 'Idle' )
@@ -118,7 +114,7 @@ class CExplorationStateStartFalling extends CExplorationStateAbstract
 			m_ExplorationO.m_MoverO.SetManualMovement( true );
 		}
 	}
-	
+
 	
 	function StateChangePrecheck( )	: name
 	{

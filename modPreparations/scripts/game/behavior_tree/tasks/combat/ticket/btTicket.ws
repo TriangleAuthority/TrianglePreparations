@@ -1,9 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
 import class CTicketsDefaultConfiguration extends CObject
 {
 	import function SetupTicketSource( ticketName : name, ticketPoolSize : int, minimalImportance : float );
@@ -157,7 +156,7 @@ abstract class CTicketBaseAlgorithm extends ITicketAlgorithmScript
 		}
 		
 		
-		if ( target != thePlayer && !target.GetGameplayVisibility() )
+		if ( target != thePlayer && !target.GetGameplayVisibility() && !owner.HasTag( 'regis' ) ) 
 		{
 			return false;
 		}
@@ -509,4 +508,3 @@ class CTicketAlgorithmMeleeDefinition extends ITicketAlgorithmScriptDefinition
 		SetValFloat(threatLevelBonus, 10.f);
 	}
 };
-

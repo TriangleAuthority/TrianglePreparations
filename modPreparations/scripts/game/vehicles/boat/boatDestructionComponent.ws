@@ -1,12 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
-
 import class CBoatDestructionComponent extends CComponent
 {
 	import 						var destructionVolumes 			: array<SBoatDestructionVolume>;
@@ -197,7 +193,7 @@ import class CBoatDestructionComponent extends CComponent
 		
 		
 		if(boatComponent.user == thePlayer || boatComponent.GetPassenger() == thePlayer)
-			theGame.VibrateControllerHard();	
+			theGame.HapticStart( "classic_vibro_large_oneshot" );
 		
 		boat = (W3Boat)GetEntity();
 		if( !boat.GetCanBeDestroyed() ) 

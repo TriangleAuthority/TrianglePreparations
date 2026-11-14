@@ -1,13 +1,13 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
 class CBTTaskBiesHypnotize extends CBTTask3StateAttack
 {
 	var cameraIndex 	: int;
 	var ignoreConeCheck : bool;
+	var effectDuration : float;
 	
 	private var done : bool;
 	
@@ -126,7 +126,7 @@ class CBTTaskBiesHypnotize extends CBTTask3StateAttack
 		params.effectType = EET_Hypnotized;
 		params.creator = GetActor();
 		params.sourceName = "bies_hypnotize";
-		params.duration = loopTime * 7;
+		params.duration = effectDuration;
 		
 		for ( i=0 ; i < targets.Size() ; i+=1 )
 		{
@@ -188,7 +188,9 @@ class CBTTaskBiesHypnotize extends CBTTask3StateAttack
 class CBTTaskBiesHypnotizeDef extends CBTTask3StateAttackDef
 {
 	editable var ignoreConeCheck : bool;
-	
+	editable var effectDuration : float;
+
+	default effectDuration = 20.f;
 	default instanceClass = 'CBTTaskBiesHypnotize';
 
 	function InitializeEvents()

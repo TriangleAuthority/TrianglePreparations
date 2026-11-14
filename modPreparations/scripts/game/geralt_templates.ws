@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 exec function fb2(level : int, optional path : name)
 {	
@@ -56,7 +56,7 @@ function fb3_internal(optional level :int, optional path : name, optional clearI
 	var lm : W3PlayerWitcher;
 	var exp, prevLvl, currLvl : int;
 	
-	GetWitcherPlayer().Debug_ClearCharacterDevelopment(true);
+	
 
 	if(clearInv)
 	{

@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 state Food in W3TutorialManagerUIHandler extends TutHandlerBaseState
 {
 	private const var SELECT_TAB, SELECT_FOOD, EQUIP_FOOD, USAGE : name;
@@ -56,7 +53,7 @@ state Food in W3TutorialManagerUIHandler extends TutHandlerBaseState
 		
 		if(hasFood)
 		{
-			ShowHint(USAGE, POS_INVENTORY_X, POS_INVENTORY_Y);
+			ShowHint(USAGE, POS_INVENTORY_X, POS_INVENTORY_Y - 0.1f);
 		}
 		else
 		{
@@ -131,6 +128,6 @@ state Food in W3TutorialManagerUIHandler extends TutHandlerBaseState
 	event OnFoodEquipped()
 	{
 		CloseStateHint(EQUIP_FOOD);
-		ShowHint(USAGE, POS_INVENTORY_X, POS_INVENTORY_Y);
+		ShowHint(USAGE, POS_INVENTORY_X, POS_INVENTORY_Y - 0.1f);
 	}
 }

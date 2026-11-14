@@ -1,11 +1,8 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
-
-
-
 import class CCameraDirector
 {
 	
@@ -16,6 +13,9 @@ import class CCameraDirector
 	
 	
 	import final function WorldVectorToViewRatio( worldPos : Vector, out x : float, out y : float ) : bool;
+
+	
+	import final function TestWorldVectorToViewRatio( worldPos : Vector, out x : float, out y : float, cameraPos : Vector, cameraRot : EulerAngles ) : bool;
 	
 	import final function GetCameraPosition() : Vector;
 	import final function GetCameraRotation() : EulerAngles;
@@ -28,6 +28,7 @@ import class CCameraDirector
 	import final function GetFov() : float;
 	
 	import final function GetTopmostCameraObject() : IScriptable;
+	import final function GetTopmostCamera() : CCustomCamera;
 	
 	
 	

@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
+/** 	THE WITCHER© is a trademark of CD PROJEKT S. A.
+/** 	The Witcher game is based on the prose of Andrzej Sapkowski. 
 /***********************************************************************/
 struct SUISavedData
 {
@@ -57,6 +57,13 @@ import struct SGuiEnhancementInfo
 	import var dyeColor : int;
 }
 
+import struct SGuiTransmogInfo
+{
+	import var originalName : name;
+	import var transmogAppearanceName : name;
+}
+
+
 enum EUserDialogButtons
 {
 	UDB_Ok,
@@ -107,6 +114,21 @@ enum ECursorType
 	CT_Rotate
 }
 
+enum EModRestartMessageType
+{
+	MRMT_Install,
+	MRMT_Uninstall,
+	MRMT_EnabledChange
+}
+
+import struct SEligibleRewardDesc
+{
+	import var itemName : name;
+	import var grantedFactId : string;
+	import var version : Uint8;
+	import var directlyGranted : bool;
+}
+
 import class CR4GuiManager extends CGuiManager
 {
 	private var lastOpenedCommonMenuName : name;
@@ -131,6 +153,9 @@ import class CR4GuiManager extends CGuiManager
 	
 	private var controllerDisconnected : bool;
 	default controllerDisconnected = false;
+	
+	private var activeUserDisplayNameNeedsRefresh : bool;
+	default activeUserDisplayNameNeedsRefresh = false;
 	
 	public var potalConfirmationPending : bool;
 	default potalConfirmationPending = false;
@@ -176,6 +201,10 @@ import class CR4GuiManager extends CGuiManager
 	
 	private var inGameConfigBufferedWrapper : CInGameConfigBufferedWrapper;
 
+	private var m_openedNewGameLyPopup : bool; default m_openedNewGameLyPopup = false;
+
+	private var m_initialModVerifWasShown : bool; default m_initialModVerifWasShown = false;
+
 	import final function IsAnyMenu() : bool;
 	import final function GetRootMenu() : CR4Menu;
 	import final function GetPopup( popupName : name ) : CR4Popup;
@@ -186,6 +215,7 @@ import class CR4GuiManager extends CGuiManager
 	import final function SetSceneEntityTemplate( template : CEntityTemplate , optional animationName : name );
 	import final function ApplyAppearanceToSceneEntity( appearanceName : name );
 	import final function UpdateSceneEntityItems( items : array< SItemUniqueId >, enhancements : array< SGuiEnhancementInfo > );
+	import final function UpdateSceneEntityTransmogs( transmogs : array< SGuiTransmogInfo > );
 	import final function SetSceneCamera( cameraPosition : Vector, cameraRotation : EulerAngles );
 	import final function SetupSceneCamera( lookAtPos : Vector, cameraRotation : EulerAngles, distance : float, fov : float );
 	import final function SetEntityTransform( position : Vector, rotation : EulerAngles, scale : Vector );
@@ -194,7 +224,28 @@ import class CR4GuiManager extends CGuiManager
 	import final function SetBackgroundTexture( texture : CResource );
 	import final function RequestClearScene();
 	
+	
+	import final function VisitSignInPage();
+	import final function VisitPage( linkType : ETermsLinkType );
+	import final function GalaxyMyRewardsInitiate();
+	import final function GalaxyQRSignInCancel();
+	import final function GalaxyUnlinkAccounts();
+	import final function SyncGalaxySlot(saveListIndex : int);
+	import final function ShowCloudModal();
+	import final function GetGalaxyRewardsList( out fileNames : array< int > ) : bool; 
+	import final function GetGalaxyRewardDesc( rewID : int, out rewTitle : string, out rewDesc : string ); 
+	import final function GetGalaxyPendingRewards( out eligibleRewards : array< SEligibleRewardDesc > ); 
+	import final function GetNamePersona() : string; 	
+	import final function GalaxyOpenTelemetryTakeoutLink();	
+	import final function EvaluateStartupLaunchCriteria() : bool;
+	import final function ResetStartupLaunchCriteria();
+	import final function ForceProcessFlashStorage();
+	
 	private var showItemNames : bool;
+	private var m_hasThrownModRestartPromptInstall : bool; default m_hasThrownModRestartPromptInstall = false;
+	private var m_hasThrownModRestartPromptUninstall : bool; default m_hasThrownModRestartPromptUninstall = false;
+	private var m_hasThrownModRestartPromptEnabled : bool; default m_hasThrownModRestartPromptEnabled = false;
+	
 	default showItemNames = false;
 	
 	event  OnGameStart( newOrRestored : bool )
@@ -205,7 +256,9 @@ import class CR4GuiManager extends CGuiManager
 	
 		if ( newOrRestored )
 		{
-			hideMessageRequestId = -1;
+			if (hideMessageRequestId == 0)
+				hideMessageRequestId = -1;
+				
 			lastOpenedCommonMenuName = '';
 			displayedObjectivesGUID.Clear();
 			
@@ -237,18 +290,245 @@ import class CR4GuiManager extends CGuiManager
 	{
 	}
 	
+	event  OnCloudPersonaReady(namePersona : String)
+	{
+		var menuBase 	: CR4MenuBase;
+		var ingameMenu 	: CR4IngameMenu;
+		
+		menuBase = (CR4MenuBase)(theGame.GetGuiManager().GetRootMenu());
+			
+		if (menuBase) {
+			ingameMenu = (CR4IngameMenu)(menuBase.GetSubMenu());
+			if (ingameMenu) {
+				ingameMenu.CloudPersonaReady(namePersona);
+			}
+		} 
+	}
+	
+	event  OnQRCodeReady(url : String)
+	{
+		var rootMenu 	: CR4MenuBase;
+		var ingameMenu 	: CR4IngameMenu;
+		var startupMenu : CR4StartupExperienceMenu;
+		
+		
+		
+		rootMenu = (CR4MenuBase)(theGame.GetGuiManager().GetRootMenu());
+		if (rootMenu) 
+		{
+			ingameMenu = (CR4IngameMenu)( rootMenu.GetSubMenu() );
+			if (ingameMenu) 
+			{
+				ingameMenu.QRCodeReady(url);
+			}
+			else
+			{
+				startupMenu = (CR4StartupExperienceMenu) rootMenu;
+				if (startupMenu) 
+				{
+					startupMenu.OnGalaxyQrCodeReady(url);
+				}			
+			}
+		} 
+	}
+	
+	event  OnNoticeRewardsReady()
+	{
+		var rewarr : array< int >;
+		var menuBase 	: CR4MenuBase;
+		var ingameMenu 	: CR4IngameMenu;
+		var startupMenu : CR4StartupExperienceMenu;
+		
+		
+		GetGalaxyRewardsList( rewarr );
+		if ( rewarr.Size() == 0) 
+		{
+			return true;
+		}
+
+		
+		menuBase = (CR4MenuBase)(theGame.GetGuiManager().GetRootMenu());
+		if (menuBase) 
+		{
+			ingameMenu = (CR4IngameMenu)(menuBase.GetSubMenu());
+			if (ingameMenu)	
+			{
+				ingameMenu.ShowMyRewardsPanel(rewarr);
+			}
+			else
+			{
+				startupMenu = (CR4StartupExperienceMenu) menuBase;
+				if (startupMenu) 
+				{
+					startupMenu.OnGalaxyAlreadyConnected();
+				}			
+			}
+		} 
+
+		return true;
+	}
+
+	public function GetIngameMenu() : CR4IngameMenu
+	{
+		var menuBase 	: CR4MenuBase;
+		var ingameMenu 	: CR4IngameMenu;
+		
+		menuBase = (CR4MenuBase)(theGame.GetGuiManager().GetRootMenu());
+			
+		if (menuBase){
+			ingameMenu = (CR4IngameMenu)(menuBase.GetSubMenu());
+		} 
+		return ingameMenu;
+	}
+
+	event  OnHandleError(error:int)
+	{
+		var ingameMenu 	: CR4IngameMenu;
+		var startupMenu : CR4StartupExperienceMenu;
+		
+		ingameMenu = GetIngameMenu();
+		if(ingameMenu)
+		{
+			ingameMenu.ShowErrorWindow(error);
+		}
+		else
+		{
+			startupMenu = (CR4StartupExperienceMenu) theGame.GetGuiManager().GetRootMenu();
+			if (startupMenu) 
+			{
+				startupMenu.OnGalaxyError(error);
+			}	
+		}
+		
+		return true;
+	}
+	
+	event  OnHideErrorWindow()
+	{
+		var ingameMenu 	: CR4IngameMenu;
+		ingameMenu = GetIngameMenu();
+		if(ingameMenu){
+			ingameMenu.HideErrorWindow();
+		}
+		return true;
+	}
+	
+	event  OnConsentChangeDone()
+	{
+		var ingameMenu 	: CR4IngameMenu;
+		ingameMenu = GetIngameMenu();
+		if(ingameMenu)
+		{
+			ingameMenu.RefreshTelemetySettingValues();
+		}
+		return true;
+	}
+	
+	event  OnShowQrSignInWindow()
+	{
+		var menuBase 	: CR4MenuBase;
+		var ingameMenu 	: CR4IngameMenu;
+		
+		menuBase = (CR4MenuBase)(theGame.GetGuiManager().GetRootMenu());
+			
+		if (menuBase){
+			ingameMenu = (CR4IngameMenu)(menuBase.GetSubMenu());
+			if (ingameMenu)	{
+				ingameMenu.StartShowCustomDialogGalaxySignIn();
+			}
+		} 
+		
+		return true;
+	}
+
+	event  OnShowQrSignInReminderWindow()
+	{
+		var menuBase 	: CR4MenuBase;
+		var ingameMenu 	: CR4IngameMenu;
+		
+		menuBase = (CR4MenuBase)(theGame.GetGuiManager().GetRootMenu());
+			
+		if (menuBase){
+			ingameMenu = (CR4IngameMenu)(menuBase.GetSubMenu());
+			if (ingameMenu)	{
+				ingameMenu.StartShowCustomDialogGalaxySignInReminder();
+			}
+		} 
+		
+		return true;
+	}
+
+	event  OnQrConnectionEstablished()
+	{
+		var rootMenu 	: CR4MenuBase;
+		var ingameMenu 	: CR4IngameMenu;
+		var startupMenu : CR4StartupExperienceMenu;
+		
+		
+		
+		rootMenu = (CR4MenuBase)(theGame.GetGuiManager().GetRootMenu());
+		if (rootMenu) 
+		{
+			ingameMenu = (CR4IngameMenu)( rootMenu.GetSubMenu() );
+			if (ingameMenu) 
+			{
+				ingameMenu.CloseGalaxySignInModalWindow();
+			}
+			else
+			{
+				startupMenu = (CR4StartupExperienceMenu) rootMenu;
+				if (startupMenu) 
+				{
+					startupMenu.OnGalaxySignInComplete();
+				}			
+			}
+		} 
+	}
+	
+	event  OnGOGLoginReattempt()
+	{
+		ShowNotification(GetLocStringByKeyExt("ui_gog_connection_attempt"));
+	}
+	
 	event  OnFailedCreateMenu()
 	{
+	}
+
+	event  OnRefreshActiveUserDisplayName()
+	{
+		activeUserDisplayNameNeedsRefresh = true;
 	}
 	
 	private function  Update( deltaTime : float )
 	{
+		var rootMenu : CR4Menu;
+		var ingameMenu : CR4IngameMenu;
+		
 		if( guiSceneController )
 		{
 			guiSceneController.Update( deltaTime );
 		}
+
+		if ( activeUserDisplayNameNeedsRefresh )
+		{
+			rootMenu = theGame.GetGuiManager().GetRootMenu();
+			if ( rootMenu )
+			{
+				ingameMenu = (CR4IngameMenu)rootMenu.GetSubMenu();
+				if ( ingameMenu )
+				{
+					ingameMenu.OnRefreshActiveUserDisplayName();
+				}
+				else
+				{
+					
+					rootMenu.OnRefreshActiveUserDisplayName();
+				}
+			}
+			activeUserDisplayNameNeedsRefresh = false;
+		}
 	}
-	
+		
 	public function GetLastRequestedCreditsIndex() : int
 	{
 		return lastRequestedCreditsIndex;
@@ -470,12 +750,16 @@ import class CR4GuiManager extends CGuiManager
 				title = "msg_controller_disconnected_title_PS4";
 				message = "error_message_no_controller_ps4";
 				break;
-				
+			case Platform_PS5:
+				title = "msg_controller_disconnected_title_ps5";
+				message = "error_message_no_controller_ps5";
+				break;
 			case Platform_Xbox1:
+			case Platform_Xbox_SCARLETT_ANACONDA:
+			case Platform_Xbox_SCARLETT_LOCKHART:
 				title = "msg_controller_disconnected_title_X1";
 				message = "error_message_no_controller_x1";
-				break;
-				
+				break;	
 			default:
 				title = "msg_controller_disconnected_title";
 				message = "error_message_no_controller_x1";
@@ -488,6 +772,8 @@ import class CR4GuiManager extends CGuiManager
 	public function OnSignInStarted() : void
 	{
 		var startScreenMenu : CR4StartScreenMenuBase;
+		var isXBX : bool;
+		isXBX = theGame.GetPlatform() == Platform_Xbox_SCARLETT_ANACONDA || theGame.GetPlatform() == Platform_Xbox_SCARLETT_LOCKHART || theGame.GetPlatform() == Platform_PC_GDK;
 		
 		signInChangeInProgress = true;
 		
@@ -498,7 +784,10 @@ import class CR4GuiManager extends CGuiManager
 		}
 		else
 		{
-			ShowUserDialog( UMID_SigningInPleaseWait, "", "panel_please_wait", UDB_None );
+			if (!isXBX) 
+			{
+				ShowUserDialog( UMID_SigningInPleaseWait, "", "panel_please_wait", UDB_None );
+			}
 		}
 	}
 	
@@ -528,6 +817,20 @@ import class CR4GuiManager extends CGuiManager
 			{
 				ingameMenu.OnUserSignInCancelled();
 			}
+		}
+	}
+	
+	public function OnHDRChanged():void
+	{
+		var menuBase : CR4MenuBase;
+		var ingameMenu : CR4IngameMenu;
+		
+		menuBase = (CR4MenuBase)GetRootMenu();
+		
+		ingameMenu = (CR4IngameMenu)(menuBase.GetSubMenu());
+		if( ingameMenu )
+		{
+			ingameMenu.OnRefreshHDR();
 		}
 	}
 	
@@ -562,6 +865,7 @@ import class CR4GuiManager extends CGuiManager
 	public function OnSignOut():void
 	{
 		signoutOccurred = true;
+		
 		
 		
 		theGame.ToggleUserProfileManagerInputProcessing( true );
@@ -621,11 +925,13 @@ import class CR4GuiManager extends CGuiManager
 	
 	
 	
+	
 	public function OnLoadingFailed( sres : ESessionRestoreResult, missingContent : array< name > ) : void
 	{
 		var specialMsgText : string;
 		var i:int;
 		var contentKey : string;
+		var contentName : string;
 		var len : int;
 		var len_minus_one : int;
 		var htmlNewline:string;
@@ -633,13 +939,24 @@ import class CR4GuiManager extends CGuiManager
 		
 		if (sres == RESTORE_DataCorrupted)
 		{
-			if (theGame.GetPlatform() == Platform_PS4)
+			switch( theGame.GetPlatform() )
 			{
-				ShowUserDialog( UMID_LoadingFailed, "", "error_message_damaged_save_PS4", UDB_Ok );
-			}
-			else
-			{
-				ShowUserDialog( UMID_LoadingFailed, "", "error_message_damaged_save", UDB_Ok );
+				case Platform_PS5:
+					ShowUserDialog( UMID_LoadingFailed, "", "error_message_damaged_save_ps5", UDB_Ok );
+					break;		
+				case Platform_PS4:
+					ShowUserDialog( UMID_LoadingFailed, "", "error_message_damaged_save_PS4", UDB_Ok );
+					break;
+				case Platform_Xbox1:
+				case Platform_Xbox_SCARLETT_ANACONDA:
+				case Platform_Xbox_SCARLETT_LOCKHART:
+					ShowUserDialog( UMID_LoadingFailed, "", "error_message_damaged_save_X1", UDB_Ok );
+					break;
+				case Platform_Switch2_Ounce:
+					ShowUserDialog( UMID_LoadingFailed, "", "error_message_damaged_save_switch", UDB_Ok );
+					break;
+				default:
+					ShowUserDialog( UMID_LoadingFailed, "", "error_message_damaged_save", UDB_Ok );
 			}	
 		}
 		else if (sres == RESTORE_MissingContent)
@@ -655,26 +972,21 @@ import class CR4GuiManager extends CGuiManager
 		}
 		else if (sres == RESTORE_InternalError || sres == RESTORE_NoGameDefinition)
 		{
-			if (theGame.GetPlatform() == Platform_PS4)
+			switch( theGame.GetPlatform() )
 			{
-				ShowUserDialog( UMID_LoadingFailed, "", "error_message_damaged_save_unavailable_ps4", UDB_Ok );
-			}
-			else
-			{
-				ShowUserDialog( UMID_LoadingFailed, "", "error_message_damaged_save_unavailable", UDB_Ok );
+				case Platform_PS5:
+					ShowUserDialog( UMID_LoadingFailed, "", "error_message_damaged_save_unavailable_ps5", UDB_Ok );
+					break;		
+				case Platform_PS4:
+					ShowUserDialog( UMID_LoadingFailed, "", "error_message_damaged_save_unavailable_ps4", UDB_Ok );
+					break;
+				default:
+					ShowUserDialog( UMID_LoadingFailed, "", "error_message_damaged_save_unavailable", UDB_Ok );
 			}
 		}
 		else if (sres == RESTORE_DLCRequired)
 		{
-			if (theGame.GetPlatform() == Platform_PS4)
-			{
-				specialMsgText = GetLocStringByKeyExt("error_message_loadsave_missing_dlc_error_ps4");
-			}
-			else
-			{
-				specialMsgText = GetLocStringByKeyExt("error_message_loadsave_missing_dlc_error_x1");
-			}
-			
+			specialMsgText = GetPlatformLocString( "error_message_loadsave_missing_dlc_error", "error_message_loadsave_missing_dlc_error_x1" );	
 			specialMsgText += ":" + htmlNewline;
 			len = missingContent.Size();
 			len_minus_one = len - 1;
@@ -682,7 +994,13 @@ import class CR4GuiManager extends CGuiManager
 			for (i = 0; i < len; i += 1)
 			{
 				contentKey = "content_name_" + NameToString(missingContent[i]);
-				specialMsgText += GetLocStringByKeyExt(contentKey);
+				contentName = GetLocStringByKeyExt(contentKey);
+				if (contentName == "")
+				{
+					contentName = NameToString(missingContent[i]);
+				}
+
+				specialMsgText += contentName;
 				
 				if (i < len_minus_one)
 				{
@@ -1271,6 +1589,7 @@ import class CR4GuiManager extends CGuiManager
 			horseUnmountFeedbackActive = false;
 		
 		
+
 		DisableHudHoldIndicator_Impl();	
 	}
 	
@@ -1292,6 +1611,11 @@ import class CR4GuiManager extends CGuiManager
 	public function IgnoreNewItemNotifications( ignore : bool )
 	{
 		_ignoreNewItemNotifications = ignore;
+	}
+
+	public function GetIgnoreNewItemNotifications():bool
+	{
+		return _ignoreNewItemNotifications;
 	}
 	
 	public function RegisterNewItem( item : SItemUniqueId )
@@ -1483,19 +1807,7 @@ import class CR4GuiManager extends CGuiManager
 
 	public function DisplayLockedSavePopup() : void
 	{
-		if ( theGame.GetPlatform() == Platform_Xbox1 )
-		{
-			ShowNotification( GetLocStringByKeyExt("panel_hud_message_savelock_x1") );
-		}
-		else if ( theGame.GetPlatform() == Platform_PS4 )
-		{
-			ShowNotification( GetLocStringByKeyExt("panel_hud_message_savelock_ps4") );
-		}
-		else
-		{
-			ShowNotification( GetLocStringByKeyExt("panel_hud_message_savelock") );
-		}
-		
+		ShowNotification( GetPlatformLocString( "panel_hud_message_savelock" ) );	
 		theSound.SoundEvent("gui_global_denied");
 	}
 	
@@ -1515,9 +1827,9 @@ import class CR4GuiManager extends CGuiManager
 		ShowUserDialog( 0, "", message, UDB_Ok );
 	}
 	
-	public function SetIgnoreControllerDisconnectionEvents( set : bool )
+	public function SetIgnoreControllerDisconnectionEvents( ignore : bool )
 	{
-		ignoreControllerDisconnectionEvents = set;
+		ignoreControllerDisconnectionEvents = ignore;
 	}
 	
 	public function SetShowItemNames( show : bool )
@@ -1528,6 +1840,51 @@ import class CR4GuiManager extends CGuiManager
 	public function GetShowItemNames() : bool
 	{
 		return showItemNames;
+	}
+	
+	public function DisplayModRestartNeededDialog(menu : CR4Menu, title : string, message : string, type : EModRestartMessageType, optional force : bool) : void
+	{
+		if(theGame.GetInGameConfigWrapper().GetVarValue('Gameplay', 'DisableRestartPopups') == "true")
+			return;
+		
+		if ( !force )
+		{
+			if(m_hasThrownModRestartPromptInstall && type == MRMT_Install)
+				return;
+			if(m_hasThrownModRestartPromptUninstall && type == MRMT_Uninstall)
+				return;
+			if(m_hasThrownModRestartPromptEnabled && type == MRMT_EnabledChange)
+				return;
+
+			switch(type)
+			{
+				case MRMT_Install: m_hasThrownModRestartPromptInstall = true; break;
+				case MRMT_Uninstall: m_hasThrownModRestartPromptUninstall = true; break;
+				case MRMT_EnabledChange: m_hasThrownModRestartPromptEnabled = true; break;
+			}
+		}
+		
+		ShowUserDialogAdv( 0, title, message, true, UDB_Ok );
+	}
+
+	public function GetNewGameLyPopupOpened():bool
+	{
+		return m_openedNewGameLyPopup;
+	}
+
+	public function SetNewGameLyPopupOpened(value:bool):void
+	{
+		m_openedNewGameLyPopup = value;
+	}
+
+	public function GetInitialModVerificationWasShown():bool
+	{
+		return m_initialModVerifWasShown;
+	}
+
+	public function OnInitialModVerificationWasShown():void
+	{
+		m_initialModVerifWasShown = true;
 	}
 }
 
