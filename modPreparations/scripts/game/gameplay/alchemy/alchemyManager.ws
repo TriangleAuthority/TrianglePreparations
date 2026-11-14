@@ -12,6 +12,11 @@ class W3AlchemyManager
 	private var recipes : array<SAlchemyRecipe>;									
 	private var isPlayerMounted  : bool;
 	private var isPlayerInCombat : bool;
+	//modFriendlyStash begin
+	//Not actually used by Preparations (bStashAccess == false), but needed for Friendly Stash compatibility
+	//Used by Friendly Stash to allow using stash items for alchemy
+	private var bStashAccess : bool; default bStashAccess = false;
+	//modFriendlyStash end
 	
 	
 	public function Init(optional alchemyRecipes : array<name>)
@@ -29,6 +34,15 @@ class W3AlchemyManager
 		isPlayerInCombat = thePlayer.IsInCombat();
 	}
 	
+	
+	//modFriendlyStash begin
+	//Not actually used by Preparations (bStashAccess == false), but needed for Friendly Stash compatibility
+	//Used by Friendly Stash to allow using stash items for alchemy
+	public function SetStashAccess( val: bool )
+	{
+		bStashAccess = val;
+	}
+	//modFriendlyStash end
 	
 	public function GetRecipe(recipeName : name, out ret : SAlchemyRecipe) : bool
 	{
@@ -150,6 +164,9 @@ class W3AlchemyManager
 		var itemType : string;
 		var itemName : name;
 		var dm : CDefinitionsManagerAccessor;
+		//---=== modPreparations ===---
+		var refillNeeded : bool;
+		//---=== modPreparations ===---
 		
 		if(!GetRecipe(recipeName, recipe))
 			return EAE_NoRecipe;
@@ -163,7 +180,10 @@ class W3AlchemyManager
 		
 		itemType = GetItemNameWithoutLevelAsString(recipe.cookedItemName);
 		
-		if( theGame.GetDefinitionsManager().IsItemSingletonItem(recipe.cookedItemName) )
+		//---=== modPreparations ===---
+		refillNeeded = IsRefillNeeded( recipe );
+		if( !refillNeeded && theGame.GetDefinitionsManager().IsItemSingletonItem(recipe.cookedItemName) )
+		//---=== modPreparations ===---
 		{
 			thePlayer.inv.GetAllItems(items);	
 			for(i=0; i<items.Size(); i+=1)
@@ -187,17 +207,52 @@ class W3AlchemyManager
 		dm = theGame.GetDefinitionsManager();
 		
 		
+		//---=== modPreparations ===---
+		if( refillNeeded && UseBaseOnlyForRefill( recipe ) )
+		{
+			if( UseTierBasedAlcoForRefill( recipe ) )
+			{
+				if( GetWitcherPlayer().GetItemQuantityByNameForCrafting( GetRefillBaseFromRecipe( recipe ), bStashAccess ) < 1 ) //modSigns
+				{
+					return EAE_NotEnoughIngredients;
+				}
+			}
+			else
+			{
+				if( GetWitcherPlayer().GetItemQuantityByNameForCrafting( GetCommonRefillBase( recipe ), bStashAccess ) < 1 ) //modSigns
+				{
+					return EAE_NotEnoughIngredients;
+				}
+			}
+		}
+		else
+		{
+		//---=== modPreparations ===---
 		for(i=0; i<recipe.requiredIngredients.Size(); i+=1)
 		{
 			itemName = recipe.requiredIngredients[i].itemName;
 			
+			//---=== modPreparations ===---
+			if( refillNeeded && UseFullRecipeForRefill( recipe ) && IsAnotherTier( recipe.cookedItemName, itemName ) )
+			{
+				continue;
+			}
+			if( refillNeeded && UseBaseAndHerbsForRefill( recipe ) && !IsBaseForRecipe( recipe, itemName ) && !IsHerb( itemName ) )
+			{
+				continue;
+			}
+			if( refillNeeded && ExcludeMutagenForRefill( recipe ) && IsMutagen( itemName ) )
+			{
+				continue;
+			}
+			//---=== modPreparations ===---
 			if (dm.ItemHasTag( itemName, 'MutagenIngredient' ))
 			{
-				cnt = thePlayer.inv.GetUnusedMutagensCount(itemName);
+				cnt = GetWitcherPlayer().GetMutagenQuantityByNameForCrafting(itemName, bStashAccess); //modFriendlyStash
 			}
 			else
 			{
-				cnt = thePlayer.inv.GetItemQuantityByName(itemName);
+				cnt = GetWitcherPlayer().GetItemQuantityByNameForCrafting(itemName, bStashAccess); //modFriendlyStash
 			}
 			
 			if(cnt < recipe.requiredIngredients[i].quantity)
@@ -205,9 +260,203 @@ class W3AlchemyManager
 				return EAE_NotEnoughIngredients;
 			}			
 		}
+		//---=== modPreparations ===---
+		}
+		//---=== modPreparations ===---
 		return EAE_NoException;
 	}
 		
+	//---=== modPreparations ===---
+	public function IsAnotherTier( item1 : name, item2 : name ) : bool
+	{
+		return ( GetItemNameWithoutLevelAsString( item1 ) == GetItemNameWithoutLevelAsString( item2 ) );
+	}
+	
+	public function IsHerb( itemName : name ) : bool
+	{
+		return theGame.GetDefinitionsManager().ItemHasTag( itemName, 'HerbGameplay' );
+	}
+	
+	public function GetRefillBaseFromRecipe( recipe : SAlchemyRecipe ) : name
+	{
+		var i, ingSize : int;
+		var curName : name;
+	
+		ingSize = recipe.requiredIngredients.Size();
+		for( i = 0; i < ingSize; i += 1 )
+		{
+			curName = recipe.requiredIngredients[i].itemName;
+			if( IsBaseForRecipe( recipe, curName ) )
+			{
+				return curName;
+			}
+		}
+		return 'None';
+	}
+
+	public function UseTierBasedAlcoForRefill( recipe : SAlchemyRecipe ) : bool
+	{
+		switch(recipe.cookedItemType)
+		{
+			case EACIT_Bomb:
+				return GetPreparationsConfig().BombsTierBased();
+			case EACIT_Oil:
+				return GetPreparationsConfig().OilsTierBased();
+			case EACIT_MutagenPotion:
+				return GetPreparationsConfig().MutagensTierBased();
+			case EACIT_Potion:
+				return GetPreparationsConfig().PotionsTierBased();
+		}
+		return false;
+	}
+	
+	public function UseBaseOnlyForRefill( recipe : SAlchemyRecipe ) : bool
+	{
+		switch(recipe.cookedItemType)
+		{
+			case EACIT_Bomb:
+				return GetPreparationsConfig().BombsUseCommonBase() || GetPreparationsConfig().BombsTierBased();
+			case EACIT_Oil:
+				return GetPreparationsConfig().OilsUseCommonBase() || GetPreparationsConfig().OilsTierBased();
+			case EACIT_MutagenPotion:
+				return GetPreparationsConfig().MutagensUseCommonBase() || GetPreparationsConfig().MutagensTierBased();
+			case EACIT_Potion:
+				return GetPreparationsConfig().PotionsUseCommonBase() || GetPreparationsConfig().PotionsTierBased();
+		}
+		return false;
+	}
+	
+	public function ExcludeMutagenForRefill( recipe : SAlchemyRecipe ) : bool
+	{
+		switch(recipe.cookedItemType)
+		{
+			case EACIT_MutagenPotion:
+				return GetPreparationsConfig().ExcludeMutagenForRefill();
+		}
+		return false;
+	}
+	
+	public function IsMutagen( ingr : name ) : bool
+	{
+		return (StrContains(ingr, "mutagen") || StrContains(ingr, "Mutagen"));
+	}
+	
+	public function UseFullRecipeForRefill( recipe : SAlchemyRecipe ) : bool
+	{
+		switch(recipe.cookedItemType)
+		{
+			case EACIT_Bomb:
+				return GetPreparationsConfig().BombsFullRecipe();
+			case EACIT_Oil:
+				return GetPreparationsConfig().OilsFullRecipe();
+			case EACIT_MutagenPotion:
+				return GetPreparationsConfig().MutagensFullRecipe();
+			case EACIT_Potion:
+				return GetPreparationsConfig().PotionsFullRecipe();
+		}
+		return false;
+	}
+	
+	public function UseBaseAndHerbsForRefill( recipe : SAlchemyRecipe ) : bool
+	{
+		switch(recipe.cookedItemType)
+		{
+			case EACIT_Bomb:
+				return GetPreparationsConfig().BombsBaseAndHerbs();
+			case EACIT_Oil:
+				return GetPreparationsConfig().OilsBaseAndHerbs();
+			case EACIT_MutagenPotion:
+				return GetPreparationsConfig().MutagensBaseAndHerbs();
+			case EACIT_Potion:
+				return GetPreparationsConfig().PotionsBaseAndHerbs();
+		}
+		return false;
+	}
+	
+	public function GetCommonRefillBase( recipe : SAlchemyRecipe ) : name
+	{
+		switch(recipe.cookedItemType)
+		{
+			case EACIT_Bomb:
+				return GetPreparationsConfig().bombsRefillBase;
+			case EACIT_Oil:
+				return GetPreparationsConfig().oilsRefillBase;
+			case EACIT_MutagenPotion:
+				return GetPreparationsConfig().mutagensRefillBase;
+			case EACIT_Potion:
+				return GetPreparationsConfig().potionsRefillBase;
+		}
+		return 'None';
+	}
+	
+	public function IsBaseForRecipe( recipe : SAlchemyRecipe, itemName : name ) : bool
+	{
+		if( ( recipe.cookedItemType == EACIT_Potion || recipe.cookedItemType == EACIT_MutagenPotion ) &&
+			IsAlcohol( itemName ) )
+		{
+			return true;
+		}
+		if( recipe.cookedItemType == EACIT_Bomb && IsPowder( itemName ) )
+		{
+			return true;
+		}
+		if( recipe.cookedItemType == EACIT_Oil && IsFat( itemName ) )
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	public function IsRefillNeeded( recipe : SAlchemyRecipe ) : bool
+	{
+		var ids : array<SItemUniqueId>;
+		
+		if( recipe.cookedItemType == EACIT_Oil && !GetPreparationsConfig().OilsHaveAmmo() )
+			return false;
+	
+		if( theGame.GetDefinitionsManager().IsItemSingletonItem( recipe.cookedItemName ) &&
+			( recipe.cookedItemType == EACIT_Potion || recipe.cookedItemType == EACIT_MutagenPotion ||
+			recipe.cookedItemType == EACIT_Bomb || recipe.cookedItemType == EACIT_Oil ) )
+		{
+			ids = thePlayer.inv.GetItemsByName( recipe.cookedItemName );
+			if( ids.Size() == 1 )
+			{
+				if( thePlayer.inv.SingletonItemGetAmmo( ids[0] ) < thePlayer.inv.SingletonItemGetMaxAmmo( ids[0] ) )
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public function IsAlcohol( item : name ) : bool
+	{
+		if( item == 'Dwarven spirit' || item == 'Alcohest' || item == 'White Gull 1' )
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	public function IsPowder( item : name ) : bool
+	{
+		if( item == 'Saltpetre' || item == 'Stammelfords dust' || item == 'Alchemists powder' )
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	public function IsFat( item : name ) : bool
+	{
+		if( item == 'Dog tallow' || item == 'Bear fat' || item == 'Alchemical paste' )
+		{
+			return true;
+		}
+		return false;
+	}
+	//---=== modPreparations ===---
 	
 	public function CookItem(recipeName : name)
 	{
@@ -224,6 +473,9 @@ class W3AlchemyManager
 		var witcher : W3PlayerWitcher;
 		var equippedOnSlot : EEquipmentSlots;
 		var itemName:name;
+		//---=== modPreparations ===---
+		var refillNeeded : bool;
+		//---=== modPreparations ===---
 		
 		GetRecipe(recipeName, recipe);
 		
@@ -236,6 +488,9 @@ class W3AlchemyManager
 		if(recipe.cookedItemType == EACIT_Bomb && GetWitcherPlayer().CanUseSkill(S_Alchemy_s08))
 			quantity += GetWitcherPlayer().GetSkillLevel(S_Alchemy_s08);
 		
+		//---=== modPreparations ===---
+		refillNeeded = IsRefillNeeded( recipe );
+		//---=== modPreparations ===---
 		
 		isSingletonItem = dm.IsItemSingletonItem(recipe.cookedItemName);
 		if(isSingletonItem && thePlayer.inv.GetItemQuantityByName(recipe.cookedItemName) > 0 )
@@ -244,8 +499,18 @@ class W3AlchemyManager
 			
 			if (items.Size() == 1 && thePlayer.inv.ItemHasTag(items[0], 'NoShow'))
 			{
-				thePlayer.inv.RemoveItemTag(items[i], 'NoShow');
+				//---=== modPreparations ===---
+				thePlayer.inv.RemoveItemTag(items[0], 'NoShow');
+				refillNeeded = false;
+				//---=== modPreparations ===---
 			}
+			
+			//---=== modPreparations ===---
+			if( items.Size() == 1 && refillNeeded )
+			{
+				thePlayer.inv.SingletonItemRefillAmmo( items[0], , GetPreparationsConfig().refillOne );
+			}
+			//---=== modPreparations ===---
 		}
 		else
 		{
@@ -259,15 +524,43 @@ class W3AlchemyManager
 		}
 		
 		
+		//---=== modPreparations ===---
+		if( refillNeeded && UseBaseOnlyForRefill( recipe ) )
+		{
+			if( UseTierBasedAlcoForRefill( recipe ) )
+			{
+				GetWitcherPlayer().RemoveItemByNameForCrafting( GetRefillBaseFromRecipe( recipe ), 1, bStashAccess ); //modSigns
+			}
+			else
+			{
+				GetWitcherPlayer().RemoveItemByNameForCrafting( GetCommonRefillBase( recipe ), 1, bStashAccess ); //modSigns
+			}
+		}
+		else
+		//---=== modPreparations ===---
 		for(i=0; i<recipe.requiredIngredients.Size(); i+=1)
 		{
 			itemName = recipe.requiredIngredients[i].itemName;
 			
 			
 			
+			//---=== modPreparations ===---
+			if( refillNeeded && UseFullRecipeForRefill( recipe ) && IsAnotherTier( recipe.cookedItemName, itemName ) )
+			{
+				continue;
+			}
+			if( refillNeeded && UseBaseAndHerbsForRefill( recipe ) && !IsBaseForRecipe( recipe, itemName ) && !IsHerb( itemName ) )
+			{
+				continue;
+			}
+			if( refillNeeded && ExcludeMutagenForRefill( recipe ) && IsMutagen( itemName ) )
+			{
+				continue;
+			}
+			//---=== modPreparations ===---
 			if( dm.ItemHasTag( itemName, 'MutagenIngredient' ) )
 			{
-				thePlayer.inv.RemoveUnusedMutagensCount( itemName, recipe.requiredIngredients[i].quantity);
+				GetWitcherPlayer().RemoveMutagenByNameForCrafting(itemName, recipe.requiredIngredients[i].quantity, bStashAccess); //modFriendlyStash
 			}
 			else if( dm.IsItemAlchemyItem( itemName ))
 			{
@@ -294,7 +587,7 @@ class W3AlchemyManager
 			else
 			{
 				
-				thePlayer.inv.RemoveItemByName(itemName, recipe.requiredIngredients[i].quantity);
+				GetWitcherPlayer().RemoveItemByNameForCrafting(itemName, recipe.requiredIngredients[i].quantity, bStashAccess); //modFriendlyStash
 			}
 		}
 		

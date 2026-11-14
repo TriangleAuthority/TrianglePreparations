@@ -1,0 +1,99 @@
+;meta[language=cz]
+; id      |key(hex)|key(str)| text
+2110750000|4d5f8b0c||Mods
+2110750001|68bb83b4||Přípravy
+2110750002|21ff8a75||Meditace
+2110750003|0711f83a||Zakázat pro meditaci použití už existujících ohnišť 
+2110750004|e17b1914||Zakázat pro meditaci použití už existujících zdrojů ohně 
+2110750005|df5da1ce||Zakázat pro meditaci použití už existujících zdrojů světla 
+2110750006|316665b3||Zakázat meditaci v interiérech budov
+2110750007|d4e1446c||Zakázat meditaci venku, při pobytu v osadách
+2110750008|0520db35||Zakázat meditaci poblíž nepřátelských postav
+2110750009|95a11d4e||Minimální povolená vzdálenost nepřátelských postav
+2110750010|7853458f||Zakázat přípravu ohniště v interiérech budov
+2110750011|a893e797||Potřebné množství řeziva pro přípravu ohniště
+2110750012|53449c02||(nebo) Potřebné množství ztvrdlého řeziva pro přípravu ohniště
+2110750020|a5c30d24||Časové intervaly
+2110750021|837f0680||Čas potřebný k výrobě jednoho předmětu (minuty)
+2110750022|ffca6411||Čas potřebný k opravě jednoho předmětu (minuty)
+2110750023|1cbcca80||Čas potřebný k aplikaci jednoho vylepšení (minuty)
+2110750024|71b4bdfc||Čas potřebný k zakoupení jedné dovednosti (minuty)
+2110750025|5b516f92||Čas potřebný k vybavení jedné dovednosti (minuty)
+2110750026|ac99e15c||Čas potřebný k vybavení jednoho mutagenu (minuty)
+2110750027|fcd44f4a||Alchymie
+2110750028|b69d4809||Maximální počet použití za každou nádobku oleje (0 - neomezeně)
+2110750029|ce402f4f||Odpovídající základ
+2110750030|df253522||Režim doplnění petard
+2110750031|716ec93a||Salnytr
+2110750032|c4d5155e||Stammelfordův prach
+2110750033|09bb8b55||Alchymistický prášek
+2110750034|53d1de02||Režim doplnění olejů
+2110750035|30295f3a||Psí lůj
+2110750036|a4960410||Medvědí tuk
+2110750037|6ab6bf13||Alchymistická pasta
+2110750038|35404719||Režim doplnění odvarů z mutagenů
+2110750039|e4d2f217||Trpasličí pálenka
+2110750040|b243f677||Alkohest
+2110750041|50abecc6||Bílý racek
+2110750042|14411791||Režim doplnění lektvarů
+2110750044|4638485f||Kompletní recept
+2110750054|f973fb5b||Alchymistická laboratoř
+2110750055|e3d2e9fc||Petardy, oleje a lektvary získaly dodatečný počet použití.
+2110750056|dcf60e01||Petardy, oleje a lektvary získají dodatečný počet použití.
+2110750057|378146cb||Posunutí času při meditaci dopředu
+2110750058|fff7e883||Vyloučení mutagenu
+2110750059|b3ce6ebd||Zakázat aplikování olejů během boje
+2110750060|3e044218||Zakázat konzumaci jídla během boje
+2110750061|fcefee50||Blokovat během boje přístup do inventáře
+2110750062|5a7ca8b5||Pro vstup/výstup do/z režimu meditace držet tlačítko
+2110750063|64a2e8a1||Zakázat meditaci příliš daleko od ohně
+2110750064|67357876||Výchozí
+2110750065|5db8e0cb||Vypnuto
+2110750066|3472c0b8||Přednastavení meditace
+2110750068|0360f1a7||Přednastavení časových intervalů
+2110750069|45f777e7||Přednastavení alchymie
+2110750070|14159d48||Zakázat přípravu ohniště v osadách
+2110750071|5f5b53ba||Neodstraňovat Geraltem připravená ohniště
+2110750072|708c4782||Základ a byliny
+2110750073|a76b51f5||Přepnout interakce
+2110750074|4d6790a7||Použít algoritmus pro hledání starého ohniště 
+2110750075|31fb7e3b||Přívětivá meditace
+2110750076|9dfda358||Přednastavení Přívětivé meditace
+2110750077|7dbf1ce4||Alchymie vyžaduje meditaci (Přívětivá meditace)
+2110750078|db24613d||Alchymie vyžaduje ohniště
+2110750079|880f1de8||Doplnění obnoví předměty pouze k jednomu použití
+2110750090|0bce5eb1||Autodoplnění
+2110750091|613e0cce||Přívětivá meditace
+2110750092|4908df32||Postava
+2110750093|d604548f||Přednastavení postavy
+2110750094|735d3d65||Inventář
+2110750095|0058b2c2||Přednastavení inventáře
+2110750096|2d23e4fd||Zakázat úkolová autodoplnění
+2110750097|1e18c348||Zakázat kompletní regeneraci zdraví po meditaci
+2110750098|cbc2fa0c||Zakázat vypršení aktivních účinků po meditaci
+2110750099|c5cf5c2d||Kupování dovedností vyžaduje meditaci (Přívětivá meditace)
+2110750100|5b9ddec6||Kupování dovedností vyžaduje ohniště
+2110750101|1b15f9c3||Vybavení dovedností vyžaduje meditaci (Přívětivá meditace)
+2110750102|53fae9dc||Vybavení dovedností vyžaduje ohniště
+2110750103|33d366f9||Vybavení mutagenů vyžaduje meditaci (Přívětivá meditace)
+2110750104|807e2c92||Vybavení mutagenů vyžaduje ohniště
+2110750105|cd39f6c8||Opravování vyžaduje meditaci (Přívětivá meditace)
+2110750106|46946421||Opravování vyžaduje ohniště
+2110750107|a0b290e9||Vylepšování vyžaduje meditaci (Přívětivá meditace)
+2110750108|49ff1282||Vylepšování vyžaduje ohniště
+2110750109|3d1b9197||Nemůžeš meditovat, dokud trvá pozastavení času úkolem
+2110750110|aad846cb||Nemůžeš meditovat, dokud jsi na koni nebo v loďce
+2110750111|882e547a||Meditace je momentálně blokována
+2110750112|fec1505a||Meditace teď není možná
+2110750113|e6ce04a1||Nemůžeš meditovat, dokud jsou poblíž nepřátelé
+2110750114|1809d1e3||Nemůžeš meditovat, dokud jsi ve vodě
+2110750115|18996e66||Nemůžeš meditovat v blízkosti nepřátelských nehratelných postav
+2110750116|72ce6725||Nemůžeš meditovat venku, dokud jsi v osadě
+2110750117|f37ee2ac||Nemůžeš meditovat v interiérech budov
+2110750118|978d7d2f||Nemůžeš meditovat bez ohniště
+2110750119|7a1c662f||Nemůžeš připravit ohniště v interiérech budov
+2110750120|c81915e8||Nemůžeš připravit ohniště v osadách
+2110750121|30e1d9ac||Na přípravu ohniště nemáš dostatek řeziva
+2110750122|e85a5117||Tato akce vyžaduje meditaci
+2110750123|40addc1e||Tato akce vyžaduje ohniště
+2110750125|c59a41c7||Něco se pokazilo, kontaktuj autora módu Přípravy

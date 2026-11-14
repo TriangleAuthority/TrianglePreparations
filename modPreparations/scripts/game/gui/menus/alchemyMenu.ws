@@ -21,12 +21,23 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 	private var bCouldCraft			: bool;
 	protected var _inv       		: CInventoryComponent;
 	private var _playerInv			: W3GuiPlayerInventoryComponent;
+	//---=== modFriendlyHUD ===---
+	private var m_npc	 			: CNewNPC;
+	private var bHerbalist			: bool;
+	private var m_npcInventory		: CInventoryComponent;
+	private var m_shopInvComponent	: W3GuiShopInventoryComponent;
+	private var m_lastSelectedTag	: name;
+	//---=== modFriendlyHUD ===---
 	
 	private var m_fxSetCraftingEnabled	: CScriptedFlashFunction;
 	private var m_fxSetCraftedItem 		: CScriptedFlashFunction;
 	private var m_fxHideContent	 		: CScriptedFlashFunction;
 	private var m_fxSetFilters			: CScriptedFlashFunction;
 	private var m_fxSetPinnedRecipe		: CScriptedFlashFunction;
+	
+	//modFriendlyStash begin
+	private var bStashAccess			: bool; default bStashAccess = false;
+	//modFriendlyStash end
 	
 	default DATA_BINDING_NAME_SUBLIST	= "crafting.sublist.items";
 	default DATA_BINDING_NAME_DESCRIPTION	= "alchemy.item.description";
@@ -38,6 +49,11 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 		var commonMenu 			: CR4CommonMenu;
 		var l_craftingFilters	: SCraftingFilters;
 		var pinnedTag			: int;
+		//---=== modFriendlyHUD ===---
+		var l_obj	 			: IScriptable;
+		var l_initData			: W3InventoryInitData;
+		var l_merchantComponent	: W3MerchantComponent;
+		//---=== modFriendlyHUD ===---
 		
 		super.OnConfigUI();
 		
@@ -48,6 +64,32 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 		
 		_playerInv = new W3GuiPlayerInventoryComponent in this;
 		_playerInv.Initialize( _inv );
+		
+		//---=== modFriendlyHUD ===---
+		bHerbalist = false;
+		l_obj = GetMenuInitData();
+		l_initData = (W3InventoryInitData)l_obj;
+		if( l_initData )
+		{
+			m_npc = (CNewNPC)l_initData.containerNPC;
+		}
+		else
+		{
+			m_npc = (CNewNPC)l_obj;
+		}
+		if( m_npc )
+		{
+			l_merchantComponent = (W3MerchantComponent)m_npc.GetComponentByClassName('W3MerchantComponent');
+			bHerbalist = ((l_merchantComponent.GetMapPinType() == 'Herbalist') || (l_merchantComponent.GetMapPinType() == 'Alchemic'));
+			if( bHerbalist )
+			{
+				m_npcInventory = m_npc.GetInventory();
+				UpdateMerchantData(m_npc);
+				m_shopInvComponent = new W3GuiShopInventoryComponent in this;
+				m_shopInvComponent.Initialize( m_npcInventory );
+			}
+		}
+		//---=== modFriendlyHUD ===---
 		
 		m_alchemyManager = new W3AlchemyManager in this;
 		m_alchemyManager.Init();		
@@ -197,6 +239,74 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 		super.OnCategoryOpened( categoryName, opened );
 	}
 	
+	//---=== modFriendlyHUD ===---
+	event  OnBuyIngredient( item : int, isLastItem : bool ) : void
+	{
+		var vendorItemId   : SItemUniqueId;	
+		var vendorItems    : array< SItemUniqueId >;
+		
+		
+		var reqQuantity    : int;
+		var itemName       : name;
+		var newItemID      : SItemUniqueId;
+		
+		if( m_npcInventory )
+		{
+			itemName = itemsNames[ item - 1 ];
+			vendorItems = m_npcInventory.GetItemsByName( itemName );
+			
+			if( vendorItems.Size() > 0 )
+			{
+				vendorItemId = vendorItems[0];
+				
+				
+				
+				
+				BuyIngredient( vendorItemId, 1, isLastItem );
+				OnPlaySoundEvent( "gui_inventory_buy" );
+			}
+		}
+	}
+	
+	public function BuyIngredient( itemId : SItemUniqueId, quantity : int, isLastItem : bool ) : void
+	{
+		var newItemID   : SItemUniqueId;
+		var result 		: bool;
+		var itemName	: name;
+		var notifText	: string;
+		var itemLocName : string;
+		
+		itemLocName = GetLocStringByKeyExt( m_npcInventory.GetItemLocalizedNameByUniqueID( itemId ) );
+		itemName = m_npcInventory.GetItemName( itemId );
+		theTelemetry.LogWithLabelAndValue( TE_INV_ITEM_BOUGHT, itemName, quantity );
+		result = m_shopInvComponent.GiveItem( itemId, _playerInv, quantity, newItemID );
+		
+		if( result )
+		{
+			notifText = GetLocStringByKeyExt("panel_blacksmith_items_added") + ":" + quantity + " x " + itemLocName;
+			
+			if (isLastItem)
+			{
+				PopulateData();
+			}
+		}
+		else
+		{
+			notifText = GetLocStringByKeyExt( "panel_shop_notification_not_enough_money" );
+		}
+		
+		showNotification( notifText );
+		
+		UpdateMerchantData(m_npc);
+		UpdateItemsCounter();
+		
+		if (m_lastSelectedTag != '')
+		{
+			UpdateItems(m_lastSelectedTag);
+		}
+	}
+	//---=== modFriendlyHUD ===---
+	
 	protected function ShowSelectedItemInfo( tag : name ):void
 	{
 		var recipe 				: SAlchemyRecipe;
@@ -234,6 +344,53 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 		m_fxSetCraftedItem.InvokeSelfSixArgs(FlashArgUInt(NameToFlashUInt(recipe.recipeName)), FlashArgString(itemNameLoc), FlashArgString(imgPath), FlashArgBool(canCraft), FlashArgInt(gridSize), FlashArgString(""));
 	}
 		
+	//---=== modFriendlyHUD ===---
+	protected function GetTooltipData(item : int, compareItemType : int, out resultData : CScriptedFlashObject ) : void
+	{
+		var vendorItemId   : SItemUniqueId;		
+		var vendorItems    : array< SItemUniqueId >;
+		var vendorQuantity : int;
+		var vendorPrice    : int;
+		var itemName       : name;
+		var language 	   : string;
+		var audioLanguage  : string;
+		var locStringBuy   : string;
+		var locStringPrice : string;
+		theGame.GetGameLanguageName( audioLanguage, language);	
+		
+		super.GetTooltipData( item, compareItemType, resultData );
+		
+		if( m_npcInventory )
+		{
+			itemName = itemsNames[ item - 1 ];
+			
+			vendorItems = m_npcInventory.GetItemsByName( itemName );
+			
+			if( vendorItems.Size() > 0 )
+			{
+				vendorItemId = vendorItems[0];
+				vendorQuantity = m_npcInventory.GetItemQuantity( vendorItemId );
+				vendorPrice = m_npcInventory.GetItemPriceModified( vendorItemId, false );
+				
+				resultData.SetMemberFlashNumber( "vendorQuantity", vendorQuantity );
+				resultData.SetMemberFlashNumber( "vendorPrice", vendorPrice );
+				
+				locStringBuy = GetLocStringByKeyExt( "panel_inventory_quantity_popup_buy" );
+				
+				if( language != "AR")
+				{
+					resultData.SetMemberFlashString( "vendorInfoText", locStringBuy + " (" +  vendorPrice + ")" );
+				}
+				else
+				{
+					locStringPrice = " *" +  vendorPrice + "*" ;
+					resultData.SetMemberFlashString( "vendorInfoText", locStringPrice + locStringBuy  );
+				}
+			}
+		}
+	}
+	//---=== modFriendlyHUD ===---
+		
 	function CreateItem( recipeIndex : int )
 	{
 		var recipe			: SAlchemyRecipe;		
@@ -244,6 +401,15 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 		exception = EAE_CookNotAllowed;		
 		
 		LogChannel( 'Alchemy', "OnCreateItem - " + recipeIndex + " " + recipe.recipeName );
+		//---=== modPreparations ===---
+		if ( !(GetPreparationsConfig().IsAlchemyAllowed() || recipe.cookedItemType == EACIT_Quest || bHerbalist ||
+			  (FactsQuerySum("tut_forced_preparation") > 0 && recipe.recipeName == 'Recipe for Thunderbolt 1')) )
+		{
+			showNotification(GetLocStringByKeyExt(GetPreparationsConfig().GetAlchemyError()));
+			OnPlaySoundEvent("gui_global_denied");
+			return;
+		}
+		//---=== modPreparations ===---
 		if( bCouldCraft )
 		{
 			GetWitcherPlayer().StartInvUpdateTransaction();			
@@ -252,6 +418,12 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 			if( exception == EAE_NoException )
 			{
 				m_alchemyManager.CookItem( recipe.recipeName );
+				//---=== modPreparations ===---
+				if( recipe.cookedItemType != EACIT_Quest && !bHerbalist )
+				{
+					GetWitcherPlayer().AdvanceTimeSeconds( GetPreparationsConfig().timeToCreateItemSec );
+				}
+				//---=== modPreparations ===---
 				
 				if (recipe.level > 1)
 				{
@@ -275,6 +447,20 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 			OnPlaySoundEvent("gui_global_denied");
 		}
 	}
+
+	//---=== modFriendlyHUD ===---
+	private function UpdateItemsCounter()
+	{		
+		var commonMenu 	: CR4CommonMenu;
+		
+		commonMenu = (CR4CommonMenu)m_parentMenu;
+		if( commonMenu )
+		{
+			commonMenu.UpdateItemsCounter();
+			commonMenu.UpdatePlayerOrens();
+		}
+	}
+	//---=== modFriendlyHUD ===---
 
 	private function PopulateData()
 	{
@@ -304,6 +490,10 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 		
 		var expandedAlchemyCategories : array< name >;
 		
+		//---=== modPreparations ===---
+		var ids						: array<SItemUniqueId>;
+		//---=== modPreparations ===---
+
 		expandedAlchemyCategories = GetWitcherPlayer().GetExpandedAlchemyCategories();
 
 		l_DataFlashArray = m_flashValueStorage.CreateTempFlashArray();
@@ -344,6 +534,17 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 			l_GroupTitle = GetLocStringByKeyExt( AlchemyCookedItemTypeToLocKey(recipe.cookedItemType) );
 			
 			l_Title = GetLocStringByKeyExt( m_definitionsManager.GetItemLocalisationKeyName( recipe.cookedItemName ) ) ;	
+			//---=== modPreparations ===---
+			if( theGame.GetDefinitionsManager().IsItemSingletonItem( recipe.cookedItemName ) )
+			{
+				ids = thePlayer.inv.GetItemsByName( recipe.cookedItemName );
+				if( ids.Size() == 1 )
+				{
+					l_Title = l_Title + " | " + IntToString( thePlayer.inv.SingletonItemGetAmmo( ids[0] ) ) +
+					"/" + IntToString( thePlayer.inv.SingletonItemGetMaxAmmo( ids[0] ) ) + " |";
+				}
+			}
+			//---=== modPreparations ===---
 			l_IconPath = m_definitionsManager.GetItemIconPath(recipe.cookedItemName);
 			l_IsNew	= false;
 			l_Tag = recipe.recipeName;
@@ -420,12 +621,26 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 		}
 	}
 
+	//---=== modFriendlyHUD ===---
+	function UpdateMerchantData( targetNpc : CNewNPC ) : void
+	{
+		var l_merchantData	: CScriptedFlashObject;
+		
+		l_merchantData = m_flashValueStorage.CreateTempFlashObject();
+		GetNpcInfo((CGameplayEntity)targetNpc, l_merchantData);
+		m_flashValueStorage.SetFlashObject("crafting.merchant.info", l_merchantData);
+	}
+	//---=== modFriendlyHUD ===---
+
 	function UpdateDescription( tag : name )
 	{
 		var description : string;
 		var title : string;
 		var id : int;
 		
+		//---=== modFriendlyHUD ===---
+		m_lastSelectedTag = tag;
+		//---=== modFriendlyHUD ===---
 		id = FindRecipieID(tag);
 		
 		title = GetLocStringByKeyExt(m_definitionsManager.GetItemLocalisationKeyName(m_recipeList[id].cookedItemName));	
@@ -491,11 +706,45 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 	{
 		var itemsFlashArray	: CScriptedFlashArray;
 		var i : int;
+		//---=== modPreparations ===---
+		var refillNeeded : bool;
+		refillNeeded = m_alchemyManager.IsRefillNeeded( m_recipeList[id] );
+		//---=== modPreparations ===---
 		
 		itemsNames.Clear();
 		itemsQuantity.Clear();
+		//---=== modPreparations ===---
+		if( refillNeeded && m_alchemyManager.UseBaseOnlyForRefill( m_recipeList[id] ) )
+		{
+			if( m_alchemyManager.UseTierBasedAlcoForRefill( m_recipeList[id] ) )
+			{
+				itemsNames.PushBack( m_alchemyManager.GetRefillBaseFromRecipe( m_recipeList[id] ) );
+				itemsQuantity.PushBack( 1 );
+			}
+			else
+			{
+				itemsNames.PushBack( m_alchemyManager.GetCommonRefillBase( m_recipeList[id] ) );
+				itemsQuantity.PushBack( 1 );
+			}
+		}
+		else
+		//---=== modPreparations ===---
 		for( i = 0; i < m_recipeList[id].requiredIngredients.Size(); i += 1 )
 		{
+			//---=== modPreparations ===---
+			if( refillNeeded && m_alchemyManager.UseFullRecipeForRefill( m_recipeList[id] ) && m_alchemyManager.IsAnotherTier( m_recipeList[id].cookedItemName, m_recipeList[id].requiredIngredients[i].itemName ) )
+			{
+				continue;
+			}
+			if( refillNeeded && m_alchemyManager.UseBaseAndHerbsForRefill( m_recipeList[id] ) && !m_alchemyManager.IsBaseForRecipe( m_recipeList[id], m_recipeList[id].requiredIngredients[i].itemName ) && !m_alchemyManager.IsHerb( m_recipeList[id].requiredIngredients[i].itemName ) )
+			{
+				continue;
+			}
+			if( refillNeeded && m_alchemyManager.ExcludeMutagenForRefill( m_recipeList[id] ) && m_alchemyManager.IsMutagen( m_recipeList[id].requiredIngredients[i].itemName ) )
+			{
+				continue;
+			}
+			//---=== modPreparations ===---
 			itemsNames.PushBack(m_recipeList[id].requiredIngredients[i].itemName); 
 			itemsQuantity.PushBack(m_recipeList[id].requiredIngredients[i].quantity);
 		}
@@ -510,6 +759,13 @@ class CR4AlchemyMenu extends CR4ListBaseMenu
 	public function FillItemInformation(flashObject : CScriptedFlashObject, index:int) : void
 	{	
 		super.FillItemInformation(flashObject, index);
+		
+		//---=== modFriendlyHUD ===---
+		if( m_npcInventory )
+		{
+			flashObject.SetMemberFlashInt( "vendorQuantity", m_npcInventory.GetItemQuantityByName( itemsNames[index] ) );
+		}
+		//---=== modFriendlyHUD ===---
 		
 		flashObject.SetMemberFlashInt("reqQuantity", itemsQuantity[index]);
 	}

@@ -1783,7 +1783,16 @@ class CR4InventoryMenu extends CR4MenuBase
 		{
 			showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
 			OnPlaySoundEvent("gui_global_denied");
+		//---=== modPreparations ===---
+			return true;
 		} 
+		else if( !GetPreparationsConfig().IsUpgradeAllowed() )
+		{
+			showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetUpgradeError() ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+			return true;
+		}
+		//---=== modPreparations ===---
 		else		
 		{
 			if(ShouldProcessTutorial('TutorialRunesSelectSword') && thePlayer.inv.ItemHasTag(item, 'WeaponUpgrade'))
@@ -1887,6 +1896,20 @@ class CR4InventoryMenu extends CR4MenuBase
 		var itemOnSlot : SItemUniqueId;
 
 					
+		//---=== modPreparations ===---
+		if( thePlayer.IsInCombat() )
+		{
+			showNotification( GetLocStringByKeyExt( "menu_cannot_perform_action_combat" ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+			return true;
+		}
+		if( !GetPreparationsConfig().IsRepairAllowed() )
+		{
+			showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetRepairError() ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+			return true;
+		}
+		//---=== modPreparations ===---
 		
 		if (_inv.ItemHasTag(item, 'WeaponReapairKit') )
 		{
@@ -3943,8 +3966,25 @@ class CR4InventoryMenu extends CR4MenuBase
 		var uiStateRunes : W3TutorialManagerUIHandlerStateRunes;
 		var uiStateArmorUpgrades : W3TutorialManagerUIHandlerStateArmorUpgrades;
 		
+		//---=== modPreparations ===---
+		if (thePlayer.IsInCombat())
+		{
+			showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
+			OnPlaySoundEvent("gui_global_denied");
+			return;
+		} 
+		else if( !GetPreparationsConfig().IsUpgradeAllowed() )
+		{
+			showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetUpgradeError() ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+			return;
+		}
+		//---=== modPreparations ===---
 		if (GetWitcherPlayer().GetItemEquippedOnSlot(targetSlot, curItemInSlot))
 		{
+			//---=== modPreparations ===---
+			GetWitcherPlayer().AdvanceTimeSeconds( GetPreparationsConfig().timeToUpgradeItemSec );
+			//---=== modPreparations ===---
 			if (targetSlot == EES_SilverSword || targetSlot == EES_SteelSword)
 			{
 				OnPlaySoundEvent("gui_inventory_rune_attach");
@@ -3990,11 +4030,29 @@ class CR4InventoryMenu extends CR4MenuBase
 	{
 		var curItemInSlot : SItemUniqueId;
 		
+		//---=== modPreparations ===---
+		if( thePlayer.IsInCombat() && GetPreparationsConfig().disallowOilsInCombat )
+		{
+			showNotification( GetLocStringByKeyExt( "menu_cannot_perform_action_combat" ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+			return;
+		}		
+		if( GetPreparationsConfig().OilsHaveAmmo() && thePlayer.inv.SingletonItemGetAmmo( itemId ) < 1 )
+		{
+			OnPlaySoundEvent( "gui_global_denied" );
+			return;
+		}
+		//---=== modPreparations ===---
+
 		OnPlaySoundEvent("gui_preparation_potion");
 		
 		if (_inv.GetItemEquippedOnSlot(targetSlot, curItemInSlot))
 		{
 			GetWitcherPlayer().ApplyOil(itemId, curItemInSlot);
+			//---=== modPreparations ===---
+			InventoryUpdateItem( itemId );
+			updateCurrentTab();
+			//---=== modPreparations ===---
 			InventoryUpdateItem(m_selectionModeItem);
 			PaperdollUpdateItem(curItemInSlot);
 		}
@@ -4008,8 +4066,25 @@ class CR4InventoryMenu extends CR4MenuBase
 	{
 		var curItemInSlot : SItemUniqueId;
 		
+		//---=== modPreparations ===---
+		if (thePlayer.IsInCombat())
+		{
+			showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
+			OnPlaySoundEvent("gui_global_denied");
+			return;
+		}
+		else if( !GetPreparationsConfig().IsRepairAllowed() )
+		{
+			showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetRepairError() ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+			return;
+		}
+		//---=== modPreparations ===---
 		OnPlaySoundEvent("gui_inventory_repair");
 		
+		//---=== modPreparations ===---
+		GetWitcherPlayer().AdvanceTimeSeconds( GetPreparationsConfig().timeToRepairItemSec );
+		//---=== modPreparations ===---
 		if (_inv.GetItemEquippedOnSlot(targetSlot, curItemInSlot))
 		{
 			GetWitcherPlayer().RepairItem (itemId, curItemInSlot);

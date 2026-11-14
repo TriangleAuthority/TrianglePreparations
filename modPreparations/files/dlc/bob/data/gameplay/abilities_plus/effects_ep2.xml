@@ -100,6 +100,11 @@
       <human_exp_bonus_when_fatal type="add" min="0.05" />
     </ability>
 	
+	<!-- modPreparations: new effect for alchemy table -->
+    <ability name="AlchemyTableEffect">
+      <duration type="add" min="3600"/>
+    </ability>
+
 	<ability name="PolishedGenitalsEffect">
 		<duration type="add" min="3600" />
 		<staminaOutOfCombatRegen type="mult" min="3" />		
@@ -149,6 +154,8 @@
 		<effect name_name="AerondightEffect"                  defaultAbilityName_name="AerondightEffect"                    showOnHUD="0" effectNameLocalisationKey_name="item_name_aerondight_ep2" iconType_name="icon_aerondight" />
 		<effect name_name="POIGorA10Effect"						defaultAbilityName_name="POIGorA10Effect" showOnHUD="0" />	
 		<effect name_name="ToxicityVenomEffect"					defaultAbilityName_name="ToxicityVenomEffect" 				showOnHUD="1" effectNameLocalisationKey_name="effect_toxicity_venom" iconType_name="icon_toxicity_venom" />	
+		<!-- modPreparations: new effect for alchemy table -->
+		<effect name_name="AlchemyTableEffect"                  defaultAbilityName_name="AlchemyTableEffect"                showOnHUD="1" effectNameLocalisationKey_name="effect_alchemytable" iconType_name="icon_alchemy_table"        />
     </effects>
 
     <effect_icons>
@@ -169,6 +176,8 @@
 	  <effect iconType_name="icon_polished_genitals"			  path="icons\inventory\quests\mq7015_reginalds_balls_64x64.png" />
 	  <effect iconType_name="icon_aerondight"						path="icons\buffs\aerondight_buff_icon_64x64.png" />
 	  <effect iconType_name="icon_toxicity_venom"					path="icons\buffs\toxicity_venom_debuff.png" />
+      <!-- modPreparations: new effect for alchemy table -->
+	  <effect iconType_name="icon_alchemy_table"					path="icons\buffs\icon_house_buff_alchemy.png" />
     </effect_icons>
 
   </custom>

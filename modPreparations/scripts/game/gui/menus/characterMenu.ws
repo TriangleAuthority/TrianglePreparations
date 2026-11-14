@@ -284,7 +284,15 @@ class CR4CharacterMenu extends CR4MenuBase
 			OnPlaySoundEvent( "gui_global_denied" );
 			return false;
 		}
-		
+		//---=== modPreparations ===---
+		else if( !GetPreparationsConfig().IsBuySkillAllowed() )
+		{
+			showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetBuySkillError() ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+			return false;
+		}
+		//---=== modPreparations ===---
+
 		if( points > 0 )
 		{
 			GetWitcherPlayer().MutationResearchWithSkillPoints( mutationId, points );
@@ -313,6 +321,9 @@ class CR4CharacterMenu extends CR4MenuBase
 		if( isChanged )
 		{
 			OnUpdateAfterResearch( mutationId );
+			//---=== modPreparations ===---
+			GetWitcherPlayer().AdvanceTimeSeconds( GetPreparationsConfig().timeToBuySkillSec );
+			//---=== modPreparations ===---
 		}
 	}
 	
@@ -364,8 +375,19 @@ class CR4CharacterMenu extends CR4MenuBase
 				showNotification( GetLocStringByKeyExt( "menu_cannot_perform_action_combat" ) );
 				OnPlaySoundEvent( "gui_global_denied" );
 			}
+			//---=== modPreparations ===---
+			else if( !GetPreparationsConfig().IsEquipSkillAllowed() )
+			{
+				showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetEquipSkillError() ) );
+				OnPlaySoundEvent( "gui_global_denied" );
+				return false;
+			}
+			//---=== modPreparations ===---
 			else
 			{
+				//---=== modPreparations ===---
+				GetWitcherPlayer().AdvanceTimeSeconds( GetPreparationsConfig().timeToEquipSkillSec );
+				//---=== modPreparations ===---
 				GetWitcherPlayer().SetEquippedMutation( mutationId );
 				setMutationBonusMode( true );
 				UpdateAllMutationsData();
@@ -388,6 +410,14 @@ class CR4CharacterMenu extends CR4MenuBase
 				showNotification( GetLocStringByKeyExt( "menu_cannot_perform_action_combat" ) );
 				OnPlaySoundEvent( "gui_global_denied" );
 			}
+			//---=== modPreparations ===---
+			else if( !GetPreparationsConfig().IsEquipSkillAllowed() )
+			{
+				showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetEquipSkillError() ) );
+				OnPlaySoundEvent( "gui_global_denied" );
+				return false;
+			}
+			//---=== modPreparations ===---
 			else
 			{
 				setMutationBonusMode( false );
@@ -920,8 +950,18 @@ class CR4CharacterMenu extends CR4MenuBase
 			showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
 			OnPlaySoundEvent("gui_global_denied");
 		}
+		//---=== modPreparations ===---
+		else if( !GetPreparationsConfig().IsBuySkillAllowed() )
+		{
+			showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetBuySkillError() ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+		}
+		//---=== modPreparations ===---
 		else
 		{
+			//---=== modPreparations ===---
+			GetWitcherPlayer().AdvanceTimeSeconds( GetPreparationsConfig().timeToBuySkillSec );
+			//---=== modPreparations ===---
 			tryUnequipSkill(skill);
 			thePlayer.AddSkill(skill);
 			thePlayer.EquipSkill(skill, slotID);
@@ -942,6 +982,13 @@ class CR4CharacterMenu extends CR4MenuBase
 			showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
 			OnPlaySoundEvent("gui_global_denied");
 		}
+		//---=== modPreparations ===---
+		else if( !GetPreparationsConfig().IsEquipSkillAllowed() )
+		{
+			showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetEquipSkillError() ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+		}
+		//---=== modPreparations ===---
 		else
 		{
 			thePlayer.EquipSkill(skill1, slotID1);
@@ -970,8 +1017,18 @@ class CR4CharacterMenu extends CR4MenuBase
 			showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
 			OnPlaySoundEvent("gui_global_denied");
 		}
+		//---=== modPreparations ===---
+		else if( !GetPreparationsConfig().IsEquipSkillAllowed() )
+		{
+			showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetEquipSkillError() ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+		}
+		//---=== modPreparations ===---
 		else
 		{
+			//---=== modPreparations ===---
+			GetWitcherPlayer().AdvanceTimeSeconds( GetPreparationsConfig().timeToEquipSkillSec );
+			//---=== modPreparations ===---
 			foundSkill = thePlayer.GetSkillOnSlot(slotID, oldSkill);
 			
 			OnPlaySoundEvent("gui_character_add_skill");
@@ -1014,6 +1071,13 @@ class CR4CharacterMenu extends CR4MenuBase
 			showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
 			OnPlaySoundEvent("gui_global_denied");
 		}
+		//---=== modPreparations ===---
+		else if( !GetPreparationsConfig().IsEquipSkillAllowed() )
+		{
+			showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetEquipSkillError() ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+		}
+		//---=== modPreparations ===---
 		else
 		{
 			thePlayer.GetSkillOnSlot(slotID, skill);
@@ -1055,8 +1119,18 @@ class CR4CharacterMenu extends CR4MenuBase
 			showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
 			OnPlaySoundEvent("gui_global_denied");
 		}
+		//---=== modPreparations ===---
+		else if( !GetPreparationsConfig().IsBuySkillAllowed() )
+		{
+			showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetBuySkillError() ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+		}
+		//---=== modPreparations ===---
 		else
 		{
+			//---=== modPreparations ===---
+			GetWitcherPlayer().AdvanceTimeSeconds( GetPreparationsConfig().timeToBuySkillSec );
+			//---=== modPreparations ===---
 			initDataBuySkill = new W3BuySkillConfirmation in this;
 			initDataBuySkill.HideTutorial = true;
 			
@@ -1086,6 +1160,13 @@ class CR4CharacterMenu extends CR4MenuBase
 			showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
 			OnPlaySoundEvent("gui_global_denied");
 		}
+		//---=== modPreparations ===---
+		else if( !GetPreparationsConfig().IsEquipMutagenAllowed() )
+		{
+			showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetEquipMutagenError() ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+		}
+		//---=== modPreparations ===---
 		else
 		{
 			OnPlaySoundEvent("gui_character_place_mutagen");
@@ -1109,8 +1190,18 @@ class CR4CharacterMenu extends CR4MenuBase
 			showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
 			OnPlaySoundEvent("gui_global_denied");
 		}
+		//---=== modPreparations ===---
+		else if( !GetPreparationsConfig().IsEquipMutagenAllowed() )
+		{
+			showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetEquipMutagenError() ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+		}
+		//---=== modPreparations ===---
 		else
 		{
+			//---=== modPreparations ===---
+			GetWitcherPlayer().AdvanceTimeSeconds( GetPreparationsConfig().timeToEquipMutagenSec );
+			//---=== modPreparations ===---
 			GetWitcherPlayer().EquipItemInGivenSlot(itemID, slotId, false);
 			
 			OnPlaySoundEvent("gui_character_place_mutagen");
@@ -1134,6 +1225,13 @@ class CR4CharacterMenu extends CR4MenuBase
 			showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
 			OnPlaySoundEvent("gui_global_denied");
 		}
+		//---=== modPreparations ===---
+		else if( !GetPreparationsConfig().IsEquipMutagenAllowed() )
+		{
+			showNotification( GetLocStringByKeyExt( GetPreparationsConfig().GetEquipMutagenError() ) );
+			OnPlaySoundEvent( "gui_global_denied" );
+		}
+		//---=== modPreparations ===---
 		else
 		{
 			LogChannel('CHR', "onUnequipMutagen " + slotID);

@@ -7512,7 +7512,10 @@ quest function EnableTiedWalk( enable : bool )
 
 quest function RecoverGeralt(dontUpdateUI : bool)
 {
-	thePlayer.inv.SingletonItemsRefillAmmoNoAlco(dontUpdateUI);
+	//---=== modPreparations ===---
+	if(!GetPreparationsConfig().disableAutorefillQuest)
+		thePlayer.inv.SingletonItemsRefillAmmoNoAlco(dontUpdateUI);
+	//---=== modPreparations ===---
 	thePlayer.Heal(thePlayer.GetStatMax(BCS_Vitality));
 	
 	if(GetWitcherPlayer())
@@ -7523,7 +7526,9 @@ quest function RecoverGeralt(dontUpdateUI : bool)
 
 quest function ApplyAlchemyTableBuff()
 {
-	thePlayer.inv.ManageSingletonItemsBonus();
+	//---=== modPreparations ===---
+	GetWitcherPlayer().ManageAlchemyTableBonus();
+	//---=== modPreparations ===---
 }
 
 quest function EnableTargetingOnActorsQ (actorsTag : name, isEnabled : bool )

@@ -407,6 +407,9 @@ class W3GameEffectManager
 			case EET_PolishedGenitals :			effects[effect] = new W3Effect_PolishedGenitals in this;			break;
 			case EET_Mutation12Cat :			effects[effect] = new W3Effect_Mutation12Cat in this;				break;
 			case EET_Aerondight :				effects[effect] = new W3Effect_Aerondight in this;					break;
+			//---=== modPreparations ===---
+			case EET_AlchemyTable :				effects[effect] = new W3Effect_AlchemyTable in this;				break;
+			//---=== modPreparations ===---
 			
 			default :
 				found = false;
@@ -796,6 +799,9 @@ function HACK_NO_MEMORY_TO_COMPILE_EffectNameToType_Part2(effectName : name, out
 		case "Mutation12CatEffect" :						type = EET_Mutation12Cat;				break;
 		case "AerondightEffect" :							type = EET_Aerondight;					break;
 		case "POIGorA10Effect" :							type = EET_POIGorA10;					break;
+		//---=== modPreparations ===---
+		case "AlchemyTableEffect" :							type = EET_AlchemyTable;				break;
+		//---=== modPreparations ===---
 			
 		default : 
 			LogAssert(false, "EffectNameToType: Effect with name <<"+effectName+">> is not defined!");
@@ -967,6 +973,9 @@ function EffectTypeToName(effectType : EEffectType) : name
 		case EET_Mutation3 :							return 'Mutation3Effect';
 		case EET_Mutation4 :							return 'Mutation4Effect';
 		case EET_Mutation5 :							return 'Mutation5Effect';
+		//---=== modPreparations ===---
+		case EET_AlchemyTable :							return 'AlchemyTableEffect';
+		//---=== modPreparations ===---
 			
 		default : 
 			LogAssert(false, "EffectTypeToName: Effect type <<" + effectType + ">> is undefined!");

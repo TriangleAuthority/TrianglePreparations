@@ -1,0 +1,103 @@
+;meta[language=br]
+; id      |key(hex)|key(str)| text
+;
+; comment lines use ; as first character
+; all comment lines (except the two line header) will be ignored
+;
+2110750000|        |panel_Mods|Mods
+2110750001|        |panel_mod_preparations|Preparos
+2110750002|        |panel_prep_meditation|Meditação
+2110750003|        |option_prep_disallowCampFire|Não permitir meditação perto de fogueiras já existentes
+2110750004|        |option_prep_disallowFireSource|Não permitir meditação perto de fontes de fogo
+2110750005|        |option_prep_disallowLightSource|Não permitir meditação perto de fontes de luz
+2110750006|        |option_prep_disallowInterior|Não permitir meditação em interiores
+2110750007|        |option_prep_disallowSettlement|Não permitir meditação em residências
+2110750008|        |option_prep_disallowNPCs|Não permitir meditação perto de NPCs neutros
+2110750009|        |option_prep_npcDistance|Distância mínima para NPCs neutros
+2110750010|        |option_prep_disallowCampFireInInterior|Não permitir spawn de fogueira em interiores
+2110750011|        |option_prep_timberAmount|Quantidade de madeira requirida para spawn de fogueira
+2110750012|        |option_prep_hardTimberAmount|Quantidade de madeira endurecida requirida para spawn de fogueira
+2110750020|        |panel_prep_time|Intervalos de tempo
+2110750021|        |option_prep_timeToCreateItemMins|Tempo para criar um item (em minutos)
+2110750022|        |option_prep_timeToRepairItemMins|Tempo para reparar um item (em minutos)
+2110750023|        |option_prep_timeToUpgradeItemMins|Tempo para aplicar uma melhoria (em minutos)
+2110750024|        |option_prep_timeToBuySkillMins|Tempo para comprar uma habilidade (em minutos)
+2110750025|        |option_prep_timeToEquipSkillMins|Tempo para equipar uma melhoria (em minutos)
+2110750026|        |option_prep_timeToEquipMutagenMins|Tempo para equipar um mutagênico (em minutos)
+2110750027|        |panel_prep_alchemy|Alquimia
+2110750028|        |option_prep_maxOilCharges|Aplicações máxima por óleo (0 - unlimited)
+2110750029|        |preset_value_prep_refillMode_TierBased|Base correspondente
+2110750030|        |option_prep_bombsRefillMode|Modo de recarga de bombas
+2110750031|        |preset_value_prep_refillMode_Saltpetre|Salitre
+2110750032|        |preset_value_prep_refillMode_Stammelfords_dust|Pó de Stammelford'
+2110750033|        |preset_value_prep_refillMode_Alchemists_powder|Pó de alquimista
+2110750034|        |option_prep_oilsRefillMode|Modo de recarga de óleos
+2110750035|        |preset_value_prep_refillMode_Dog_tallow|Sebo de cão
+2110750036|        |preset_value_prep_refillMode_Bear_fat|Gordura de urso
+2110750037|        |preset_value_prep_refillMode_Alchemical_paste|Pasta alquímica
+2110750038|        |option_prep_mutagensRefillMode|Modo de recarga de poções mutagênicas
+2110750039|        |preset_value_prep_refillMode_Dwarven_spirit|Destilado Anão
+2110750040|        |preset_value_prep_refillMode_Alcohest|Alcohest
+2110750041|        |preset_value_prep_refillMode_White_Gull|Gaivota branca
+2110750042|        |option_prep_potionsRefillMode|Modo de recarga de poções
+2110750044|        |preset_value_prep_refillMode_FullRecipe|Toda receita
+2110750054|        |effect_alchemytable|Laboratório de Alquimia
+2110750055|e3d2e9fc||Bombas, óleos e poções ganharam uma carga adicional
+2110750056|dcf60e01||Bombas, óleos e poções ganham uma carga adicional
+2110750057|        |MeditationFastForward|Avanço rápido da meditação
+2110750058|        |preset_value_prep_refillMode_ExcludeMutagen|Excluir mutagêncio
+2110750059|        |option_prep_disallowOilsInCombat|Não permitir aplicar óleos em batalha
+2110750060|        |option_prep_disallowEdiblesInCombat|Não permitir comer em batalhas
+2110750061|        |option_prep_blockInventoryInCombat|Bloquear o inventário em batalhas
+2110750062|        |HoldToMeditate|Hold to enter/sair do modo meditação
+2110750063|        |option_prep_disallowMeditation|Não permitir meditação longe de fogo
+2110750064|        |preset_value_prep_defaults|Padrão
+2110750065|        |preset_value_prep_off|Desligado
+2110750066|        |preset_Mods_mod_preparations_prep_meditation|Predefinições de meditação
+2110750068|        |preset_Mods_mod_preparations_prep_time|Predefinições de intervalos de tempo
+2110750069|        |preset_Mods_mod_preparations_prep_alchemy|Predefinições de alquimia
+2110750070|        |option_prep_disallowCampFireInSettlement|Disallow spawning a campfire in settlement
+2110750071|        |option_prep_doNotDespawn|Do not despawn player spawned campfire
+2110750072|        |preset_value_prep_refillMode_BaseAndHerbs|Base and herbs
+2110750073|        |ToggleInteractions|Toggle interactions
+2110750074|        |option_prep_useOldAlgorithm|Use old campfire search algorithm
+2110750075|        |panel_prep_friendly_meditation|Friendly Meditation
+2110750076|        |preset_Mods_mod_preparations_prep_friendly_meditation|Friendly Meditation presets
+2110750077|        |option_prep_alchemy_meditation|Alchemy requires meditation (Friendly Meditation)
+2110750078|        |option_prep_alchemy_campfire|Alchemy requires campfire
+2110750079|        |option_prep_refillOne|Refilling restores only one charge
+2110750090|        |preset_value_prep_refillMode_Auto|Autorefill
+2110750091|        |preset_value_prep_friendly_meditation|Friendly Meditation
+2110750092|        |panel_prep_character|Character
+2110750093|        |preset_Mods_mod_preparations_prep_character|Character presets
+2110750094|        |panel_prep_inventory|Inventory
+2110750095|        |preset_Mods_mod_preparations_prep_inventory|Inventory presets
+2110750096|        |option_prep_disableAutorefillQuest|Disable quest autorefill
+2110750097|        |option_prep_disableRegenFullHealth|Disable full health regen after meditation
+2110750098|        |option_prep_disableCleanupCharStatus|Disable effects cleanup after meditation
+2110750099|        |option_prep_buy_skill_meditation|Buying skills requires meditation (Friendly Meditation)
+2110750100|        |option_prep_buy_skill_campfire|Buying skills requires campfile
+2110750101|        |option_prep_equip_skill_meditation|Equipping skills requires meditation (Friendly Meditation)
+2110750102|        |option_prep_equip_skill_campfire|Equipping skills requires campfile
+2110750103|        |option_prep_equip_mutagen_meditation|Equipping mutagens requires meditation (Friendly Meditation)
+2110750104|        |option_prep_equip_mutagen_campfire|Equipping mutagens requires campfile
+2110750105|        |option_prep_repair_meditation|Repairing requires meditation (Friendly Meditation)
+2110750106|        |option_prep_repair_campfire|Repairing requires campfire
+2110750107|        |option_prep_upgrade_meditation|Upgrading requires meditation (Friendly Meditation)
+2110750108|        |option_prep_upgrade_campfire|Upgrading requires campfire
+2110750109|        |prep_error_time_paused|Can't meditate while time is paused by quest
+2110750110|        |prep_error_horse_boat|Can't meditate while using horse or boat
+2110750111|        |prep_error_action_disallowed|Meditation is blocked for now
+2110750112|        |prep_error_disallowed_now|Can't meditate now
+2110750113|        |prep_error_enemies_nearby|Can't meditate while hostiles are nearby
+2110750114|        |prep_error_submerged|Can't meditate while in water
+2110750115|        |prep_error_nonallied_npcs|Can't meditate near non-allied NPCs
+2110750116|        |prep_error_disallowed_settlement|Can't meditate outdoors while in settlement
+2110750117|        |prep_error_disallowed_interior|Can't meditate in interior
+2110750118|        |prep_error_no_campfire_found|Can't meditate without a campfire
+2110750119|        |prep_error_campfire_interior|Can't make a campfire in interior
+2110750120|        |prep_error_campfire_settlement|Can't make a campfire in settlement
+2110750121|        |prep_error_no_timber|Not enough timber to make a campfire
+2110750122|        |prep_error_meditation_required|This action requires meditation
+2110750123|        |prep_error_campfire_required|This action requires campfire
+2110750125|        |prep_error_undefined|Undefined error, contact Preparations mod author

@@ -9,6 +9,10 @@
 
 statemachine class W3PlayerWitcher extends CR4Player
 {	
+	//---=== modPreparations ===---
+	var openFireEnt										: CGameplayEntity;
+	var prepConfig										: CModPreparationsConfig;
+	//---=== modPreparations ===---
 	
 	private saved var craftingSchematics				: array<name>; 					
 	private saved var expandedCraftingCategories		: array<name>;
@@ -33,6 +37,21 @@ statemachine class W3PlayerWitcher extends CR4Player
 	
 	
 	protected saved			var amountOfSetPiecesEquipped			: array<int>;
+	
+	
+	//---=== modFriendlyMeditation ===---
+						var spawnedCampFire					: W3Campfire;
+						var fmedCanSpawnCampfire			: bool;
+						default fmedCanSpawnCampfire = true;
+						var fmedAutorefillAlchemy			: bool;
+						default fmedAutorefillAlchemy = true;
+						var fmedRefillIntervalSeconds		: float;
+						default fmedRefillIntervalSeconds = 3600.0;
+						var fmedApplyWitcherHouseBuffs		: bool;
+						default fmedApplyWitcherHouseBuffs = true;
+						var fmedWitcherHouseBuffsHours	: int;
+						default fmedWitcherHouseBuffsHours = 1;
+	//---=== modFriendlyMeditation ===---
 	
 	
 	public				var canSwitchFocusModeTarget	: bool;
@@ -100,6 +119,11 @@ statemachine class W3PlayerWitcher extends CR4Player
 	
 	
 	public saved 		var levelManager 				: W3LevelManager;
+	
+	//---=== modFriendlyHUD ===---
+	public				var prepDisallowOilsInCombat	: bool;		default prepDisallowOilsInCombat = false;
+	public				var prepOilsHaveAmmo			: bool;		default prepOilsHaveAmmo = false;
+	//---=== modFriendlyHUD ===---
 
 	
 	saved var reputationManager	: W3Reputation;
@@ -347,6 +371,13 @@ statemachine class W3PlayerWitcher extends CR4Player
 		}
 		
 		HACK_UnequipWolfLiver();
+
+		//---=== modPreparations ===---
+		prepConfig = new CModPreparationsConfig in this;
+		//prepConfig.Init(this);
+		//ApplyModPrepFixes();
+		AddTimer('ModPrepDelayedInit', 0.00001, true, , , true);
+		//---=== modPreparations ===---
 		
 		
 		if( HasBuff( EET_GryphonSetBonusYrden ) )
@@ -374,6 +405,43 @@ statemachine class W3PlayerWitcher extends CR4Player
 	
 	
 	
+	//---=== modPreparations ===---
+	timer function ModPrepDelayedInit(dt : float, timerId : int)
+	{
+		if( !GetWitcherPlayer() ) //why on Earth is this even a thing?!?!?!
+			return;
+		
+		prepConfig.Init(this);
+		ApplyModPrepFixes();
+		RemoveTimer('ModPrepDelayedInit');
+	}
+	
+	private function ApplyModPrepFixes()
+	{
+		if( FactsQuerySum("MissingTawnyOwlRecipeAdded") < 1 )
+		{
+			AddAlchemyRecipe('Recipe for Tawny Owl 1', true, true); // fix missing Tawny Owl recipe
+			FactsAdd("MissingTawnyOwlRecipeAdded");
+		}
+	}
+	
+	public function SetupFHUD() //FHUD compatibility
+	{
+		prepDisallowOilsInCombat = prepConfig.disallowOilsInCombat;
+		prepOilsHaveAmmo = prepConfig.OilsHaveAmmo();
+	}
+	
+	public function SetupFMed() //FMeditation compatibility
+	{
+		fmedCanSpawnCampfire = false;
+		fmedAutorefillAlchemy =	prepConfig.BombsAutorefillEnabled() ||
+								prepConfig.OilsAutorefillEnabled() ||
+								prepConfig.MutagensAutorefillEnabled() ||
+								prepConfig.PotionsAutorefillEnabled();
+	}
+	//---=== modPreparations ===---
+
+
 	private function HACK_UnequipWolfLiver()
 	{
 		var itemName1, itemName2, itemName3, itemName4 : name;
@@ -935,8 +1003,9 @@ statemachine class W3PlayerWitcher extends CR4Player
     	((W3PlayerAbilityManager)abilityManager).RemoveToxicityOffset(10000);
     	
     	
-    	GetInventory().SingletonItemsRefillAmmo();
-    	
+		//---=== modPreparations ===---
+		inv.SingletonItemsRefillAmmoNoAlco(true);
+		//---=== modPreparations ===---
     	
     	craftingSchematics.Clear();
     	AddStartingSchematics();
@@ -5949,6 +6018,102 @@ statemachine class W3PlayerWitcher extends CR4Player
 		return false;
 	}
 	
+	//modFriendlyStash begin
+	//Not actually used by Preparations (allowStash == false), but needed for modFriendlyStash compatibility
+	//Used by modFriendlyStash to allow using stash items for crafting and alchemy
+	public function GetItemQuantityByNameForCrafting(itemName : name, allowStash : bool) : int
+	{
+		if( allowStash )
+		{
+			return inv.GetItemQuantityByName(itemName) + GetHorseManager().GetInventoryComponent().GetItemQuantityByName(itemName);
+		}
+		return inv.GetItemQuantityByName(itemName);
+	}
+	
+	public function GetMutagenQuantityByNameForCrafting(itemName : name, allowStash : bool) : int
+	{
+		if( allowStash )
+		{
+			return inv.GetUnusedMutagensCount(itemName) + GetHorseManager().GetInventoryComponent().GetItemQuantityByName(itemName);
+		}
+		return inv.GetUnusedMutagensCount(itemName);
+	}
+	
+	public function RemoveItemByNameForCrafting(itemName : name, quantity : int, allowStash : bool) : bool
+	{
+		var playerQuantity, horseQuantity, quantityToRemove, removedQuantity : int;
+		if( allowStash )
+		{
+			quantityToRemove = quantity;
+			playerQuantity = inv.GetItemQuantityByName(itemName);
+			if( playerQuantity < quantityToRemove )
+			{
+				quantityToRemove = playerQuantity;
+			}
+			if( quantityToRemove > 0 && inv.RemoveItemByName(itemName, quantityToRemove) )
+			{
+				removedQuantity = quantityToRemove;
+			}
+			quantityToRemove = quantity - removedQuantity;
+			if( quantityToRemove > 0 )
+			{
+				horseQuantity = GetHorseManager().GetInventoryComponent().GetItemQuantityByName(itemName);
+				if( horseQuantity < quantityToRemove )
+				{
+					quantityToRemove = horseQuantity;
+				}
+				if( quantityToRemove > 0 && GetHorseManager().GetInventoryComponent().RemoveItemByName(itemName, quantityToRemove) )
+				{
+					removedQuantity += quantityToRemove;
+				}
+			}
+			if( removedQuantity == quantity )
+			{
+				return true;
+			}
+			return false;
+		}
+		return inv.RemoveItemByName(itemName, quantity);
+	}
+	
+	public function RemoveMutagenByNameForCrafting(itemName : name, quantity : int, allowStash : bool) : bool
+	{
+		var playerQuantity, horseQuantity, quantityToRemove, removedQuantity : int;
+		if( allowStash )
+		{
+			quantityToRemove = quantity;
+			playerQuantity = inv.GetUnusedMutagensCount(itemName);
+			if( playerQuantity < quantityToRemove )
+			{
+				quantityToRemove = playerQuantity;
+			}
+			if( quantityToRemove > 0 && inv.RemoveUnusedMutagensCount(itemName, quantityToRemove) )
+			{
+				removedQuantity = quantityToRemove;
+			}
+			quantityToRemove = quantity - removedQuantity;
+			if( quantityToRemove > 0 )
+			{
+				horseQuantity = GetHorseManager().GetInventoryComponent().GetItemQuantityByName(itemName);
+				if( horseQuantity < quantityToRemove )
+				{
+					quantityToRemove = horseQuantity;
+				}
+				if( quantityToRemove > 0 && GetHorseManager().GetInventoryComponent().RemoveItemByName(itemName, quantityToRemove) )
+				{
+					removedQuantity += quantityToRemove;
+				}
+			}
+			if( removedQuantity == quantity )
+			{
+				return true;
+			}
+			return false;
+		}
+		return inv.RemoveUnusedMutagensCount(itemName, quantity);
+	}
+	//modFriendlyStash end
+	
 	public function GetMaxRunEncumbrance(out usesHorseBonus : bool) : float
 	{
 		var value : float;
@@ -8803,17 +8968,49 @@ statemachine class W3PlayerWitcher extends CR4Player
 	
 	
 	
+	//---=== modFriendlyMeditation ===---
+	public function IsMeditating() : bool
+	{
+		return ( GetCurrentStateName() == 'Meditation' );
+	}
+
+	public function IsSkippingTime() : bool
+	{
+		return ( GetCurrentStateName() == 'MeditationWaiting' );
+	}
+	
+	public function UpdateEffectsAccelerated( realTimeSecs, acceleration : float )
+	{
+		effectManager.PerformUpdate( realTimeSecs * acceleration );
+	}
+	//---=== modFriendlyMeditation ===---
+	
 	public function SimulateBuffTimePassing(simulatedTime : float)
 	{
-		super.SimulateBuffTimePassing(simulatedTime);
+		//---=== modPreparations ===---
+		/*super.SimulateBuffTimePassing(simulatedTime);
 		
-		FinishQuen(true);
+		FinishQuen(true);*/
+		var t : float = 0.0f;
+		var dt : float = 0.1f;
+		if(simulatedTime > 0)
+		{
+			//the game can't handle updating effects over a long period of time
+			//properly, so we'll do it in small steps instead
+			while(t < simulatedTime)
+			{
+				effectManager.PerformUpdate(dt);
+				t += dt;
+			}
+		}
+		//---=== modPreparations ===---
 	}
 	
 	
 	public function CanMeditate() : bool
 	{
-		var currentStateName : name;
+		//---=== modPreparations ===---
+		/*var currentStateName : name;
 		
 		currentStateName = GetCurrentStateName();
 		
@@ -8830,13 +9027,21 @@ statemachine class W3PlayerWitcher extends CR4Player
 			return false;
 			
 		
-		return CanMeditateHere();
+		return CanMeditateHere();*/
+		if(!IsMeditationAllowed())
+		{
+			theGame.GetGuiManager().ShowNotification(GetLocStringByKeyExt(prepConfig.GetMeditationError()));
+			return false;
+		}
+		return true;
+		//---=== modPreparations ===---
 	}
 	
 	
 	public final function CanMeditateWait(optional skipMeditationStateCheck : bool) : bool
 	{
-		var currState : name;
+		//---=== modPreparations ===---
+		/*var currState : name;
 		
 		currState = GetCurrentStateName();
 		
@@ -8852,13 +9057,21 @@ statemachine class W3PlayerWitcher extends CR4Player
 		if(!IsActionAllowed( EIAB_MeditationWaiting ))
 			return false;
 			
+		return true;*/
+		if(!IsMeditationAllowed())
+		{
+			theGame.GetGuiManager().ShowNotification(GetLocStringByKeyExt(prepConfig.GetMeditationError()));
+			return false;
+		}
 		return true;
+		//---=== modPreparations ===---
 	}
 
 	
 	public final function CanMeditateHere() : bool
 	{
-		var pos	: Vector;
+		//---=== modPreparations ===---
+		/*var pos	: Vector;
 		
 		pos = GetWorldPosition();
 		if(pos.Z <= theGame.GetWorld().GetWaterLevel(pos, true) && IsInShallowWater())
@@ -8867,9 +9080,190 @@ statemachine class W3PlayerWitcher extends CR4Player
 		if(IsThreatened())
 			return false;
 		
+		return true;*/
+		if(!IsMeditationAllowed())
+		{
+			theGame.GetGuiManager().ShowNotification(GetLocStringByKeyExt(prepConfig.GetMeditationError()));
+			return false;
+		}
+		return true;
+		//---=== modPreparations ===---
+	}
+	
+	
+	//---=== modPreparations ===---
+	public function IsMeditationAllowed() : bool
+	{
+		var curState : name = GetCurrentStateName();
+		
+		fmedCanSpawnCampfire = false;
+		
+		if(theGame.IsGameTimePaused())
+			return false;
+		
+		if(GetUsedVehicle())
+			return false;
+		
+		if(!IsActionAllowed(EIAB_MeditationWaiting))
+			return false;
+		
+		if(curState != 'Exploration' && curState != 'Meditation' && curState != 'MeditationWaiting')
+			return false;
+		
+		if(curState == 'Exploration' && !CanPerformPlayerAction())
+			return false;
+		
+		if(IsThreatened())
+			return false;
+		
+		if(((CMovingPhysicalAgentComponent)GetMovingAgentComponent()).GetSubmergeDepth() < 0)
+			return false;
+		
+		if(prepConfig.disallowNPCs && HasNonAlliedActorsNearby())
+			return false;
+		
+		if(prepConfig.disallowSettlement && IsInSettlement() && !IsInInterior())
+			return false;
+		
+		if(prepConfig.disallowInterior && IsInInterior())
+			return false;
+		
+		if(prepConfig.disallowMeditation && !HasCampfire() && !CanSpawnCampfire())
+			return false;
+
+		fmedCanSpawnCampfire = CanSpawnCampfire(); //meditation is allowed, but we need to determine if spawning a campfire is allowed (for Friendly Meditation)
+		
 		return true;
 	}
 	
+	public function HasNonAlliedActorsNearby() : bool
+	{
+		var entities : array< CGameplayEntity >;
+		var i : int;
+		var actor : CActor;
+		
+		FindGameplayEntitiesInRange( entities, thePlayer, prepConfig.npcDistance, 1000,, FLAG_ExcludePlayer + FLAG_OnlyAliveActors,, 'CActor' );
+		for( i = 0; i < entities.Size(); i += 1 )
+		{
+			actor = (CActor)entities[i];
+			if( actor.IsAnimal() || ((CNewNPC)actor).IsHorse() || GetAttitudeBetween( thePlayer, actor ) != AIA_Hostile && ((CNewNPC)actor).IsVIP() )
+				continue;
+			else
+				return true;
+		}
+		return false;
+	}
+	
+	public function GetFmedCanSpawnCampfire() : bool
+	{
+		return fmedCanSpawnCampfire;
+	}
+	
+	public function GetOpenFireEnt() : CGameplayEntity
+	{
+		return openFireEnt;
+	}
+	
+	public function HasCampfire() : bool
+	{
+		var entities : array< CGameplayEntity >;
+		var i : int;
+		var dist : float;
+		var glComponent : CGameplayLightComponent;
+		
+		if( IsInInterior() )
+		{
+			dist = 1.5;
+		}
+		else
+		{
+			dist = 3.0;
+		}
+		if( openFireEnt && VecDistanceSquared2D(openFireEnt.GetWorldPosition(), GetWorldPosition()) <= dist*dist )
+		{
+			return true;
+		}
+		if( spawnedCampFire && VecDistanceSquared2D(spawnedCampFire.GetWorldPosition(), GetWorldPosition()) <= dist*dist )
+		{
+			openFireEnt = spawnedCampFire;
+			return true;
+		}
+		if( !prepConfig.disallowCampFire )
+		{
+			FindGameplayEntitiesInRange( entities, thePlayer, dist, 1,, FLAG_ExcludePlayer,, 'W3Campfire' );
+			if( entities.Size() > 0 )
+			{
+				openFireEnt = entities[0];
+				return true;
+			}
+		}
+		if( !prepConfig.disallowFireSource )
+		{
+			FindGameplayEntitiesInRange( entities, thePlayer, dist, 1,, FLAG_ExcludePlayer,, 'W3FireSource' );
+			if( entities.Size() > 0 )
+			{
+				openFireEnt = entities[0];
+				return true;
+			}
+		}
+		if( !prepConfig.disallowLightSource )
+		{
+			FindGameplayEntitiesInRange( entities, thePlayer, dist, 10,, FLAG_ExcludePlayer,, 'CGameplayEntity' );
+			for( i = 0; i < entities.Size(); i += 1 )
+			{
+				glComponent = (CGameplayLightComponent)entities[i].GetComponentByClassName( 'CGameplayLightComponent' );
+				if( glComponent )
+				{
+					openFireEnt = entities[i];
+					return true;
+				}
+			}
+		}
+		openFireEnt = NULL;
+		return false;
+	}
+	
+	public function CanSpawnCampfire() : bool
+	{
+		fmedCanSpawnCampfire = false;
+		
+		if( HasCampfire() )
+			return false;
+	
+		if( !prepConfig.fmedSpawnCampFire() )
+			return false;
+		
+		if( prepConfig.disallowCampFireInInterior && IsInInterior() )
+			return false;
+		
+		if( prepConfig.disallowCampFireInSettlement && IsInSettlement() )
+			return false;
+		
+		fmedCanSpawnCampfire = prepConfig.HasResourcesForCampfire();
+		
+		return fmedCanSpawnCampfire;
+	}
+	
+	timer function CampFireErrorMessageTimer(dt : float, id : int)
+	{
+		if( !HasCampfire() )
+			theGame.GetGuiManager().ShowNotification( GetLocStringByKeyExt( prepConfig.GetSpawnCampfireError() ) );
+	}
+	
+	timer function CampFireResourcesTimer(dt : float, id : int)
+	{
+		prepConfig.RemoveResourcesForCampfire();
+	}
+	
+	public function AdvanceTimeSeconds( seconds : int )
+	{
+		if( seconds > 0 )
+		{
+			theGame.SetGameTime( theGame.GetGameTime() + GameTimeCreateFromGameSeconds( seconds ), false );
+			UpdateEffectsAccelerated( ConvertGameSecondsToRealTimeSeconds( seconds ), 1 );
+		}
+	}
+	//---=== modPreparations ===---
 	
 	public function Meditate() : bool
 	{
@@ -8892,24 +9286,38 @@ statemachine class W3PlayerWitcher extends CR4Player
 	
 	public final function MeditationRestoring(simulatedTime : float)
 	{			
-		
-		if ( theGame.GetDifficultyMode() != EDM_Hard && theGame.GetDifficultyMode() != EDM_Hardcore ) 
+		//---=== modPreparations ===---
+		if( !prepConfig.disableRegenFullHealth ) 
 		{
-			Heal(GetStatMax(BCS_Vitality));
+			Heal( GetStatMax( BCS_Vitality ) );
 		}
 		
-		
-		abilityManager.DrainToxicity( abilityManager.GetStat( BCS_Toxicity ) );
-		abilityManager.DrainFocus( abilityManager.GetStat( BCS_Focus ) );
-		
-		
-		inv.SingletonItemsRefillAmmo();
-		
-		
-		SimulateBuffTimePassing(simulatedTime);
-		
+		if( simulatedTime > 0 )
+		{
+			if( prepConfig.disableCleanupCharStatus )
+			{
+				SimulateBuffTimePassing(simulatedTime);
+			}
+			else
+			{
+				abilityManager.DrainToxicity( abilityManager.GetStat( BCS_Toxicity ) );
+				abilityManager.DrainFocus( abilityManager.GetStat( BCS_Focus ) );
+				FinishQuen(true);
+				RemoveAllNonAutoBuffs();
+			}
+			inv.SingletonItemsRefillAmmo();
+		}
+		else if( !prepConfig.disableAutorefillQuest )
+		{
+			abilityManager.DrainToxicity( abilityManager.GetStat( BCS_Toxicity ) );
+			abilityManager.DrainFocus( abilityManager.GetStat( BCS_Focus ) );
+			FinishQuen(true);
+			RemoveAllNonAutoBuffs();
+			inv.SingletonItemsRefillAmmo(, true);
+		}
 		
 		ApplyWitcherHouseBuffs();
+		//---=== modPreparations ===---
 	}
 	
 	var clockMenu : CR4MeditationClockMenu;
@@ -9016,6 +9424,12 @@ statemachine class W3PlayerWitcher extends CR4Player
 			
 			if( l_bed.GetWasUsed() )
 			{
+				//---=== modPreparations ===---
+				abilityManager.DrainToxicity( abilityManager.GetStat( BCS_Toxicity ) );
+				abilityManager.DrainFocus( abilityManager.GetStat( BCS_Focus ) );
+				//inv.SingletonItemsRefillAmmo();
+				SimulateBuffTimePassing(0);
+				//---=== modPreparations ===---
 				if( l_bed.GetBedLevel() != 0 )
 				{
 					AddEffectDefault( EET_WellRested, this, "Bed Buff" );
@@ -9026,11 +9440,18 @@ statemachine class W3PlayerWitcher extends CR4Player
 					AddEffectDefault( EET_HorseStableBuff, this, "Stables" );
 				}
 				
-				if( l_bed.GetWereItemsRefilled() )
+				//---=== modPreparations ===---
+				if( FactsQuerySum( "AlchemyTableExists" ) )
+				{
+					ManageAlchemyTableBonus();
+				}
+				
+				/*if( l_bed.GetWereItemsRefilled() )
 				{
 					theGame.GetGuiManager().ShowNotification( GetLocStringByKeyExt( "message_common_alchemy_table_buff_applied" ),, true );
 					l_bed.SetWereItemsRefilled( false );
-				}
+				}*/
+				//---=== modPreparations ===---
 				
 				AddEffectDefault( EET_BookshelfBuff, this, "Bookshelf" );
 				
@@ -9039,6 +9460,13 @@ statemachine class W3PlayerWitcher extends CR4Player
 		}
 	}
 	
+	//---=== modPreparations ===---
+	public function ManageAlchemyTableBonus()
+	{
+		AddEffectDefault( EET_AlchemyTable, this, "Alchemy Table" );
+		theGame.GetGuiManager().ShowNotification( GetLocStringByKeyExt( "message_common_alchemy_table_buff_applied" ),, true );
+	}
+	//---=== modPreparations ===---
 	
 	
 	

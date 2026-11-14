@@ -328,7 +328,9 @@ class W3TooltipComponent
 			itemInvComponent.GetItemPrimaryStat(item, primaryStatLabel, primaryStatOriginValue);
 		}
 		
-		if( itemInvComponent.IsItemSingletonItem( item ) && ( itemInvComponent.SingletonItemGetMaxAmmo(item) > 0 ) )
+		//---=== modPreparations ===---
+		if( itemInvComponent.IsItemSingletonItem( item ) && ( itemInvComponent.SingletonItemGetMaxAmmo(item) > 0 ) || itemInvComponent.IsItemOil( item ) )
+		//---=== modPreparations ===---
 		{
 			if( itemInvComponent.IsItemOil( item ) )
 			{
@@ -338,12 +340,25 @@ class W3TooltipComponent
 				{
 					ammoBonus = CalculateAttributeValue( thePlayer.GetSkillAttributeValue( S_Alchemy_s06, 'ammo_bonus', false, false ) );
 					ammoBonus = ammo * (1 + ammoBonus * thePlayer.GetSkillLevel( S_Alchemy_s06 ) ) - ammo;
-					tooltipData.SetMemberFlashString( "charges", RoundF( ammo ) + " ( +" + RoundF( ammoBonus ) + " ) " + GetLocStringByKeyExt( "inventory_tooltip_charges" ) );
+					//---=== modPreparations ===---
+					tmpStr = RoundF( ammo ) + " ( +" + RoundF( ammoBonus ) + " ) ";
+					//tooltipData.SetMemberFlashString( "charges", RoundF( ammo ) + " ( +" + RoundF( ammoBonus ) + " )" + GetLocStringByKeyExt( "inventory_tooltip_charges" ) );
+					//---=== modPreparations ===---
 				}
 				else
 				{
-					tooltipData.SetMemberFlashString( "charges", RoundF( ammo ) + " " + GetLocStringByKeyExt( "inventory_tooltip_charges" ) );
+					//---=== modPreparations ===---
+					tmpStr = RoundF( ammo ) + " ";
+					//tooltipData.SetMemberFlashString( "charges", RoundF( ammo ) + " " + GetLocStringByKeyExt( "inventory_tooltip_charges" ) );
+					//---=== modPreparations ===---
 				}
+				//---=== modPreparations ===---
+				if( GetPreparationsConfig().OilsHaveAmmo() )
+					tmpStr = tmpStr + GetLocStringByKeyExt( "inventory_tooltip_charges" ) + " [" + itemInvComponent.SingletonItemGetAmmo( item ) + "/" + itemInvComponent.SingletonItemGetMaxAmmo( item ) + "]";
+				else
+					tmpStr = tmpStr + GetLocStringByKeyExt( "inventory_tooltip_charges" );
+				tooltipData.SetMemberFlashString( "charges", tmpStr );
+				//---=== modPreparations ===---
 			}
 			else
 			{

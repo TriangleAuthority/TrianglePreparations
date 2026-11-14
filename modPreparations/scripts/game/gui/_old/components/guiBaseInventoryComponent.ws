@@ -338,7 +338,9 @@ abstract class W3GuiBaseInventoryComponent
 		}
 		flashObject.SetMemberFlashInt( "id", ItemToFlashUInt(item) );
 		
-		if (!_inv.IsItemOil(item))
+		//---=== modPreparations ===---
+		if( !_inv.IsItemOil(item) || GetPreparationsConfig().OilsHaveAmmo() )
+		//---=== modPreparations ===---
 		{
 			if(_inv.IsItemSingletonItem(item))
 			{

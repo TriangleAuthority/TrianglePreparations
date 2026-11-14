@@ -300,6 +300,9 @@ EET_Unused1,
 	EET_Mutation5,
 	EET_ToxicityVenom,
 	EET_BasicQuen,
+	//---=== modPreparations ===---
+	EET_AlchemyTable,
+	//---=== modPreparations ===---
 	
 	
 EET_EffectTypesSize,

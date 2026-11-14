@@ -1035,6 +1035,17 @@ statemachine abstract import class CR4Player extends CPlayer
 			return false;
 		}
 		
+		//---=== modPreparations ===---
+		if( GetPreparationsConfig().OilsHaveAmmo() )
+		{
+			if( inv.SingletonItemGetAmmo( oilId ) < 1 )
+			{
+				return false;
+			}
+			inv.SingletonItemRemoveAmmo( oilId );
+		}
+		//---=== modPreparations ===---
+				
 		dm = theGame.GetDefinitionsManager();
 		inv.GetItemAbilitiesWithTag( oilId, theGame.params.OIL_ABILITY_TAG, oilAbilities );
 		oilName = inv.GetItemName( oilId );
@@ -1910,6 +1921,13 @@ statemachine abstract import class CR4Player extends CPlayer
 		
 		theGame.GameplayFactsAdd( "in_combat" );
 		
+		//---=== modPreparations ===---
+		if ( GetPreparationsConfig().blockInventoryInCombat )
+		{
+			BlockAction( EIAB_OpenInventory, 'InCombat' );
+		}
+		//---=== modPreparations ===---
+		
 		
 		FactsRemove("statistics_cerberus_sign");
 		FactsRemove("statistics_cerberus_petard");
@@ -1942,6 +1960,13 @@ statemachine abstract import class CR4Player extends CPlayer
 		receivedDamageInCombat = false;
 		
 		theGame.GameplayFactsRemove( "in_combat" );
+		
+		//---=== modPreparations ===---
+		if ( GetPreparationsConfig().blockInventoryInCombat )
+		{
+			UnblockAction( EIAB_OpenInventory, 'InCombat' );
+		}
+		//---=== modPreparations ===---
 			
 		
 		cnt = 0;
@@ -10106,7 +10131,9 @@ statemachine abstract import class CR4Player extends CPlayer
 			return false;
 		
 		
-		if(action == EIAB_OpenMeditation)
+		//---=== modPreparations ===---
+		if(action == EIAB_OpenMeditation || action == EIAB_OpenInventory)
+		//---=== modPreparations ===---
 			return false;
 		
 		
@@ -10588,7 +10615,9 @@ statemachine abstract import class CR4Player extends CPlayer
 		if(category == 'edibles' || inv.ItemHasTag(itemId, 'Drinks') || ( category == 'alchemy_ingredient' && inv.ItemHasTag(itemId, 'Alcohol')) )
 		{
 			
-			if(IsFistFightMinigameEnabled())
+			//---=== modPreparations ===---
+			if(IsFistFightMinigameEnabled() || GetPreparationsConfig().disallowEdiblesInCombat && IsInCombat())
+			//---=== modPreparations ===---
 			{
 				DisplayActionDisallowedHudMessage(EIAB_Undefined, false, false, true);
 				return false;

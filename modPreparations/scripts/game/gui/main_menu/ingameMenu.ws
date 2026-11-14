@@ -1168,6 +1168,9 @@ class CR4IngameMenu extends CR4MenuBase
 	{
 		if (hasChangedOption)
 		{
+			//---=== modPreparations ===---
+			GetPreparationsConfig().UpdateUserSettings();
+			//---=== modPreparations ===---
 			hasChangedOption = false;
 			theGame.SaveUserSettings();
 		}

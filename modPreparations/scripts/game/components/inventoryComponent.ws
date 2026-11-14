@@ -3488,11 +3488,31 @@ import class CInventoryComponent extends CComponent
 	}
 	
 	
-	
-	
-	
-	public final function SingletonItemRefillAmmo( id : SItemUniqueId, optional alchemyTableUsed : bool )
+	//---=== modPreparations ===---
+	public function ModPrepCheckAmmo(oilsHaveAmmo : bool)
 	{
+		var ids : array<SItemUniqueId>;
+		var i, ammo, maxAmmo : int;
+		
+		ids = GetSingletonItems();
+		
+		for( i = 0; i < ids.Size(); i += 1 )
+		{
+			if( IsItemOil(ids[i]) )
+			{
+				if( IsItemOil(ids[i]) && !oilsHaveAmmo || SingletonItemGetAmmo(ids[i]) > SingletonItemGetMaxAmmo(ids[i]) )
+				{
+					SetItemModifierInt(ids[i], 'ammo_current', SingletonItemGetMaxAmmo(ids[i]));
+				}
+			}
+		}
+	}
+	//---=== modPreparations ===---
+	
+	//---=== modPreparations ===---
+	public final function SingletonItemRefillAmmo( id : SItemUniqueId, optional alchemyTableUsed : bool, optional onlyOne : bool )
+	{
+		/*
 		var l_bed		: W3WitcherBed;
 		var refilledByBed : bool;
 		
@@ -3519,6 +3539,13 @@ import class CInventoryComponent extends CComponent
 		{
 			SetItemModifierInt(id, 'ammo_current', SingletonItemGetMaxAmmo(id));
 		}
+		
+		*/
+		if( onlyOne )
+			SetItemModifierInt(id, 'ammo_current', SingletonItemGetAmmo(id) + 1);
+		else
+			SetItemModifierInt(id, 'ammo_current', SingletonItemGetMaxAmmo(id));
+		//---=== modPreparations ===---
 		
 		theGame.GetGlobalEventsManager().OnScriptedEvent( SEC_OnAmmoChanged );
 	}
@@ -3557,7 +3584,9 @@ import class CInventoryComponent extends CComponent
 		theGame.GetGlobalEventsManager().OnScriptedEvent( SEC_OnAmmoChanged );
 	}
 	
-	public function SingletonItemsRefillAmmo( optional alchemyTableUsed : bool ) : bool
+	//---=== modPreparations ===---
+	public function SingletonItemsRefillAmmo( optional alchemyTableUsed : bool, optional skipPrepCheck : bool ) : bool
+	//---=== modPreparations ===---
 	{
 		var i : int;
 		var singletonItems : array<SItemUniqueId>;
@@ -3565,9 +3594,14 @@ import class CInventoryComponent extends CComponent
 		var arrStr : array<string>;
 		var witcher : W3PlayerWitcher;
 		var itemLabel : string;
+		//---=== modPreparations ===---
+		var item : SItemUniqueId;
+		//---=== modPreparations ===---
 	
 		witcher = GetWitcherPlayer();
-		if(GetEntity() == witcher && HasNotFilledSingletonItem( alchemyTableUsed ) )
+		//---=== modPreparations ===---
+		if(GetEntity() == witcher && HasNotFilledSingletonItem( alchemyTableUsed, skipPrepCheck ) )
+		//---=== modPreparations ===---
 		{
 			alco = witcher.GetAlcoholForAlchemicalItemsRefill();
 		
@@ -3595,7 +3629,18 @@ import class CInventoryComponent extends CComponent
 		singletonItems = GetSingletonItems();
 		for(i=0; i<singletonItems.Size(); i+=1)
 		{			
-			SingletonItemRefillAmmo( singletonItems[i], alchemyTableUsed );
+			//---=== modPreparations ===---
+			item = singletonItems[i];
+			if(
+				skipPrepCheck || (IsItemBomb(item) && GetPreparationsConfig().BombsAutorefillEnabled() ||
+				IsItemOil(item) && GetPreparationsConfig().OilsAutorefillEnabled() ||
+				IsItemMutagenPotion(item) && GetPreparationsConfig().MutagensAutorefillEnabled() ||
+				IsItemPotion(item) && !IsItemMutagenPotion(item) && GetPreparationsConfig().PotionsAutorefillEnabled())
+			)
+			{
+				SingletonItemRefillAmmo( item, alchemyTableUsed );
+			}
+			//---=== modPreparations ===---
 		}
 		
 		return true;
@@ -3611,7 +3656,9 @@ import class CInventoryComponent extends CComponent
 		var itemLabel : string;
 	
 		witcher = GetWitcherPlayer();
-		if(!dontUpdateUI && GetEntity() == witcher && HasNotFilledSingletonItem())
+		//---=== modPreparations ===---
+		if(!dontUpdateUI && GetEntity() == witcher && HasNotFilledSingletonItem(, true))
+		//---=== modPreparations ===---
 		{
 			
 			arrStr.PushBack(GetItemName(alco));
@@ -3628,12 +3675,17 @@ import class CInventoryComponent extends CComponent
 	}	
 	
 	
-	private final function HasNotFilledSingletonItem( optional alchemyTableUsed : bool ) : bool
+	//---=== modPreparations ===---
+	private final function HasNotFilledSingletonItem( optional alchemyTableUsed : bool, optional skipPrepCheck : bool ) : bool
+	//---=== modPreparations ===---
 	{
 		var i : int;
 		var singletonItems : array<SItemUniqueId>;
 		var hasLab : bool;
 		var l_bed : W3WitcherBed;
+		//---=== modPreparations ===---
+		var item : SItemUniqueId;
+		//---=== modPreparations ===---
 		
 		
 		hasLab = false;
@@ -3649,6 +3701,16 @@ import class CInventoryComponent extends CComponent
 		singletonItems = GetSingletonItems();
 		for(i=0; i<singletonItems.Size(); i+=1)
 		{			
+			//---=== modPreparations ===---
+			item = singletonItems[i];
+			if(
+				skipPrepCheck || (IsItemBomb(item) && GetPreparationsConfig().BombsAutorefillEnabled() ||
+				IsItemOil(item) && GetPreparationsConfig().OilsAutorefillEnabled() ||
+				IsItemMutagenPotion(item) && GetPreparationsConfig().MutagensAutorefillEnabled() ||
+				IsItemPotion(item) && !IsItemMutagenPotion(item) && GetPreparationsConfig().PotionsAutorefillEnabled())
+			)
+			{
+			//---=== modPreparations ===---
 			if( hasLab && !IsItemMutagenPotion( singletonItems[i] ) )
 			{
 				if(SingletonItemGetAmmo(singletonItems[i]) <= SingletonItemGetMaxAmmo(singletonItems[i]))
@@ -3660,6 +3722,9 @@ import class CInventoryComponent extends CComponent
 			{
 				return true;
 			}
+			//---=== modPreparations ===---
+			}
+			//---=== modPreparations ===---
 		}
 		
 		return false;
@@ -3702,8 +3767,17 @@ import class CInventoryComponent extends CComponent
 		var atts : array<name>;
 		var canUseSkill : bool;
 		
-		ammo = RoundMath(CalculateAttributeValue(GetItemAttributeValue(itemID, 'ammo')));
-		
+		//---=== modPreparations ===---
+		if( IsItemOil( itemID ) && (W3PlayerWitcher)GetEntity() )
+		{
+			ammo = GetPreparationsConfig().maxOilCharges;
+		}
+		else
+		{
+			ammo = RoundMath(CalculateAttributeValue(GetItemAttributeValue(itemID, 'ammo')));
+		}
+		//---=== modPreparations ===---
+	
 		if( !ItemHasTag( itemID, 'NoAdditionalAmmo' ) )
 		{
 			if(GetEntity() == GetWitcherPlayer() && ammo > 0)
@@ -3725,6 +3799,13 @@ import class CInventoryComponent extends CComponent
 				}
 							
 				
+				//---=== modPreparations ===---
+				if(thePlayer.HasBuff(EET_AlchemyTable) && !IsItemMutagenPotion(itemID))
+				{
+					ammo += 1;
+				}
+				//---=== modPreparations ===---
+							
 				if( IsItemBomb( itemID ) && thePlayer.CanUseSkill( S_Perk_20 ) &&  GetItemName( itemID ) != 'Snow Ball' )
 				{
 					GetItemAttributes( itemID, atts );
@@ -5501,12 +5582,13 @@ import class CInventoryComponent extends CComponent
 		return GetInvalidUniqueId();
 	}
 	
-	public function RemoveUnusedMutagensCountById( itemId:SItemUniqueId, count:int ):void
+	//modFriendlyStash begin
+	public function RemoveUnusedMutagensCountById( itemId:SItemUniqueId, count:int ):bool
 	{
-		RemoveUnusedMutagensCount( thePlayer.inv.GetItemName( itemId ), count );
+		return RemoveUnusedMutagensCount( thePlayer.inv.GetItemName( itemId ), count );
 	}
 	
-	public function RemoveUnusedMutagensCount( itemName:name, count:int ):void
+	public function RemoveUnusedMutagensCount( itemName:name, count:int ):bool
 	{
 		var items  			: array<SItemUniqueId>;
 		var curItem 		: SItemUniqueId;
@@ -5536,13 +5618,15 @@ import class CInventoryComponent extends CComponent
 					
 					if (itemRemoved >= count)
 					{
-						return;
+						return true;
 					}
 				}
 				
 			}
 		}		
+		return false;
 	}
+	//modFriendlyStash end
 	
 }
 
