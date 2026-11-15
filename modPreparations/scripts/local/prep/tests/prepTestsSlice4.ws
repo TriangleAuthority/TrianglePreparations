@@ -37,6 +37,7 @@ exec function preptest_oil()
 	w.inv.SingletonItemSetAmmo(oil, 2);
 	tooltip = new W3TooltipComponent in w;
 	tooltip.initialize(w.inv, theGame.GetHud().GetHudFlashValueStorage());
+	tooltip.setCurrentInventory(w.inv);
 	data = tooltip.GetBaseItemData(oil, w.inv);
 	bad += PrepTestCheck(StrEndsWith(data.GetMemberFlashString("charges"), "[2/4]"), "tooltip: '" + data.GetMemberFlashString("charges") + "'");
 
