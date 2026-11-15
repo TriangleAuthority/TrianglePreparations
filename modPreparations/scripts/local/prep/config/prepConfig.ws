@@ -467,6 +467,7 @@ timer function PrepDelayedInit(dt : float, id : int)
 	if(!GetWitcherPlayer())
 		return;
 	prepConfig.Init(this);
+	PrepApplyFixes();
 	RemoveTimer('PrepDelayedInit');
 }
 

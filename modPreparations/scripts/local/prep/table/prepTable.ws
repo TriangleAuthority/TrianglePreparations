@@ -94,20 +94,23 @@ function PrepManageAlchemyTableBonus()
 	theGame.GetGuiManager().ShowNotification(GetLocStringByKeyExt("message_common_alchemy_table_buff_applied"), , true);
 }
 
-// Sleeping in Corvo Bianco's bed with the alchemy table built: the effect (legacy's ApplyWitcherHouseBuffs
-// change). Ghost Mode wraps this too (STAM-10); wrappers chain.
+// Sleeping in Corvo Bianco's bed: toxicity and focus drained before 5.x's bed effects (PREP-REST), and with the
+// alchemy table built, the effect after them (legacy's ApplyWitcherHouseBuffs changes). Ghost Mode wraps this
+// too (STAM-10); wrappers chain.
 @wrapMethod(W3PlayerWitcher)
 function ApplyWitcherHouseBuffs()
 {
-	var bed : W3WitcherBed;
+	var bedUsed : bool;
 
-	wrappedMethod();
-	if(FactsQuerySum("PlayerInsideInnerWitcherHouse") > 0 && FactsQuerySum("AlchemyTableExists") > 0)
+	bedUsed = PrepBedUsed();
+	if(bedUsed)
 	{
-		bed = (W3WitcherBed)theGame.GetEntityByTag('witcherBed');
-		if(bed && bed.GetWasUsed())
-			PrepManageAlchemyTableBonus();
+		abilityManager.DrainToxicity(abilityManager.GetStat(BCS_Toxicity));
+		abilityManager.DrainFocus(abilityManager.GetStat(BCS_Focus));
 	}
+	wrappedMethod();
+	if(bedUsed && FactsQuerySum("AlchemyTableExists") > 0)
+		PrepManageAlchemyTableBonus();
 }
 
 // The quest that builds the table applies the effect instead of 5.x's refill bonus.
