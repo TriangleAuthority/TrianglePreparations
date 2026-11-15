@@ -2,17 +2,17 @@
 // back at the end.
 //   preptest_rest()   what MeditationRestoring restores in each branch, the quest refill, the Tawny Owl fix
 
-// The Cat potion's effect and some toxicity, as drinking it gives (applied directly: a scripted ConsumeItem
-// gave no effect within the same call).
+// A timed effect and some toxicity, as drinking a potion gives. The effect is Preparations' alchemy table effect
+// (an hour long): the Cat potion's effect did not attach when drunk or added by script.
 function PrepTestDrinkCat() : CBaseGameplayEffect
 {
 	var w : W3PlayerWitcher;
 
 	w = GetWitcherPlayer();
-	w.RemoveAllBuffsOfType(EET_Cat);
-	w.AddEffectDefault(EET_Cat, w, "preptest");
+	w.RemoveAllBuffsOfType(EET_PrepAlchemyTable);
+	w.AddEffectDefault(EET_PrepAlchemyTable, w, "preptest");
 	w.ForceSetStat(BCS_Toxicity, 40);
-	return w.GetBuff(EET_Cat);
+	return w.GetBuff(EET_PrepAlchemyTable);
 }
 
 exec function preptest_rest()
@@ -33,7 +33,7 @@ exec function preptest_rest()
 	cat = PrepTestDrinkCat();
 	if(!cat)
 	{
-		LogChannel('PREPTest', "FAIL preptest_rest: the Cat potion gave no effect");
+		LogChannel('PREPTest', "FAIL preptest_rest: the test effect did not attach");
 		return;
 	}
 	left = cat.GetTimeLeft();
@@ -41,16 +41,16 @@ exec function preptest_rest()
 	w.ForceSetStat(BCS_Vitality, w.GetStatMax(BCS_Vitality) * 0.5);
 	sim = 30;
 	w.MeditationRestoring(sim);
-	cat = w.GetBuff(EET_Cat);
+	cat = w.GetBuff(EET_PrepAlchemyTable);
 	bad += PrepTestCheck(cat && cat.GetTimeLeft() < left && cat.GetTimeLeft() > left - sim - 1,
-		"time passed: Cat runs on (" + left + " s -> " + cat.GetTimeLeft() + " s after " + sim + " s)");
+		"time passed: the effect runs on (" + left + " s -> " + cat.GetTimeLeft() + " s after " + sim + " s)");
 	bad += PrepTestCheck(w.GetStat(BCS_Toxicity) > 0, "time passed: toxicity not drained (" + tox + " -> " + w.GetStat(BCS_Toxicity) + ")");
 
 	// time passed, cleanup on: effects cleared, toxicity drained
 	cfg.disableCleanupCharStatus = false;
 	PrepTestDrinkCat();
 	w.MeditationRestoring(sim);
-	bad += PrepTestCheck(!w.HasBuff(EET_Cat) && w.GetStat(BCS_Toxicity) == 0, "cleanup on: Cat removed, toxicity drained");
+	bad += PrepTestCheck(!w.HasBuff(EET_PrepAlchemyTable) && w.GetStat(BCS_Toxicity) == 0, "cleanup on: effect removed, toxicity drained");
 	cfg.disableCleanupCharStatus = true;
 
 	// no time passed (a quest paused time): full restore and unfiltered refill
@@ -60,7 +60,7 @@ exec function preptest_rest()
 	w.ForceSetStat(BCS_Vitality, w.GetStatMax(BCS_Vitality) * 0.5);
 	vit = w.GetStat(BCS_Vitality);
 	w.MeditationRestoring(0);
-	bad += PrepTestCheck(!w.HasBuff(EET_Cat) && w.GetStat(BCS_Toxicity) == 0, "no time passed: effects cleared, toxicity drained");
+	bad += PrepTestCheck(!w.HasBuff(EET_PrepAlchemyTable) && w.GetStat(BCS_Toxicity) == 0, "no time passed: effects cleared, toxicity drained");
 	bad += PrepTestCheck(thePlayer.inv.SingletonItemGetAmmo(potion) == thePlayer.inv.SingletonItemGetMaxAmmo(potion), "no time passed: everything refilled (Swallow too, whatever its mode)");
 	bad += PrepTestCheck(w.GetStat(BCS_Vitality) == vit, "no full heal by default (" + vit + " -> " + w.GetStat(BCS_Vitality) + ")");
 
@@ -76,14 +76,14 @@ exec function preptest_rest()
 	PrepTestDrinkCat();
 	thePlayer.inv.SingletonItemSetAmmo(potion, 0);
 	w.MeditationRestoring(0);
-	bad += PrepTestCheck(w.HasBuff(EET_Cat) && thePlayer.inv.SingletonItemGetAmmo(potion) == 0, "'Disable quest autorefill': no restore, no refill");
+	bad += PrepTestCheck(w.HasBuff(EET_PrepAlchemyTable) && thePlayer.inv.SingletonItemGetAmmo(potion) == 0, "'Disable quest autorefill': no restore, no refill");
 	RecoverGeralt(true);
 	bad += PrepTestCheck(thePlayer.inv.SingletonItemGetAmmo(potion) == 0, "'Disable quest autorefill': RecoverGeralt does not refill");
 	cfg.disableAutorefillQuest = false;
 	RecoverGeralt(true);
 	bad += PrepTestCheck(thePlayer.inv.SingletonItemGetAmmo(potion) == thePlayer.inv.SingletonItemGetMaxAmmo(potion), "RecoverGeralt refills otherwise");
 
-	w.RemoveAllBuffsOfType(EET_Cat);
+	w.RemoveAllBuffsOfType(EET_PrepAlchemyTable);
 	w.ForceSetStat(BCS_Toxicity, 0);
 	cfg.UpdateUserSettings();
 	if(bad == 0)
