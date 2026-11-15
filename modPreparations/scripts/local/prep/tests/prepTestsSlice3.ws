@@ -152,7 +152,8 @@ exec function preptest_alch_menu()
 	var w : W3PlayerWitcher;
 	var ids, after : array<SItemUniqueId>;
 	var fire : CEntity;
-	var t, bad : int;
+	var t, bad, k : int;
+	var key, plain : string;
 
 	w = GetWitcherPlayer();
 	common = (CR4CommonMenu)theGame.GetGuiManager().GetRootMenu();
@@ -182,8 +183,29 @@ exec function preptest_alch_menu()
 	fire.Destroy();
 	w.prepOpenFireEnt = NULL;
 
+	// charges in the recipe name: PopulateData marks the held Swallow's key, and the string function adds the charges
+	key = theGame.GetDefinitionsManager().GetItemLocalisationKeyName('Swallow 1');
+	plain = GetLocStringByKeyExt(key);
+	thePlayer.inv.SingletonItemSetAmmo(ids[0], 1);
+	menu.PrepTestPopulate();
+	k = theGame.prepTitleKeys.FindFirst(key);
+	bad += PrepTestCheck(k >= 0 && theGame.prepTitleSuffixes[k] == " | 1/" + thePlayer.inv.SingletonItemGetMaxAmmo(ids[0]) + " |",
+		"Swallow's key marked with ' | 1/" + thePlayer.inv.SingletonItemGetMaxAmmo(ids[0]) + " |'");
+	bad += PrepTestCheck(theGame.prepTitlesApplied >= 1, "PopulateData's name lookups got the charges (" + theGame.prepTitlesApplied + " names)");
+	bad += PrepTestCheck(!theGame.prepTitlesActive && GetLocStringByKeyExt(key) == plain, "outside the list the name is plain ('" + plain + "')");
+	theGame.prepTitlesActive = true;
+	LogChannel('PREPTest', "INFO the list's name for Swallow: '" + GetLocStringByKeyExt(key) + "'");
+	theGame.prepTitlesActive = false;
+
 	if(bad == 0)
 		LogChannel('PREPTest', "PASS preptest_alch_menu");
 	else
 		LogChannel('PREPTest', "FAIL preptest_alch_menu: " + bad + " failed");
+}
+
+// test only: rebuild the open menu's list
+@addMethod(CR4AlchemyMenu)
+function PrepTestPopulate()
+{
+	PopulateData();
 }

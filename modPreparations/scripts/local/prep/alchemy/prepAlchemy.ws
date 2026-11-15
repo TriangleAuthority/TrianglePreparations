@@ -113,3 +113,73 @@ function UpdateItemsById( id : int ) : void
 		m_flashValueStorage.SetFlashArray( DATA_BINDING_NAME_SUBLIST, itemsFlashArray );
 	}
 }
+
+// ---------------- charges in recipe names (legacy's PopulateData change), with wrappers only ----------------
+// Legacy appended " | charges/max |" to the name of every singleton recipe whose item Geralt holds once.
+// 5.x's PopulateData builds each name from GetLocStringByKeyExt(<the item's name key>) into a local, so while
+// PopulateData runs, a wrapper of GetLocStringByKeyExt appends the charges to those keys. Keys shared by two
+// recipes' items are left alone (the suffix could land on the wrong one).
+
+@addField(CR4Game)
+var prepTitleKeys : array<string>;
+
+@addField(CR4Game)
+var prepTitleSuffixes : array<string>;
+
+@addField(CR4Game)
+var prepTitlesActive : bool;
+
+// How many names got their charges in the last PopulateData (for the tests).
+@addField(CR4Game)
+var prepTitlesApplied : int;
+
+@wrapMethod(CR4AlchemyMenu)
+function PopulateData()
+{
+	var i, j : int;
+	var key : string;
+	var keys, shared : array<string>;
+	var ids : array<SItemUniqueId>;
+
+	theGame.prepTitleKeys.Clear();
+	theGame.prepTitleSuffixes.Clear();
+	for(i = 0; i < m_recipeList.Size(); i += 1)
+	{
+		key = m_definitionsManager.GetItemLocalisationKeyName(m_recipeList[i].cookedItemName);
+		if(keys.Contains(key))
+			shared.PushBack(key);
+		keys.PushBack(key);
+	}
+	for(i = 0; i < m_recipeList.Size(); i += 1)
+	{
+		if(!m_definitionsManager.IsItemSingletonItem(m_recipeList[i].cookedItemName) || shared.Contains(keys[i]))
+			continue;
+		ids = thePlayer.inv.GetItemsByName(m_recipeList[i].cookedItemName);
+		if(ids.Size() != 1)
+			continue;
+		theGame.prepTitleKeys.PushBack(keys[i]);
+		theGame.prepTitleSuffixes.PushBack(" | " + IntToString(thePlayer.inv.SingletonItemGetAmmo(ids[0])) + "/"
+			+ IntToString(thePlayer.inv.SingletonItemGetMaxAmmo(ids[0])) + " |");
+	}
+	theGame.prepTitlesActive = theGame.prepTitleKeys.Size() > 0;
+	theGame.prepTitlesApplied = 0;
+	wrappedMethod();
+	theGame.prepTitlesActive = false;
+}
+
+@wrapMethod
+function GetLocStringByKeyExt(stringKey : string) : string
+{
+	var i : int;
+
+	if(theGame && theGame.prepTitlesActive)
+	{
+		i = theGame.prepTitleKeys.FindFirst(stringKey);
+		if(i >= 0)
+		{
+			theGame.prepTitlesApplied += 1;
+			return wrappedMethod(stringKey) + theGame.prepTitleSuffixes[i];
+		}
+	}
+	return wrappedMethod(stringKey);
+}
