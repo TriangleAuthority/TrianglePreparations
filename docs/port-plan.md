@@ -49,12 +49,12 @@ Not carried: Friendly HUD's and Friendly Stash's code inside legacy's scripts (5
 - **Notifications from the meditation checks** (PREP-MED; owner, 2026-11-14): `CanMeditate`, `CanMeditateHere` and `CanMeditateWait` are silent, and the reason a meditation is refused shows only when the player tries to meditate. 5.x polls `CanMeditate` from the radial menu, the common menu and the input code, so legacy's notification on every call would flood the screen.
 - **Skill purchase time is charged on confirm** (PREP-TIME, PREP-SKILL; owner, 2026-11-14): in a wrapper of `handleBuySkillConfirmation` in both character menus, so the classic tree's confirmation popup and the new tree's direct upgrade both charge it, and a cancelled popup does not. Legacy charges when the classic popup opens, cancelled or not (a deviation, recorded when built).
 - **No replenish without meditating** (PREP-MED; owner, 2026-11-14): meditation is refused while waiting is blocked, as in legacy (`prep_error_action_disallowed`, "Meditation is blocked for now"). This closes 5.x's radial-menu shortcut that, only while waiting is blocked (quest moments, elevators, ...), restores Geralt and refills alchemy at once without time passing. **Verified** (scripted, waiting blocked by `BlockAction`).
+- **No charges in recipe names** (PREP-REFILL; owner, 2026-11-14): legacy's ` | charges/max |` after a held item's recipe name in the alchemy menu is not carried; it would need a replacement of 5.x's long `PopulateData`. The refill cost still shows as the ingredient list (a deviation, recorded when built).
 
 ## Decisions to make
 
 - **5.x's auto-apply oils**: costs a jar charge per application and works in combat. Options: allowed (charges apply), refused in combat when "no oils in combat" is on, or the option ignored while oil charges are on.
 - **`CookItem`'s oil re-apply** (5.x): charge the new jar or not.
-- **Charges in recipe names** (`PopulateData` replacement) or not.
 - **Friendly Meditation preset**: legacy asks the player to apply it in every group; the port could detect FM (its option group reads non-empty) and say so, or apply it.
 
 ## Compatibility
