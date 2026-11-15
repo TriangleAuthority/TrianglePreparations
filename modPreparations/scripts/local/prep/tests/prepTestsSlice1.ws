@@ -228,7 +228,11 @@ exec function preptest_repair_menu()
 	w.prepOpenFireEnt = NULL;
 	w.prepLastMessage = "";
 	before = thePlayer.inv.GetItemDurability(sword);
+	LogChannel('PREPTest', "INFO before: refusal='" + PrepRepairRefusal() + "' fire=" + w.PrepHasCampfire() + " inCombat=" + thePlayer.IsInCombat()
+		+ " kits=" + kits.Size() + " durability=" + before);
 	menu.OnApplyRepairKit(kits[0], EES_SteelSword);
+	LogChannel('PREPTest', "INFO after: message='" + w.prepLastMessage + "' kits=" + thePlayer.inv.GetItemQuantityByName('weapon_repair_kit_1')
+		+ " durability=" + thePlayer.inv.GetItemDurability(sword));
 	bad += PrepTestCheck(thePlayer.inv.GetItemDurability(sword) == before && thePlayer.inv.GetItemQuantityByName('weapon_repair_kit_1') == 1
 		&& w.prepLastMessage == "prep_error_campfire_required", "repair kit away from fire refused ('" + w.prepLastMessage + "'), kit kept");
 
