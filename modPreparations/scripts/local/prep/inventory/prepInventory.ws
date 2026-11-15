@@ -1,6 +1,6 @@
 // PREP-INV: upgrading (runes, glyphs, armour upgrades) and repairing with kits only where the options allow
-// (at a fire, while meditating), and never in combat. Blacksmiths are not affected. The time these cost
-// comes with PREP-TIME. Ghost Mode replaces ApplyRepairKit (ITEM-11), and a replacement in the mod that loads
+// (at a fire, while meditating), and never in combat. Blacksmiths are not affected. Each costs game time
+// (PREP-TIME: "Time to apply one upgrade", "Time to repair one item"). Ghost Mode replaces ApplyRepairKit (ITEM-11), and a replacement in the mod that loads
 // first drops the other mod's wrappers of it, so Preparations gates the two events that call it instead.
 
 // The reason an upgrade or repair is refused now ("" if allowed), as legacy checks it: combat first.
@@ -28,18 +28,6 @@ function PrepRepairRefusal() : string
 	return "";
 }
 
-@addMethod(CR4InventoryMenu)
-function PrepRefuse(key : string)
-{
-	var w : W3PlayerWitcher;
-
-	w = GetWitcherPlayer();
-	if(w)
-		w.prepLastMessage = key;
-	showNotification(GetLocStringByKeyExt(key));
-	OnPlaySoundEvent("gui_global_denied");
-}
-
 // Choosing an upgrade to put in a socket. 5.x refuses in combat itself; Preparations' rule is checked after.
 @wrapMethod(CR4InventoryMenu)
 function OnPutInSocket(item : SItemUniqueId)
@@ -49,7 +37,7 @@ function OnPutInSocket(item : SItemUniqueId)
 	refusal = PrepUpgradeRefusal();
 	if(refusal != "" && refusal != "menu_cannot_perform_action_combat")
 	{
-		PrepRefuse(refusal);
+		PrepMenuRefuse(refusal);
 		return true;
 	}
 	return wrappedMethod(item);
@@ -64,7 +52,7 @@ function OnRepairItem(item : SItemUniqueId)
 	refusal = PrepRepairRefusal();
 	if(refusal != "")
 	{
-		PrepRefuse(refusal);
+		PrepMenuRefuse(refusal);
 		return true;
 	}
 	return wrappedMethod(item);
@@ -75,13 +63,17 @@ function OnRepairItem(item : SItemUniqueId)
 function ApplyUpgrade(itemId : SItemUniqueId, targetSlot : int)
 {
 	var refusal : string;
+	var onSlot : SItemUniqueId;
 
 	refusal = PrepUpgradeRefusal();
 	if(refusal != "")
 	{
-		PrepRefuse(refusal);
+		PrepMenuRefuse(refusal);
 		return;
 	}
+	// legacy charges before applying, when the target slot holds an item
+	if(GetWitcherPlayer().GetItemEquippedOnSlot(targetSlot, onSlot))
+		GetWitcherPlayer().PrepAdvanceTimeSeconds(GetPreparationsConfig().timeToUpgradeItemSec);
 	wrappedMethod(itemId, targetSlot);
 }
 
@@ -95,9 +87,10 @@ function OnApplyRepairKit(item : SItemUniqueId, slot : int)
 	refusal = PrepRepairRefusal();
 	if(refusal != "")
 	{
-		PrepRefuse(refusal);
+		PrepMenuRefuse(refusal);
 		return false;
 	}
+	GetWitcherPlayer().PrepAdvanceTimeSeconds(GetPreparationsConfig().timeToRepairItemSec);	// legacy: before repairing
 	return wrappedMethod(item, slot);
 }
 
@@ -111,10 +104,11 @@ function OnSelectionModeTargetChosen(targetSlot : int)
 		refusal = PrepRepairRefusal();
 		if(refusal != "")
 		{
-			PrepRefuse(refusal);
+			PrepMenuRefuse(refusal);
 			HideSelectionMode();
 			return false;
 		}
+		GetWitcherPlayer().PrepAdvanceTimeSeconds(GetPreparationsConfig().timeToRepairItemSec);	// legacy: before repairing
 	}
 	return wrappedMethod(targetSlot);
 }
