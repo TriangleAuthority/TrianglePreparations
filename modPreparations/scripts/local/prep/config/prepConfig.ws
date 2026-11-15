@@ -368,6 +368,69 @@ class CModPreparationsConfig
 	{
 		return maxOilCharges > 0;
 	}
+
+	// ---- restrictions (legacy's Is<Action>Allowed): every required condition must hold ----
+
+	public function IsAlchemyAllowed() : bool
+	{
+		return (!alchemyMeditation || witcher.PrepIsMeditating()) && (!alchemyCampfire || witcher.PrepHasCampfire());
+	}
+
+	public function IsBuySkillAllowed() : bool
+	{
+		return (!buySkillMeditation || witcher.PrepIsMeditating()) && (!buySkillCampfire || witcher.PrepHasCampfire());
+	}
+
+	public function IsEquipSkillAllowed() : bool
+	{
+		return (!equipSkillMeditation || witcher.PrepIsMeditating()) && (!equipSkillCampfire || witcher.PrepHasCampfire());
+	}
+
+	public function IsEquipMutagenAllowed() : bool
+	{
+		return (!equipMutagenMeditation || witcher.PrepIsMeditating()) && (!equipMutagenCampfire || witcher.PrepHasCampfire());
+	}
+
+	public function IsRepairAllowed() : bool
+	{
+		return (!repairMeditation || witcher.PrepIsMeditating()) && (!repairCampfire || witcher.PrepHasCampfire());
+	}
+
+	public function IsUpgradeAllowed() : bool
+	{
+		return (!upgradeMeditation || witcher.PrepIsMeditating()) && (!upgradeCampfire || witcher.PrepHasCampfire());
+	}
+
+	// The string key of the reason an action is refused (legacy's Get<Action>Error).
+	private function GateError(needMeditation : bool, needCampfire : bool) : string
+	{
+		if(needMeditation && !witcher.PrepIsMeditating())
+			return "prep_error_meditation_required";
+		if(needCampfire && !witcher.PrepHasCampfire())
+			return "prep_error_campfire_required";
+		return "prep_error_undefined";
+	}
+
+	public function GetAlchemyError() : string		{ return GateError(alchemyMeditation, alchemyCampfire); }
+	public function GetBuySkillError() : string		{ return GateError(buySkillMeditation, buySkillCampfire); }
+	public function GetEquipSkillError() : string		{ return GateError(equipSkillMeditation, equipSkillCampfire); }
+	public function GetEquipMutagenError() : string	{ return GateError(equipMutagenMeditation, equipMutagenCampfire); }
+	public function GetRepairError() : string		{ return GateError(repairMeditation, repairCampfire); }
+	public function GetUpgradeError() : string		{ return GateError(upgradeMeditation, upgradeCampfire); }
+
+	// ---- Friendly Meditation's campfire (read at run time: Friendly Meditation's blob may be absent) ----
+
+	// Friendly Meditation's own "spawn a campfire" option; false without Friendly Meditation (the option reads "").
+	public function FMSpawnCampFire() : bool
+	{
+		return theGame.GetInGameConfigWrapper().GetVarValue('modFriendlyMeditation', 'fmedSpawnCampfire') == "true";
+	}
+
+	public function HasResourcesForCampfire() : bool
+	{
+		return witcher.inv.GetItemQuantityByName('Timber') >= timberAmount
+			|| witcher.inv.GetItemQuantityByName('Hardened timber') >= hardTimberAmount;
+	}
 }
 
 // ---- the config object on the player ----
