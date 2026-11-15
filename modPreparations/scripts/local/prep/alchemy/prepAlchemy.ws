@@ -140,9 +140,11 @@ function PopulateData()
 	var key : string;
 	var keys, shared : array<string>;
 	var ids : array<SItemUniqueId>;
+	var g : CR4Game;
 
-	theGame.prepTitleKeys.Clear();
-	theGame.prepTitleSuffixes.Clear();
+	g = theGame;
+	g.prepTitleKeys.Clear();
+	g.prepTitleSuffixes.Clear();
 	for(i = 0; i < m_recipeList.Size(); i += 1)
 	{
 		key = m_definitionsManager.GetItemLocalisationKeyName(m_recipeList[i].cookedItemName);
@@ -157,29 +159,33 @@ function PopulateData()
 		ids = thePlayer.inv.GetItemsByName(m_recipeList[i].cookedItemName);
 		if(ids.Size() != 1)
 			continue;
-		theGame.prepTitleKeys.PushBack(keys[i]);
-		theGame.prepTitleSuffixes.PushBack(" | " + IntToString(thePlayer.inv.SingletonItemGetAmmo(ids[0])) + "/"
+		g.prepTitleKeys.PushBack(keys[i]);
+		g.prepTitleSuffixes.PushBack(" | " + IntToString(thePlayer.inv.SingletonItemGetAmmo(ids[0])) + "/"
 			+ IntToString(thePlayer.inv.SingletonItemGetMaxAmmo(ids[0])) + " |");
 	}
-	theGame.prepTitlesActive = theGame.prepTitleKeys.Size() > 0;
-	theGame.prepTitlesApplied = 0;
+	g.prepTitlesActive = g.prepTitleKeys.Size() > 0;
+	g.prepTitlesApplied = 0;
 	wrappedMethod();
-	theGame.prepTitlesActive = false;
+	g.prepTitlesActive = false;
 }
 
 @wrapMethod
 function GetLocStringByKeyExt(stringKey : string) : string
 {
 	var i : int;
+	var g : CR4Game;
+	var text : string;
 
-	if(theGame && theGame.prepTitlesActive)
+	text = wrappedMethod(stringKey);
+	g = theGame;
+	if(g && g.prepTitlesActive)
 	{
-		i = theGame.prepTitleKeys.FindFirst(stringKey);
+		i = g.prepTitleKeys.FindFirst(stringKey);
 		if(i >= 0)
 		{
-			theGame.prepTitlesApplied += 1;
-			return wrappedMethod(stringKey) + theGame.prepTitleSuffixes[i];
+			g.prepTitlesApplied += 1;
+			text += g.prepTitleSuffixes[i];
 		}
 	}
-	return wrappedMethod(stringKey);
+	return text;
 }

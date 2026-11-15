@@ -154,6 +154,7 @@ exec function preptest_alch_menu()
 	var fire : CEntity;
 	var t, bad, k : int;
 	var key, plain : string;
+	var g : CR4Game;
 
 	w = GetWitcherPlayer();
 	common = (CR4CommonMenu)theGame.GetGuiManager().GetRootMenu();
@@ -193,9 +194,10 @@ exec function preptest_alch_menu()
 		"Swallow's key marked with ' | 1/" + thePlayer.inv.SingletonItemGetMaxAmmo(ids[0]) + " |'");
 	bad += PrepTestCheck(theGame.prepTitlesApplied >= 1, "PopulateData's name lookups got the charges (" + theGame.prepTitlesApplied + " names)");
 	bad += PrepTestCheck(!theGame.prepTitlesActive && GetLocStringByKeyExt(key) == plain, "outside the list the name is plain ('" + plain + "')");
-	theGame.prepTitlesActive = true;
+	g = theGame;
+	g.prepTitlesActive = true;
 	LogChannel('PREPTest', "INFO the list's name for Swallow: '" + GetLocStringByKeyExt(key) + "'");
-	theGame.prepTitlesActive = false;
+	g.prepTitlesActive = false;
 
 	if(bad == 0)
 		LogChannel('PREPTest', "PASS preptest_alch_menu");
