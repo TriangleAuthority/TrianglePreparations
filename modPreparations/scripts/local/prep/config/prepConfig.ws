@@ -373,32 +373,40 @@ class CModPreparationsConfig
 
 	public function IsAlchemyAllowed() : bool
 	{
-		return (!alchemyMeditation || witcher.PrepIsMeditating()) && (!alchemyCampfire || witcher.PrepHasCampfire());
+		return !Ready() || (!alchemyMeditation || witcher.PrepIsMeditating()) && (!alchemyCampfire || witcher.PrepHasCampfire());
 	}
 
 	public function IsBuySkillAllowed() : bool
 	{
-		return (!buySkillMeditation || witcher.PrepIsMeditating()) && (!buySkillCampfire || witcher.PrepHasCampfire());
+		return !Ready() || (!buySkillMeditation || witcher.PrepIsMeditating()) && (!buySkillCampfire || witcher.PrepHasCampfire());
 	}
 
 	public function IsEquipSkillAllowed() : bool
 	{
-		return (!equipSkillMeditation || witcher.PrepIsMeditating()) && (!equipSkillCampfire || witcher.PrepHasCampfire());
+		return !Ready() || (!equipSkillMeditation || witcher.PrepIsMeditating()) && (!equipSkillCampfire || witcher.PrepHasCampfire());
 	}
 
 	public function IsEquipMutagenAllowed() : bool
 	{
-		return (!equipMutagenMeditation || witcher.PrepIsMeditating()) && (!equipMutagenCampfire || witcher.PrepHasCampfire());
+		return !Ready() || (!equipMutagenMeditation || witcher.PrepIsMeditating()) && (!equipMutagenCampfire || witcher.PrepHasCampfire());
 	}
 
 	public function IsRepairAllowed() : bool
 	{
-		return (!repairMeditation || witcher.PrepIsMeditating()) && (!repairCampfire || witcher.PrepHasCampfire());
+		return !Ready() || (!repairMeditation || witcher.PrepIsMeditating()) && (!repairCampfire || witcher.PrepHasCampfire());
 	}
 
 	public function IsUpgradeAllowed() : bool
 	{
-		return (!upgradeMeditation || witcher.PrepIsMeditating()) && (!upgradeCampfire || witcher.PrepHasCampfire());
+		return !Ready() || (!upgradeMeditation || witcher.PrepIsMeditating()) && (!upgradeCampfire || witcher.PrepHasCampfire());
+	}
+
+	// Before the init timer has run there is no player: nothing is refused.
+	private function Ready() : bool
+	{
+		if(witcher)
+			return true;
+		return false;
 	}
 
 	// The string key of the reason an action is refused (legacy's Get<Action>Error).
@@ -460,7 +468,12 @@ timer function PrepDelayedInit(dt : float, id : int)
 
 function GetPreparationsConfig() : CModPreparationsConfig
 {
-	return GetWitcherPlayer().prepConfig;
+	var w : W3PlayerWitcher;
+
+	w = GetWitcherPlayer();
+	if(!w)
+		return NULL;
+	return w.prepConfig;
 }
 
 // The options menu saved its settings: read them again (legacy's hook in SaveChangedSettings). Read on

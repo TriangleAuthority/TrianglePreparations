@@ -34,7 +34,7 @@ exec function preptest_med()
 	var cfg : CModPreparationsConfig;
 	var fire : CEntity;
 	var camp : W3Campfire;
-	var bad : int;
+	var bad, i : int;
 	var vanillaOk : bool;
 
 	w = GetWitcherPlayer();
@@ -57,6 +57,18 @@ exec function preptest_med()
 	w.prepLastMessage = "";
 	w.DisplayActionDisallowedHudMessage(EIAB_OpenMeditation, , w.IsThreatened(), !w.CanMeditateHere(), w.IsThreatened());
 	bad += PrepTestCheck(w.prepLastMessage == "prep_error_no_campfire_found", "the radial menu's refusal message shows Preparations' reason");
+	// the minimap's clock: Meditate() refused, then 5.x's refusal message in the same tap -> shown once
+	w.prepLastMessage = "";
+	i = w.prepRefusalsShown;
+	w.Meditate();
+	w.DisplayActionDisallowedHudMessage(EIAB_OpenMeditation, , w.IsThreatened(), !w.CanMeditateHere(), w.IsThreatened());
+	bad += PrepTestCheck(w.prepRefusalsShown == i + 1, "minimap clock path: the reason shown once (" + (w.prepRefusalsShown - i) + ")");
+	// the N key with waiting blocked reports EIAB_MeditationWaiting: Preparations' reason too
+	w.BlockAction(EIAB_MeditationWaiting, 'preptest');
+	w.prepLastMessage = "";
+	w.DisplayActionDisallowedHudMessage(EIAB_MeditationWaiting);
+	bad += PrepTestCheck(w.prepLastMessage == "prep_error_action_disallowed", "N key, waiting blocked: Preparations' reason ('" + w.prepLastMessage + "')");
+	w.UnblockAction(EIAB_MeditationWaiting, 'preptest');
 
 	// option off: 5.x's own rules only
 	cfg.disallowMeditation = false;

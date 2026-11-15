@@ -4,9 +4,10 @@
 // reason shows only when the player tries to meditate (owner, 2026-11-14):
 // - CanMeditate (wrapper): 5.x's own checks, then Preparations' rules (PrepMeditationError).
 // - Meditate (wrapper): refused by Preparations' rules -> the reason (the N key's path, quests).
-// - DisplayActionDisallowedHudMessage (wrapper): every 5.x path that refuses meditation with a message (the
-//   radial menu and its key, the minimap's clock, the panels) shows Preparations' reason instead of 5.x's
-//   generic one when Preparations' rules are what refused it.
+// - DisplayActionDisallowedHudMessage (wrapper): the 5.x paths that refuse meditation with this message (the
+//   radial menu and its key, the minimap's clock, the N key's checks, for EIAB_OpenMeditation and
+//   EIAB_MeditationWaiting) show Preparations' reason instead of 5.x's generic one when Preparations' rules are
+//   what refused it. The panels' Meditation tab is greyed out by 5.x when CanMeditate refuses, without a message.
 
 // The fire Geralt meditated at last (legacy's openFireEnt): checked first, so a found fire is not searched again.
 @addField(W3PlayerWitcher)
@@ -28,11 +29,27 @@ function PrepIsMeditating() : bool
 	return GetCurrentStateName() == 'Meditation';
 }
 
-// Show a refusal as legacy did (a notification) and remember it for the tests.
+// When the last refusal was shown: the minimap's clock reaches Meditate() and then 5.x's refusal message in
+// the same tap, which would show the reason twice.
+@addField(W3PlayerWitcher)
+var prepLastRefusalTime : float;
+
+// How many refusals were shown (for the tests).
+@addField(W3PlayerWitcher)
+var prepRefusalsShown : int;
+
+// Show a refusal as legacy did (a notification), once per attempt, and remember it for the tests.
 @addMethod(W3PlayerWitcher)
 function PrepShowRefusal(key : string)
 {
+	var now : float;
+
+	now = theGame.GetEngineTimeAsSeconds();
+	if(key == prepLastMessage && now - prepLastRefusalTime < 0.5)
+		return;
 	prepLastMessage = key;
+	prepLastRefusalTime = now;
+	prepRefusalsShown += 1;
 	theGame.GetGuiManager().ShowNotification(GetLocStringByKeyExt(key));
 }
 
@@ -178,7 +195,7 @@ function DisplayActionDisallowedHudMessage(action : EInputActionBlock, optional 
 	var witcher : W3PlayerWitcher;
 
 	witcher = (W3PlayerWitcher)this;
-	if(action == EIAB_OpenMeditation && witcher)
+	if((action == EIAB_OpenMeditation || action == EIAB_MeditationWaiting) && witcher)
 	{
 		witcher.CanMeditate();
 		if(witcher.prepMeditationRefusal != "")
