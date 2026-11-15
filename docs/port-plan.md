@@ -2,7 +2,7 @@
 
 ## Where the port stands
 
-**2026-11-14: slice 4 done.** The baselines and the legacy mod are committed ([repository.md](repository.md)); the legacy mod is described in [legacy-mod.md](legacy-mod.md) and compared with 5.x in [preparations-5.x.md](preparations-5.x.md) (read from the files, **unverified** in game where not stated). Slices 0 to 4 are **verified** in game with Ghost Mode installed: PREP-MENU, PREP-MED, PREP-COMBAT, PREP-INV, PREP-SKILL, PREP-TIME, PREP-ALCH, PREP-REFILL, PREP-OIL and PREP-TABLE (below); Ghost Mode's regression passes beside it in both trees (classic 1673/0, new 1698/0, panel 166/0 each). Next: slice 5 (PREP-REST, PREP-FIX). Open for the owner: the native-function wrapper behind the charges in recipe names (below).
+**2026-11-14: slice 4 done.** The baselines and the legacy mod are committed ([repository.md](repository.md)); the legacy mod is described in [legacy-mod.md](legacy-mod.md) and compared with 5.x in [preparations-5.x.md](preparations-5.x.md) (read from the files, **unverified** in game where not stated). Slices 0 to 4 are **verified** in game with Ghost Mode installed: PREP-MENU, PREP-MED, PREP-COMBAT, PREP-INV, PREP-SKILL, PREP-TIME, PREP-ALCH, PREP-REFILL, PREP-OIL and PREP-TABLE (below); Ghost Mode's regression passes beside it in both trees (classic 1673/0, new 1698/0, panel 166/0 each). Next: slice 5 (PREP-REST, PREP-FIX).
 
 ## Approach
 
@@ -52,10 +52,10 @@ Not carried: Friendly HUD's and Friendly Stash's code inside legacy's scripts (5
 - **Charges in recipe names, with wrappers only** (PREP-REFILL; owner, 2026-11-14: no replacement of 5.x's long `PopulateData`): a `PopulateData` wrapper marks the name keys of held singleton items (keys shared by two recipes' items are left alone), and a class-less wrapper of the native `GetLocStringByKeyExt` appends legacy's ` | charges/max |` to those keys only while `PopulateData` runs. **Verified** (the held Swallow's name built as "Swallow | 1/3 |" in the open menu's list, plain everywhere else; the list not looked at on screen).
 - **5.x's auto-applied oils** (PREP-OIL; owner, 2026-11-14): each automatic application costs a jar charge, and it is refused in combat while "Disallow applying oils in combat" is on, like applying from the inventory.
 - **5.x's oil re-apply when brewing a stronger oil** (PREP-OIL; owner, 2026-11-14): costs the new jar a charge, like any application.
+- **The native-function wrapper is kept** (PREP-REFILL; owner, 2026-11-14): the charges in recipe names wrap the native `GetLocStringByKeyExt`, which TriangleGhostMode's rules allow only with the owner's agreement (a loose-script version cannot carry it). Agreed.
 
 ## Decisions to make
 
-- **The native-function wrapper** (PREP-REFILL): the charges in recipe names need a wrapper of the native `GetLocStringByKeyExt`. TriangleGhostMode's rules ask for the owner's agreement before wrapping a native function, since a loose-script version cannot carry it. Keep it, or drop the charges in names.
 
 - **Friendly Meditation preset**: legacy asks the player to apply it in every group; the port could detect FM (its option group reads non-empty) and say so, or apply it.
 
