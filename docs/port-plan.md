@@ -53,11 +53,11 @@ Not carried: Friendly HUD's and Friendly Stash's code inside legacy's scripts (5
 - **5.x's auto-applied oils** (PREP-OIL; owner, 2026-11-14): each automatic application costs a jar charge, and it is refused in combat while "Disallow applying oils in combat" is on, like applying from the inventory.
 - **5.x's oil re-apply when brewing a stronger oil** (PREP-OIL; owner, 2026-11-14): costs the new jar a charge, like any application.
 - **The native-function wrapper is kept** (PREP-REFILL; owner, 2026-11-14): the charges in recipe names wrap the native `GetLocStringByKeyExt`, which TriangleGhostMode's rules allow only with the owner's agreement (a loose-script version cannot carry it). Agreed.
+- **Friendly Meditation's defaults apply automatically** (PREP-FMED; owner, 2026-11-14): legacy asked the player to apply the "Friendly Meditation" preset in every group by hand. The port detects Friendly Meditation (its option group reads non-empty) and gives Preparations' options that preset's values as their defaults: options the player never set take them when a save loads, options the player set are kept. Built with PREP-FMED (slice 6); a deviation, recorded when built.
 
 ## Decisions to make
 
-
-- **Friendly Meditation preset**: legacy asks the player to apply it in every group; the port could detect FM (its option group reads non-empty) and say so, or apply it.
+None open.
 
 ## Compatibility
 
