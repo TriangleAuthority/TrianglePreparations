@@ -2,18 +2,16 @@
 // back at the end.
 //   preptest_rest()   what MeditationRestoring restores in each branch, the quest refill, the Tawny Owl fix
 
+// The Cat potion's effect and some toxicity, as drinking it gives (applied directly: a scripted ConsumeItem
+// gave no effect within the same call).
 function PrepTestDrinkCat() : CBaseGameplayEffect
 {
-	var ids : array<SItemUniqueId>;
 	var w : W3PlayerWitcher;
 
 	w = GetWitcherPlayer();
 	w.RemoveAllBuffsOfType(EET_Cat);
-	w.ForceSetStat(BCS_Toxicity, 0);
-	thePlayer.inv.RemoveItemByName('Cat 1', 100);
-	ids = thePlayer.inv.AddAnItem('Cat 1', 1);
-	thePlayer.inv.SingletonItemSetAmmo(ids[0], thePlayer.inv.SingletonItemGetMaxAmmo(ids[0]));
-	w.ConsumeItem(ids[0]);
+	w.AddEffectDefault(EET_Cat, w, "preptest");
+	w.ForceSetStat(BCS_Toxicity, 40);
 	return w.GetBuff(EET_Cat);
 }
 
