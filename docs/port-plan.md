@@ -46,10 +46,10 @@ Not carried: Friendly HUD's and Friendly Stash's code inside legacy's scripts (5
 ## Decisions made
 
 - **The alchemy-table effect type** (owner, 2026-11-14): Preparations keeps legacy's effect, with its own `EEffectType` member declared after a copy of Ghost Mode's effect type names in Ghost Mode's order. The game merges mods' enum members by name at load, and this is the one form found that keeps both mods' effects working (**verified** with a probe, TriangleGhostMode `docs/development.md`). Rules: the copy is updated whenever Ghost Mode adds an effect type (Ghost Mode only appends at the end), a check compares it with Ghost Mode's list before each release, and Preparations' member stays last. The other fixes in [ghost-mode-compatibility.md](ghost-mode-compatibility.md#combining-cleanly-without-a-patch-analysis-2026-11-13) are decided too (owner, 2026-11-13).
+- **Notifications from the meditation checks** (PREP-MED; owner, 2026-11-14): `CanMeditate`, `CanMeditateHere` and `CanMeditateWait` are silent, and the reason a meditation is refused shows only when the player tries to meditate. 5.x polls `CanMeditate` from the radial menu, the common menu and the input code, so legacy's notification on every call would flood the screen.
 
 ## Decisions to make
 
-- **Notifications from the meditation checks** (PREP-MED): show them only when meditation is attempted (proposed), since 5.x polls `CanMeditate`.
 - **Replenish without meditating** (5.x radial, when waiting is blocked): keep it as 5.x's (with Preparations' filtered refill, heal per option), or close it as legacy's checks would.
 - **5.x's auto-apply oils**: costs a jar charge per application and works in combat. Options: allowed (charges apply), refused in combat when "no oils in combat" is on, or the option ignored while oil charges are on.
 - **`CookItem`'s oil re-apply** (5.x): charge the new jar or not.
