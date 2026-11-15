@@ -30,8 +30,11 @@ function PrepRepairRefusal() : string
 @addMethod(CR4InventoryMenu)
 function PrepRefuse(key : string)
 {
-	if(GetWitcherPlayer())
-		GetWitcherPlayer().prepLastMessage = key;
+	var w : W3PlayerWitcher;
+
+	w = GetWitcherPlayer();
+	if(w)
+		w.prepLastMessage = key;
 	showNotification(GetLocStringByKeyExt(key));
 	OnPlaySoundEvent("gui_global_denied");
 }

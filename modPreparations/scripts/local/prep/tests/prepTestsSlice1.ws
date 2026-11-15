@@ -68,7 +68,7 @@ exec function preptest_med()
 
 	// a campfire next to Geralt
 	fire = PrepTestSpawnCampfire(1.5);
-	bad += PrepTestCheck((W3Campfire)fire != NULL, "spawned a W3Campfire");
+	bad += PrepTestCheck(fire.IsA('W3Campfire'), "spawned a W3Campfire");
 	bad += PrepTestCheck(w.PrepHasCampfire(), "campfire 1.5 m away counts as fire");
 	bad += PrepTestCheck(w.PrepMeditationError() == "", "rule met at the campfire");
 	bad += PrepTestCheck(w.CanMeditate() == vanillaOk, "CanMeditate at the campfire = 5.x's own answer (" + vanillaOk + ")");
@@ -134,7 +134,10 @@ exec function preptest_inv()
 
 exec function preptest_combat_setup()
 {
-	GetPreparationsConfig().blockInventoryInCombat = true;
+	var cfg : CModPreparationsConfig;
+
+	cfg = GetPreparationsConfig();
+	cfg.blockInventoryInCombat = true;
 	thePlayer.inv.AddAnItem('Apple', 2);
 	LogChannel('PREPTest', "INFO combat setup: block inventory in combat on (in memory), apples=" + thePlayer.inv.GetItemQuantityByName('Apple')
 		+ " inCombat=" + thePlayer.IsInCombat());
