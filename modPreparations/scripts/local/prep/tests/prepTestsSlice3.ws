@@ -150,7 +150,7 @@ exec function preptest_alch_menu()
 	var common : CR4CommonMenu;
 	var menu : CR4AlchemyMenu;
 	var w : W3PlayerWitcher;
-	var ids : array<SItemUniqueId>;
+	var ids, after : array<SItemUniqueId>;
 	var fire : CEntity;
 	var t, bad : int;
 
@@ -174,8 +174,9 @@ exec function preptest_alch_menu()
 	fire = PrepTestSpawnCampfire(1.5);
 	t = PrepTestNow();
 	menu.PrepTestCraft('Recipe for Swallow 1');
+	after = thePlayer.inv.GetItemsByName('Swallow 1');
 	bad += PrepTestCheck(thePlayer.inv.SingletonItemGetAmmo(ids[0]) == thePlayer.inv.SingletonItemGetMaxAmmo(ids[0])
-		&& thePlayer.inv.GetItemsByName('Swallow 1').Size() == 1, "refilled at the fire in the menu (" + thePlayer.inv.SingletonItemGetAmmo(ids[0]) + " charges, one item)");
+		&& after.Size() == 1, "refilled at the fire in the menu (" + thePlayer.inv.SingletonItemGetAmmo(ids[0]) + " charges, one item)");
 	bad += PrepTestCheck(thePlayer.inv.GetItemQuantityByName('Dwarven spirit') == 1, "one Dwarven spirit used (" + thePlayer.inv.GetItemQuantityByName('Dwarven spirit') + " left)");
 	bad += PrepTestCheck(PrepTestNow() - t == 900, "create time charged (" + (PrepTestNow() - t) + " s)");
 	fire.Destroy();
