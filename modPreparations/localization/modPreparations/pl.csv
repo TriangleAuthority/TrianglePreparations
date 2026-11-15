@@ -1,6 +1,6 @@
-;meta[language=en]
+;meta[language=pl]
 ; id      |key(hex)|key(str)| text
-; Preparations strings, ported from legacy 6.2 (same ids and keys). Not carried: the unused rows and the
+; Preparations strings, ported from legacy 6.2 (same ids and keys; legacy's header said language=en). Not carried: the unused rows and the
 ; two vanilla-text overrides by key hash, which come back with PREP-TABLE.
 2110750001|        |panel_mod_preparations|Preparations
 2110750002|        |panel_prep_meditation|Medytacja
