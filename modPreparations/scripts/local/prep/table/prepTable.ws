@@ -112,7 +112,7 @@ function ApplyWitcherHouseBuffs()
 
 // The quest that builds the table applies the effect instead of 5.x's refill bonus.
 @replaceMethod
-quest function ApplyAlchemyTableBuff()
+function ApplyAlchemyTableBuff()
 {
 	GetWitcherPlayer().PrepManageAlchemyTableBonus();
 }
