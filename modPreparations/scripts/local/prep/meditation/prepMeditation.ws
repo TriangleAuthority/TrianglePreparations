@@ -126,8 +126,10 @@ function PrepHasNonAlliedActorsNearby() : bool
 }
 
 // Preparations' own meditation rules, in legacy's order: the string key of the first one broken, "" if none.
-// Legacy's other checks (time paused by a quest, on a horse or boat, the action blocked, the state, enemies,
-// under water) are 5.x's CanMeditate's own, which runs first.
+// Waiting blocked (by a quest moment, an elevator, ...) refuses meditation, as in legacy; this also closes 5.x's
+// "replenish without meditating", which the radial menu offers only while waiting is blocked (owner, 2026-11-14).
+// Legacy's other checks (on a horse or boat, the state, enemies) are 5.x's CanMeditate's own, which runs first;
+// time paused by a quest and being under water are left to 5.x (deviation 3).
 @addMethod(W3PlayerWitcher)
 function PrepMeditationError() : string
 {
@@ -136,6 +138,8 @@ function PrepMeditationError() : string
 	cfg = prepConfig;
 	if(!cfg)
 		return "";
+	if(!IsActionAllowed(EIAB_MeditationWaiting))
+		return "prep_error_action_disallowed";
 	if(cfg.disallowNPCs && PrepHasNonAlliedActorsNearby())
 		return "prep_error_nonallied_npcs";
 	if(cfg.disallowSettlement && IsInSettlement() && !IsInInterior())

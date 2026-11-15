@@ -69,6 +69,17 @@ exec function preptest_med()
 
 	// a campfire next to Geralt
 	fire = PrepTestSpawnCampfire(1.5);
+
+	// waiting blocked (as a quest blocks it): meditation refused even at the fire, no replenish without meditating
+	w.BlockAction(EIAB_MeditationWaiting, 'preptest');
+	bad += PrepTestCheck(!w.CanMeditate() && w.prepMeditationRefusal == "prep_error_action_disallowed",
+		"waiting blocked: meditation refused at the fire ('" + w.prepMeditationRefusal + "')");
+	bad += PrepTestCheck(!w.CanReplenishWithoutMeditate(), "waiting blocked: no replenish without meditating");
+	w.prepLastMessage = "";
+	w.DisplayActionDisallowedHudMessage(EIAB_OpenMeditation, , w.IsThreatened(), !w.CanMeditateHere(), w.IsThreatened());
+	bad += PrepTestCheck(w.prepLastMessage == "prep_error_action_disallowed", "waiting blocked: the radial menu's message is Preparations' reason");
+	w.UnblockAction(EIAB_MeditationWaiting, 'preptest');
+
 	camp = (W3Campfire)fire;
 	if(camp)
 		bad += PrepTestCheck(true, "spawned a W3Campfire");
