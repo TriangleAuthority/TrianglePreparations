@@ -186,3 +186,61 @@ exec function preptest_combat_after()
 	else
 		LogChannel('PREPTest', "FAIL preptest_combat_after: " + bad + " failed");
 }
+
+// The repair kit through the open inventory menu's own event (Ghost Mode replaces ApplyRepairKit, so this
+// checks that Preparations' gate on the event runs).
+//   preptest_repair_open()  wears the steel sword down, adds a weapon repair kit, opens the inventory
+//   preptest_repair_menu()  with the inventory open: the kit refused away from fire, applied at a campfire;
+//                           then game.py resume closes the inventory
+exec function preptest_repair_open()
+{
+	var sword : SItemUniqueId;
+
+	thePlayer.inv.AddAnItem('weapon_repair_kit_1', 1);
+	if(GetWitcherPlayer().GetItemEquippedOnSlot(EES_SteelSword, sword))
+		thePlayer.inv.SetItemDurabilityScript(sword, thePlayer.inv.GetItemMaxDurability(sword) * 0.5);
+	theGame.RequestMenuWithBackground('InventoryMenu', 'CommonMenu');
+	LogChannel('PREPTest', "INFO repair setup: kits=" + thePlayer.inv.GetItemQuantityByName('weapon_repair_kit_1')
+		+ " sword durability=" + thePlayer.inv.GetItemDurability(sword) + "/" + thePlayer.inv.GetItemMaxDurability(sword));
+}
+
+exec function preptest_repair_menu()
+{
+	var root : CR4MenuBase;
+	var menu : CR4InventoryMenu;
+	var w : W3PlayerWitcher;
+	var sword : SItemUniqueId;
+	var kits : array<SItemUniqueId>;
+	var fire : CEntity;
+	var before : float;
+	var bad : int;
+
+	w = GetWitcherPlayer();
+	root = (CR4MenuBase)theGame.GetGuiManager().GetRootMenu();
+	if(root)
+		menu = (CR4InventoryMenu)root.GetLastChild();
+	if(!menu || !w.GetItemEquippedOnSlot(EES_SteelSword, sword))
+	{
+		LogChannel('PREPTest', "FAIL preptest_repair_menu: the inventory is not open or no steel sword");
+		return;
+	}
+	kits = thePlayer.inv.GetItemsByName('weapon_repair_kit_1');
+	w.prepOpenFireEnt = NULL;
+	w.prepLastMessage = "";
+	before = thePlayer.inv.GetItemDurability(sword);
+	menu.OnApplyRepairKit(kits[0], EES_SteelSword);
+	bad += PrepTestCheck(thePlayer.inv.GetItemDurability(sword) == before && thePlayer.inv.GetItemQuantityByName('weapon_repair_kit_1') == 1
+		&& w.prepLastMessage == "prep_error_campfire_required", "repair kit away from fire refused ('" + w.prepLastMessage + "'), kit kept");
+
+	fire = PrepTestSpawnCampfire(1.5);
+	w.prepLastMessage = "";
+	menu.OnApplyRepairKit(kits[0], EES_SteelSword);
+	bad += PrepTestCheck(thePlayer.inv.GetItemDurability(sword) > before && thePlayer.inv.GetItemQuantityByName('weapon_repair_kit_1') == 0
+		&& w.prepLastMessage == "", "repair kit at a campfire applied (durability " + before + " -> " + thePlayer.inv.GetItemDurability(sword) + ")");
+	fire.Destroy();
+	w.prepOpenFireEnt = NULL;
+	if(bad == 0)
+		LogChannel('PREPTest', "PASS preptest_repair_menu");
+	else
+		LogChannel('PREPTest', "FAIL preptest_repair_menu: " + bad + " failed");
+}

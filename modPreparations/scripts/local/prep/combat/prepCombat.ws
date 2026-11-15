@@ -1,9 +1,12 @@
 // PREP-COMBAT: no eating or drinking in combat; the inventory optionally blocked in combat.
-// Ghost Mode replaces CR4Player.ConsumeItem (FOOD-05) and W3PlayerWitcher.OnCombatStart; these wrappers stack on them.
+// Ghost Mode replaces CR4Player.ConsumeItem (FOOD-05) and W3PlayerWitcher.OnCombatStart. A replacement in the
+// mod that loads first drops the other mod's wrappers of the same method, so Preparations wraps
+// W3PlayerWitcher.ConsumeItem (which reaches CR4Player's through super) and CR4Player.OnCombatStart (which
+// W3PlayerWitcher's calls through super): neither is replaced by Ghost Mode.
 
 // Food, drinks and alcohol are refused in combat with "Disallow eating food in combat" (legacy adds this to
-// 5.x's fist-fight refusal, with the same message).
-@wrapMethod(CR4Player)
+// 5.x's fist-fight refusal in CR4Player.ConsumeItem, with the same message).
+@wrapMethod(W3PlayerWitcher)
 function ConsumeItem(itemId : SItemUniqueId) : bool
 {
 	var category : name;
@@ -47,10 +50,14 @@ function OnCombatFinished()
 }
 
 // The "blocked" message shows for the inventory too (legacy adds EIAB_OpenInventory to 5.x's meditation case).
+// wrappedMethod always runs: Friendly Meditation wraps this too.
 @wrapMethod(CR4Player)
 function DisallowedActionDontShowHack(action : EInputActionBlock, isTimeLock : bool) : bool
 {
+	var dontShow : bool;
+
+	dontShow = wrappedMethod(action, isTimeLock);
 	if(action == EIAB_OpenInventory)
 		return false;
-	return wrappedMethod(action, isTimeLock);
+	return dontShow;
 }

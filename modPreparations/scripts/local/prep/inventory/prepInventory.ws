@@ -1,6 +1,7 @@
 // PREP-INV: upgrading (runes, glyphs, armour upgrades) and repairing with kits only where the options allow
 // (at a fire, while meditating), and never in combat. Blacksmiths are not affected. The time these cost
-// comes with PREP-TIME. Ghost Mode replaces ApplyRepairKit (ITEM-11); the wrapper stacks on it.
+// comes with PREP-TIME. Ghost Mode replaces ApplyRepairKit (ITEM-11), and a replacement in the mod that loads
+// first drops the other mod's wrappers of it, so Preparations gates the two events that call it instead.
 
 // The reason an upgrade or repair is refused now ("" if allowed), as legacy checks it: combat first.
 function PrepUpgradeRefusal() : string
@@ -84,8 +85,10 @@ function ApplyUpgrade(itemId : SItemUniqueId, targetSlot : int)
 	wrappedMethod(itemId, targetSlot);
 }
 
+// The two ways a repair kit is applied (ApplyRepairKit's only callers): the kit dropped on an item, and the
+// item chosen after selecting the kit.
 @wrapMethod(CR4InventoryMenu)
-function ApplyRepairKit(itemId : SItemUniqueId, targetSlot : int)
+function OnApplyRepairKit(item : SItemUniqueId, slot : int)
 {
 	var refusal : string;
 
@@ -93,7 +96,25 @@ function ApplyRepairKit(itemId : SItemUniqueId, targetSlot : int)
 	if(refusal != "")
 	{
 		PrepRefuse(refusal);
-		return;
+		return false;
 	}
-	wrappedMethod(itemId, targetSlot);
+	return wrappedMethod(item, slot);
+}
+
+@wrapMethod(CR4InventoryMenu)
+function OnSelectionModeTargetChosen(targetSlot : int)
+{
+	var refusal : string;
+
+	if(_inv.ItemHasTag(m_selectionModeItem, 'WeaponReapairKit') || _inv.ItemHasTag(m_selectionModeItem, 'ArmorReapairKit'))
+	{
+		refusal = PrepRepairRefusal();
+		if(refusal != "")
+		{
+			PrepRefuse(refusal);
+			HideSelectionMode();
+			return false;
+		}
+	}
+	return wrappedMethod(targetSlot);
 }
