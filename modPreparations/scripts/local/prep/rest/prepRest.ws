@@ -55,7 +55,7 @@ function MeditationRestoring(simulatedTime : float)
 		RemoveAllNonAutoBuffs();
 		skipBefore = inv.prepSkipRefillFilter;
 		inv.prepSkipRefillFilter = true;
-		inv.SingletonItemsRefillAmmo(, true);
+		inv.SingletonItemsRefillAmmo();
 		inv.prepSkipRefillFilter = skipBefore;
 	}
 
