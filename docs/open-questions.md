@@ -6,7 +6,7 @@ Only the game can answer:
 - **Enum extensions in saves:** does a saved `EET_PrepAlchemyTable` effect survive adding or removing Ghost Mode (renumbering), and removing Preparations?
 - **Fire detection in 5.x:** a spawned `campfire_01.w2ent` is a `W3Campfire` and counts (**verified**, slice 1). Open: are the world's campfires and fireplaces still `W3Campfire` / `W3FireSource`; does an unlit campfire count (legacy does not check); which entities have a `CGameplayLightComponent`?
 - **Meditation state and menus:** in vanilla 5.x, is Geralt in the `Meditation` state while the clock menu is open, and can he reach the character, alchemy and inventory menus from there?
-- **Time jumps:** does `SetGameTime` + `effectManager.PerformUpdate` work in 5.x (potions, toxicity, the HUD clock); does `SimulateBuffTimePassing` still need the 0.1 s loop?
+- **Time jumps:** `SetGameTime` moves the clock by the exact amount (**verified**, slice 2). Open: does `effectManager.PerformUpdate` run potions and toxicity down over the jump; does the HUD clock follow; does `SimulateBuffTimePassing` still need the 0.1 s loop?
 - **Hash-only string rows:** does a row with a new id and a vanilla key hash override the vanilla text in 5.x (or is the vanilla id needed)?
 - **`icon_house_buff_alchemy.png`:** does the texture exist in 5.x's caches?
 - **"Restart after compiling":** does the charge bug (0 or -1 charges on the first load after compiling) happen with a precompiled blob?
