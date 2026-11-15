@@ -33,6 +33,7 @@ exec function preptest_med()
 	var w : W3PlayerWitcher;
 	var cfg : CModPreparationsConfig;
 	var fire : CEntity;
+	var camp : W3Campfire;
 	var bad : int;
 	var vanillaOk : bool;
 
@@ -68,7 +69,11 @@ exec function preptest_med()
 
 	// a campfire next to Geralt
 	fire = PrepTestSpawnCampfire(1.5);
-	bad += PrepTestCheck(fire.IsA('W3Campfire'), "spawned a W3Campfire");
+	camp = (W3Campfire)fire;
+	if(camp)
+		bad += PrepTestCheck(true, "spawned a W3Campfire");
+	else
+		bad += PrepTestCheck(false, "spawned a W3Campfire");
 	bad += PrepTestCheck(w.PrepHasCampfire(), "campfire 1.5 m away counts as fire");
 	bad += PrepTestCheck(w.PrepMeditationError() == "", "rule met at the campfire");
 	bad += PrepTestCheck(w.CanMeditate() == vanillaOk, "CanMeditate at the campfire = 5.x's own answer (" + vanillaOk + ")");
