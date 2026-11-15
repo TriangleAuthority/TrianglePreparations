@@ -6,5 +6,4 @@ Every place where the port behaves differently from Preparations 6.2, with the r
 
 | # | Feature | Legacy | Port | Why | Decided | Question for the author |
 |---|---|---|---|---|---|---|
-
-None yet.
+| 1 | PREP-MENU | The defaults come from `user.settings` lines the player pastes by hand; without them most options are off | Every option has its default in script (legacy's "Defaults" preset, the same values); options never set get it when a save loads, and the reads fall back to it | No manual install step; same values as legacy's install | Porter's call (as planned in [port-plan.md](port-plan.md)), not confirmed by the owner | None |

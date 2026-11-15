@@ -2,7 +2,7 @@
 
 ## Where the port stands
 
-**2026-11-13: slice 0 under way.** The baselines and the legacy mod are committed ([repository.md](repository.md)); the legacy mod is described in [legacy-mod.md](legacy-mod.md) and compared with 5.x in [preparations-5.x.md](preparations-5.x.md) (both read from the files, **unverified** in game). The build tools are in and the compile check works (**verified**: a ping test script compiles, [tools.md](tools.md)). Next: the owner's [decisions](#decisions-to-make), then the rest of slice 0 in game.
+**2026-11-14: slice 0 done.** The baselines and the legacy mod are committed ([repository.md](repository.md)); the legacy mod is described in [legacy-mod.md](legacy-mod.md) and compared with 5.x in [preparations-5.x.md](preparations-5.x.md) (both read from the files, **unverified** in game). The build tools and the compile check work, and the in-game test procedure has run ([tools.md](tools.md)). **PREP-MENU is verified** in game with Ghost Mode installed (below). Next: slice 1 (PREP-MED, PREP-COMBAT, PREP-INV); the [decisions](#decisions-to-make) are needed from slice 1 on (the meditation notifications first).
 
 ## Approach
 
@@ -12,7 +12,7 @@ As in TriangleGhostMode and TriangleGwentImprovements: reproduce the legacy mod'
 
 | ID | Feature | Port form | Difficulty |
 |---|---|---|---|
-| PREP-MENU | Options menu (6 groups, presets), strings (8 languages), the config class and its defaults | `menu/modPreparationsConfig.xml` (legacy's ids, UTF-8 BOM); `localization/<lang>.csv` (ids 2110750000–125, the two vanilla-text overrides rewritten with vanilla ids); `CModPreparationsConfig` with a default per option (no `user.settings.part`); `@wrapMethod CR4IngameMenu.SaveChangedSettings`; `@addField prepConfig`, `OnSpawned` wrapper and init timer on `W3PlayerWitcher` | Small |
+| PREP-MENU | Options menu (6 groups, presets), strings (8 languages), the config class and its defaults | `menu/modPreparationsConfig.xml` (legacy's ids, UTF-8 BOM); `localization/modPreparations/<lang>.csv` (ids 2110750000–125; the two vanilla-text overrides come with PREP-TABLE); `CModPreparationsConfig` with a default per option (no `user.settings.part`); `@wrapMethod CR4IngameMenu.SaveChangedSettings`; `@addField prepConfig`, `OnSpawned` wrapper and init timer on `W3PlayerWitcher` | Small (**verified**) |
 | PREP-MED | Meditation requirements: fire nearby (campfire, fire source, light source), interiors, settlements, NPCs, the reasons shown | `@replaceMethod` of `CanMeditate` (with 5.x's new checks), `CanMeditateHere`, `CanMeditateWait`, **silent**; the reason shown from a `Meditate()` wrapper and the radial menu's choose path; `@addMethod`s `PrepIsMeditationAllowed`, `PrepHasCampfire`, `PrepHasNonAlliedActorsNearby`, `PrepGetMeditationError` | **Hard**: 5.x calls `CanMeditate` from many places, some on every UI update; the replenish-without-meditating path; fire detection must be checked against 5.x's world |
 | PREP-REST | What meditation restores: no full heal, effects run their course, quest autorefill option; bed and NG+; `RecoverGeralt` | `@replaceMethod` `MeditationRestoring`, `SimulateBuffTimePassing`, `ApplyWitcherHouseBuffs`, quest functions `RecoverGeralt`, `ApplyAlchemyTableBuff`; `NewGamePlusInitialize` wrapper | Medium |
 | PREP-SKILL | Buying and equipping skills, mutations and mutagens only at a fire / while meditating, **both trees** | `@wrapMethod` of 11 events on `CR4CharacterMenu` and on `CR4CharacterDupeMenu` | Medium: two menus, Ghost Mode's replaced `OnSwapSkill` and its tree switch |
@@ -30,7 +30,12 @@ Not carried: Friendly HUD's and Friendly Stash's code inside legacy's scripts (5
 
 ## Slices
 
-0. **Tooling and probes:** the tools and the compile check (done 2026-11-13); PREP-MENU: the menu shows under Options → Mods with labels in game, `autoconfig` reads every group, defaults apply on an empty settings file; the DLC mounts (`IsDLCEnabled('dlc_preparations')`). Install side by side with Ghost Mode on the shared game slot. The blob-combination probe is done (2026-11-13, [ghost-mode-compatibility.md](ghost-mode-compatibility.md#ghost-mode)).
+0. **Tooling and probes (done 2026-11-14):** the tools and the compile check; the blob-combination probe ([ghost-mode-compatibility.md](ghost-mode-compatibility.md#ghost-mode)); **PREP-MENU, verified** in game with Ghost Mode's build installed beside it (scripted checks, `preptest_menu()` in `scripts/local/prep/tests/prepTestsMenu.ws` and `modAutomation`'s `autoconfig`):
+   - `menu/modPreparationsConfig.xml` (legacy's six groups, ids, presets and ranges, UTF-8 with BOM) registers every group, and every option shows its label from `localization/modPreparations/<lang>.csv` (legacy's ids and keys; all eight tables encode).
+   - `scripts/local/prep/config/prepConfig.ws`: on a settings file without Preparations' groups, all 42 options get their defaults when the save loads (`PrepOptionDefault`, legacy's "Defaults" preset), and `CModPreparationsConfig` reads them (`GetPreparationsConfig()`, created in a `W3PlayerWitcher.OnSpawned` wrapper, initialized by a timer as in legacy).
+   - Changing an option and closing the pause menu refreshes the config (a `CR4IngameMenu.SaveChangedSettings` wrapper; "Time to create one item" set to 30 read as 1800 s).
+   - Preparations' DLC (`files/dlc/dlcpreparations/`, id `dlc_preparations`, one definitions mounter on `data\gameplaybilities\`, empty until PREP-TABLE) is found and enabled from the mod's bundle.
+   - Not checked: the menu's look (group titles, presets) by eye; the preset and refill-mode lists are legacy's XML unchanged.
 1. **PREP-MED** fire detection and requirements (every later gate uses `PrepHasCampfire`), silent checks, reasons shown; **PREP-COMBAT**; **PREP-INV**.
 2. **PREP-TIME** and **PREP-SKILL** in both menus, both trees (classic by 5.x's hidden setting and by Ghost Mode's option).
 3. **PREP-ALCH** and **PREP-REFILL** (all modes, one-charge option, the autorefill filter, the UI).
