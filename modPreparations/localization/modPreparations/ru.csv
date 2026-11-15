@@ -1,0 +1,93 @@
+;meta[language=ru]
+; id      |key(hex)|key(str)| text
+; Preparations strings, ported from legacy 6.2 (same ids and keys). Not carried: the unused rows and the
+; two vanilla-text overrides by key hash, which come back with PREP-TABLE.
+2110750001|        |panel_mod_preparations|Preparations
+2110750002|        |panel_prep_meditation|Медитация
+2110750003|        |option_prep_disallowCampFire|Запретить использовать существующие костры
+2110750004|        |option_prep_disallowFireSource|Запретить использовать существующие источники огня
+2110750005|        |option_prep_disallowLightSource|Запретить использовать существующие источники света
+2110750006|        |option_prep_disallowInterior|Запретить медитацию в закрытых пространствах
+2110750007|        |option_prep_disallowSettlement|Запретить медитацию на улице в пределах поселений
+2110750008|        |option_prep_disallowNPCs|Запретить медитацию поблизости от несоюзных НПС
+2110750009|        |option_prep_npcDistance|Минимальное расстояние до несоюзных НПС
+2110750010|        |option_prep_disallowCampFireInInterior|Запретить разжигать костёр в закрытых пространствах
+2110750011|        |option_prep_timberAmount|Количество древесины, необходимой для костра
+2110750012|        |option_prep_hardTimberAmount|Количество укреплённой древесины, необходимой для костра
+2110750020|        |panel_prep_time|Время
+2110750021|        |option_prep_timeToCreateItemMins|Затраты времени на создание одного предмета (мин)
+2110750022|        |option_prep_timeToRepairItemMins|Затраты времени на ремонт одного предмета (мин)
+2110750023|        |option_prep_timeToUpgradeItemMins|Затраты времени на одно улучшение (мин)
+2110750024|        |option_prep_timeToBuySkillMins|Затраты времени на покупку одного умения (мин)
+2110750025|        |option_prep_timeToEquipSkillMins|Затраты времени на активацию одного умения (мин)
+2110750026|        |option_prep_timeToEquipMutagenMins|Затраты времени на активацию одного мутагена (мин)
+2110750027|        |panel_prep_alchemy|Алхимия
+2110750028|        |option_prep_maxOilCharges|Кол-во применений одной банки масла (0 - бесконечно)
+2110750029|        |preset_value_prep_refillMode_TierBased|Соотв. основа
+2110750030|        |option_prep_bombsRefillMode|Метод пополнения бомб
+2110750031|        |preset_value_prep_refillMode_Saltpetre|Селитра
+2110750032|        |preset_value_prep_refillMode_Stammelfords_dust|Чёрный порошок
+2110750033|        |preset_value_prep_refillMode_Alchemists_powder|Алхимический порошок
+2110750034|        |option_prep_oilsRefillMode|Метод пополнения масел
+2110750035|        |preset_value_prep_refillMode_Dog_tallow|Собачье сало
+2110750036|        |preset_value_prep_refillMode_Bear_fat|Медвежье сало
+2110750037|        |preset_value_prep_refillMode_Alchemical_paste|Алхимическая паста
+2110750038|        |option_prep_mutagensRefillMode|Метод пополнения мутагенных отваров
+2110750039|        |preset_value_prep_refillMode_Dwarven_spirit|Краснолюдский спирт
+2110750040|        |preset_value_prep_refillMode_Alcohest|Алкагест
+2110750041|        |preset_value_prep_refillMode_White_Gull|Белая чайка
+2110750042|        |option_prep_potionsRefillMode|Метод пополнения зелий
+2110750044|        |preset_value_prep_refillMode_FullRecipe|Все ингредиенты
+2110750054|        |effect_alchemytable|Алхимическая лаборатория
+2110750058|        |preset_value_prep_refillMode_ExcludeMutagen|Без мутагена
+2110750059|        |option_prep_disallowOilsInCombat|Запретить нанесение масел в бою
+2110750060|        |option_prep_disallowEdiblesInCombat|Запретить принимать пищу во время боя
+2110750061|        |option_prep_blockInventoryInCombat|Блокировать меню инвентаря в бою
+2110750063|        |option_prep_disallowMeditation|Запретить медитацию вдали от огня
+2110750064|        |preset_value_prep_defaults|По умолчанию
+2110750065|        |preset_value_prep_off|Выкл.
+2110750066|        |preset_Mods_mod_preparations_prep_meditation|Предустановки медитации
+2110750068|        |preset_Mods_mod_preparations_prep_time|Предустановки времени
+2110750069|        |preset_Mods_mod_preparations_prep_alchemy|Предустановки алхимии
+2110750070|        |option_prep_disallowCampFireInSettlement|Запретить разжигать костёр в поселениях
+2110750072|        |preset_value_prep_refillMode_BaseAndHerbs|Основа и травы
+2110750075|        |panel_prep_friendly_meditation|Friendly Meditation
+2110750076|        |preset_Mods_mod_preparations_prep_friendly_meditation|Предустановки Friendly Meditation
+2110750077|        |option_prep_alchemy_meditation|Для алхимии требуется медитация (Friendly Meditation)
+2110750078|        |option_prep_alchemy_campfire|Для алхимии требуется огонь
+2110750079|        |option_prep_refillOne|Пополнение восстанавливает только один "заряд"
+2110750090|        |preset_value_prep_refillMode_Auto|Автоматически
+2110750091|        |preset_value_prep_friendly_meditation|Friendly Meditation
+2110750092|        |panel_prep_character|Персонаж
+2110750093|        |preset_Mods_mod_preparations_prep_character|Предустановки персонажа
+2110750094|        |panel_prep_inventory|Инвентарь
+2110750095|        |preset_Mods_mod_preparations_prep_inventory|Предустановки инвентаря
+2110750096|        |option_prep_disableAutorefillQuest|Запретить квестовое автопополнение
+2110750097|        |option_prep_disableRegenFullHealth|Запретить полное восстановление здоровья после медитации
+2110750098|        |option_prep_disableCleanupCharStatus|Запретить очистку эффектов после медитации
+2110750099|        |option_prep_buy_skill_meditation|Покупка умений требует медитации (Friendly Meditation)
+2110750100|        |option_prep_buy_skill_campfire|Покупка умений требует огня
+2110750101|        |option_prep_equip_skill_meditation|Активация умений требует медитации (Friendly Meditation)
+2110750102|        |option_prep_equip_skill_campfire|Активация умений требует огня
+2110750103|        |option_prep_equip_mutagen_meditation|Активация мутагенов требует медитации (Friendly Meditation)
+2110750104|        |option_prep_equip_mutagen_campfire|Активация мутагенов требует огня
+2110750105|        |option_prep_repair_meditation|Починка требует медитации (Friendly Meditation)
+2110750106|        |option_prep_repair_campfire|Починка требует огня
+2110750107|        |option_prep_upgrade_meditation|Улучшение требует медитации (Friendly Meditation)
+2110750108|        |option_prep_upgrade_campfire|Улучшение требует огня
+2110750109|        |prep_error_time_paused|Нельзя медитировать пока время остановлено
+2110750110|        |prep_error_horse_boat|Нельзя медитировать на лошади и в лодке
+2110750111|        |prep_error_action_disallowed|Медитация временно заблокирована
+2110750112|        |prep_error_disallowed_now|Медитация сейчас невозможна
+2110750113|        |prep_error_enemies_nearby|Нельзя медитировать рядом с врагами
+2110750114|        |prep_error_submerged|Нельзя медитировать в воде
+2110750115|        |prep_error_nonallied_npcs|Нельзя медитировать поблизости от несоюзных НПС
+2110750116|        |prep_error_disallowed_settlement|Нельзя медитировать на улице в пределах поселений
+2110750117|        |prep_error_disallowed_interior|Нельзя медитировать в закрытых пространствах
+2110750118|        |prep_error_no_campfire_found|Нельзя медитировать без огня
+2110750119|        |prep_error_campfire_interior|Нельзя разжигать костёр в закрытых пространствах
+2110750120|        |prep_error_campfire_settlement|Нельзя разжигать костёр в поселениях
+2110750121|        |prep_error_no_timber|Не хватает древесины для костра
+2110750122|        |prep_error_meditation_required|Для действия требуется медитация
+2110750123|        |prep_error_campfire_required|Для действия требуется огонь
+2110750125|        |prep_error_undefined|Непредвиденная ошибка, сообщите автору мода Preparations

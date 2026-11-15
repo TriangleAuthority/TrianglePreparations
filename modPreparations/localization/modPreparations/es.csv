@@ -1,0 +1,93 @@
+;meta[language=es]
+; id      |key(hex)|key(str)| text
+; Preparations strings, ported from legacy 6.2 (same ids and keys). Not carried: the unused rows and the
+; two vanilla-text overrides by key hash, which come back with PREP-TABLE.
+2110750001|        |panel_mod_preparations|Preparativos
+2110750002|        |panel_prep_meditation|Meditación
+2110750003|        |option_prep_disallowCampFire|Desactivar uso de fogatas existentes para meditar
+2110750004|        |option_prep_disallowFireSource|Desactivar uso de fuentes de fuego existentes para meditar
+2110750005|        |option_prep_disallowLightSource|Desactivar uso de fuentes de luz existentes para meditar
+2110750006|        |option_prep_disallowInterior|Desactivar meditación en interiores
+2110750007|        |option_prep_disallowSettlement|Desactivar meditación en exteriores al estar en asentamientos
+2110750008|        |option_prep_disallowNPCs|Desactivar meditación cerca de PNJs no aliados
+2110750009|        |option_prep_npcDistance|Distancia mín. permitida para PNJs no aliados
+2110750010|        |option_prep_disallowCampFireInInterior|Desactivar creación de fogatas en interiores
+2110750011|        |option_prep_timberAmount|Cantidad de madera requerida para crear una fogata
+2110750012|        |option_prep_hardTimberAmount|Cantidad de madera endurecida para crear una fogata
+2110750020|        |panel_prep_time|Intervalos de tiempo
+2110750021|        |option_prep_timeToCreateItemMins|Tiempo para crear un ítem (mins)
+2110750022|        |option_prep_timeToRepairItemMins|Tiempo para reparar un artículo (mins)
+2110750023|        |option_prep_timeToUpgradeItemMins|Tiempo para aplicar una mejora (mins)
+2110750024|        |option_prep_timeToBuySkillMins|Tiempo para adquirir una habilidad (mins)
+2110750025|        |option_prep_timeToEquipSkillMins|Tiempo para equipar una habilidad (mins)
+2110750026|        |option_prep_timeToEquipMutagenMins|Tiempo para equipar un mutágeno (mins)
+2110750027|        |panel_prep_alchemy|Alquimia
+2110750028|        |option_prep_maxOilCharges|Usos máx. por frasco de aceite (0: ilimitado)
+2110750029|        |preset_value_prep_refillMode_TierBased|Base respectiva
+2110750030|        |option_prep_bombsRefillMode|Modo de crear bombas
+2110750031|        |preset_value_prep_refillMode_Saltpetre|Salitre
+2110750032|        |preset_value_prep_refillMode_Stammelfords_dust|Polvo de Stammelford
+2110750033|        |preset_value_prep_refillMode_Alchemists_powder|Polvo de los Alquimistas
+2110750034|        |option_prep_oilsRefillMode|Modo de rellenar aceites
+2110750035|        |preset_value_prep_refillMode_Dog_tallow|Sebo de perro
+2110750036|        |preset_value_prep_refillMode_Bear_fat|Grasa de oso
+2110750037|        |preset_value_prep_refillMode_Alchemical_paste|Pasta alquímica
+2110750038|        |option_prep_mutagensRefillMode|Modo de preparar extractos
+2110750039|        |preset_value_prep_refillMode_Dwarven_spirit|Licor enano
+2110750040|        |preset_value_prep_refillMode_Alcohest|Alcohesto
+2110750041|        |preset_value_prep_refillMode_White_Gull|Gaviota Blanca
+2110750042|        |option_prep_potionsRefillMode|Modo de preparar pociones
+2110750044|        |preset_value_prep_refillMode_FullRecipe|Receta completa
+2110750054|        |effect_alchemytable|Laboratorio de Alquimia
+2110750058|        |preset_value_prep_refillMode_ExcludeMutagen|No usar mutágeno
+2110750059|        |option_prep_disallowOilsInCombat|No permitir la aplicación de aceites en combate
+2110750060|        |option_prep_disallowEdiblesInCombat|No permitir consumir alimentos en combate
+2110750061|        |option_prep_blockInventoryInCombat|Bloquear el acceso al inventario en combate
+2110750063|        |option_prep_disallowMeditation|No permitir la meditación lejos del fuego
+2110750064|        |preset_value_prep_defaults|Por defecto
+2110750065|        |preset_value_prep_off|Apagado
+2110750066|        |preset_Mods_mod_preparations_prep_meditation|Preajustes de Meditación
+2110750068|        |preset_Mods_mod_preparations_prep_time|Preajustes de Intervalos de Tiempo
+2110750069|        |preset_Mods_mod_preparations_prep_alchemy|Preajustes de Alquimia
+2110750070|        |option_prep_disallowCampFireInSettlement|No permitir crear fogatas en asentamientos
+2110750072|        |preset_value_prep_refillMode_BaseAndHerbs|Base y hierbas
+2110750075|        |panel_prep_friendly_meditation|Friendly Meditation
+2110750076|        |preset_Mods_mod_preparations_prep_friendly_meditation|Preajustes de Friendly Meditation
+2110750077|        |option_prep_alchemy_meditation|Meditar para crear alquimia (Friendly Meditation)
+2110750078|        |option_prep_alchemy_campfire|Usar fogata para crear alquimia
+2110750079|        |option_prep_refillOne|Restaurar sólo una carga al rellenar
+2110750090|        |preset_value_prep_refillMode_Auto|Autorellenar
+2110750091|        |preset_value_prep_friendly_meditation|Friendly Meditation
+2110750092|        |panel_prep_character|Personaje
+2110750093|        |preset_Mods_mod_preparations_prep_character|Preajustes de Personaje
+2110750094|        |panel_prep_inventory|Inventario
+2110750095|        |preset_Mods_mod_preparations_prep_inventory|Preajustes de Inventario
+2110750096|        |option_prep_disableAutorefillQuest|Desactivar el autorelleno en misiones
+2110750097|        |option_prep_disableRegenFullHealth|Desactivar la regeneración completa de vitalidad luego de meditar
+2110750098|        |option_prep_disableCleanupCharStatus|Desactivar la anulación de efectos después de meditar
+2110750099|        |option_prep_buy_skill_meditation|Adquirir habilidades requiere meditación (Friendly Meditation)
+2110750100|        |option_prep_buy_skill_campfire|Adquirir habilidades requiere una fogata
+2110750101|        |option_prep_equip_skill_meditation|Equipar habilidades requiere meditación (Friendly Meditation)
+2110750102|        |option_prep_equip_skill_campfire|Equipar habilidades requiere una fogata
+2110750103|        |option_prep_equip_mutagen_meditation|Equipar mutágenos requiere meditación (Friendly Meditation)
+2110750104|        |option_prep_equip_mutagen_campfire|Equipar mutágenos requiere una fogata
+2110750105|        |option_prep_repair_meditation|Reparar requiere meditación (Friendly Meditation)
+2110750106|        |option_prep_repair_campfire|Reparar requiere una fogata
+2110750107|        |option_prep_upgrade_meditation|Aplicar una mejora requiere meditación (Friendly Meditation)
+2110750108|        |option_prep_upgrade_campfire|Aplicar una mejora requiere una fogata
+2110750109|        |prep_error_time_paused|No puedes meditar mientras el tiempo está pausado por las misiones
+2110750110|        |prep_error_horse_boat|No puedes meditar mientras montas a caballo o viajas en bote
+2110750111|        |prep_error_action_disallowed|La meditación no está disponible por ahora
+2110750112|        |prep_error_disallowed_now|No puedes meditar ahora
+2110750113|        |prep_error_enemies_nearby|No puedes meditar mientras haya enemigos cerca
+2110750114|        |prep_error_submerged|No puedes meditar mientras estás sumergido
+2110750115|        |prep_error_nonallied_npcs|No puedes meditar cerca de PNJs no aliados
+2110750116|        |prep_error_disallowed_settlement|No puedes meditar en exteriores cuando estás en un asentamiento
+2110750117|        |prep_error_disallowed_interior|No puedes meditar en interiores
+2110750118|        |prep_error_no_campfire_found|No puedes meditar sin una fogata
+2110750119|        |prep_error_campfire_interior|No puedes hacer fogatas en interiores
+2110750120|        |prep_error_campfire_settlement|No puedes hacer fogatas en asentamientos
+2110750121|        |prep_error_no_timber|No tienes suficiente madera para hacer una fogata
+2110750122|        |prep_error_meditation_required|Esta acción requiere que medites
+2110750123|        |prep_error_campfire_required|Esta acción requiere que hagas una fogata
+2110750125|        |prep_error_undefined|Error sin definir, contacta al autor del mod

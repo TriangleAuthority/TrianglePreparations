@@ -1,0 +1,94 @@
+;meta[language=cz]
+; id      |key(hex)|key(str)| text
+; Preparations strings, ported from legacy 6.2 (same ids and keys). Not carried: the unused rows and the
+; two vanilla-text overrides by key hash, which come back with PREP-TABLE. Legacy's Czech table had key
+; hashes only; the key names are the English table's for the same ids.
+2110750001|        |panel_mod_preparations|Přípravy
+2110750002|        |panel_prep_meditation|Meditace
+2110750003|        |option_prep_disallowCampFire|Zakázat pro meditaci použití už existujících ohnišť 
+2110750004|        |option_prep_disallowFireSource|Zakázat pro meditaci použití už existujících zdrojů ohně 
+2110750005|        |option_prep_disallowLightSource|Zakázat pro meditaci použití už existujících zdrojů světla 
+2110750006|        |option_prep_disallowInterior|Zakázat meditaci v interiérech budov
+2110750007|        |option_prep_disallowSettlement|Zakázat meditaci venku, při pobytu v osadách
+2110750008|        |option_prep_disallowNPCs|Zakázat meditaci poblíž nepřátelských postav
+2110750009|        |option_prep_npcDistance|Minimální povolená vzdálenost nepřátelských postav
+2110750010|        |option_prep_disallowCampFireInInterior|Zakázat přípravu ohniště v interiérech budov
+2110750011|        |option_prep_timberAmount|Potřebné množství řeziva pro přípravu ohniště
+2110750012|        |option_prep_hardTimberAmount|(nebo) Potřebné množství ztvrdlého řeziva pro přípravu ohniště
+2110750020|        |panel_prep_time|Časové intervaly
+2110750021|        |option_prep_timeToCreateItemMins|Čas potřebný k výrobě jednoho předmětu (minuty)
+2110750022|        |option_prep_timeToRepairItemMins|Čas potřebný k opravě jednoho předmětu (minuty)
+2110750023|        |option_prep_timeToUpgradeItemMins|Čas potřebný k aplikaci jednoho vylepšení (minuty)
+2110750024|        |option_prep_timeToBuySkillMins|Čas potřebný k zakoupení jedné dovednosti (minuty)
+2110750025|        |option_prep_timeToEquipSkillMins|Čas potřebný k vybavení jedné dovednosti (minuty)
+2110750026|        |option_prep_timeToEquipMutagenMins|Čas potřebný k vybavení jednoho mutagenu (minuty)
+2110750027|        |panel_prep_alchemy|Alchymie
+2110750028|        |option_prep_maxOilCharges|Maximální počet použití za každou nádobku oleje (0 - neomezeně)
+2110750029|        |preset_value_prep_refillMode_TierBased|Odpovídající základ
+2110750030|        |option_prep_bombsRefillMode|Režim doplnění petard
+2110750031|        |preset_value_prep_refillMode_Saltpetre|Salnytr
+2110750032|        |preset_value_prep_refillMode_Stammelfords_dust|Stammelfordův prach
+2110750033|        |preset_value_prep_refillMode_Alchemists_powder|Alchymistický prášek
+2110750034|        |option_prep_oilsRefillMode|Režim doplnění olejů
+2110750035|        |preset_value_prep_refillMode_Dog_tallow|Psí lůj
+2110750036|        |preset_value_prep_refillMode_Bear_fat|Medvědí tuk
+2110750037|        |preset_value_prep_refillMode_Alchemical_paste|Alchymistická pasta
+2110750038|        |option_prep_mutagensRefillMode|Režim doplnění odvarů z mutagenů
+2110750039|        |preset_value_prep_refillMode_Dwarven_spirit|Trpasličí pálenka
+2110750040|        |preset_value_prep_refillMode_Alcohest|Alkohest
+2110750041|        |preset_value_prep_refillMode_White_Gull|Bílý racek
+2110750042|        |option_prep_potionsRefillMode|Režim doplnění lektvarů
+2110750044|        |preset_value_prep_refillMode_FullRecipe|Kompletní recept
+2110750054|        |effect_alchemytable|Alchymistická laboratoř
+2110750058|        |preset_value_prep_refillMode_ExcludeMutagen|Vyloučení mutagenu
+2110750059|        |option_prep_disallowOilsInCombat|Zakázat aplikování olejů během boje
+2110750060|        |option_prep_disallowEdiblesInCombat|Zakázat konzumaci jídla během boje
+2110750061|        |option_prep_blockInventoryInCombat|Blokovat během boje přístup do inventáře
+2110750063|        |option_prep_disallowMeditation|Zakázat meditaci příliš daleko od ohně
+2110750064|        |preset_value_prep_defaults|Výchozí
+2110750065|        |preset_value_prep_off|Vypnuto
+2110750066|        |preset_Mods_mod_preparations_prep_meditation|Přednastavení meditace
+2110750068|        |preset_Mods_mod_preparations_prep_time|Přednastavení časových intervalů
+2110750069|        |preset_Mods_mod_preparations_prep_alchemy|Přednastavení alchymie
+2110750070|        |option_prep_disallowCampFireInSettlement|Zakázat přípravu ohniště v osadách
+2110750072|        |preset_value_prep_refillMode_BaseAndHerbs|Základ a byliny
+2110750075|        |panel_prep_friendly_meditation|Přívětivá meditace
+2110750076|        |preset_Mods_mod_preparations_prep_friendly_meditation|Přednastavení Přívětivé meditace
+2110750077|        |option_prep_alchemy_meditation|Alchymie vyžaduje meditaci (Přívětivá meditace)
+2110750078|        |option_prep_alchemy_campfire|Alchymie vyžaduje ohniště
+2110750079|        |option_prep_refillOne|Doplnění obnoví předměty pouze k jednomu použití
+2110750090|        |preset_value_prep_refillMode_Auto|Autodoplnění
+2110750091|        |preset_value_prep_friendly_meditation|Přívětivá meditace
+2110750092|        |panel_prep_character|Postava
+2110750093|        |preset_Mods_mod_preparations_prep_character|Přednastavení postavy
+2110750094|        |panel_prep_inventory|Inventář
+2110750095|        |preset_Mods_mod_preparations_prep_inventory|Přednastavení inventáře
+2110750096|        |option_prep_disableAutorefillQuest|Zakázat úkolová autodoplnění
+2110750097|        |option_prep_disableRegenFullHealth|Zakázat kompletní regeneraci zdraví po meditaci
+2110750098|        |option_prep_disableCleanupCharStatus|Zakázat vypršení aktivních účinků po meditaci
+2110750099|        |option_prep_buy_skill_meditation|Kupování dovedností vyžaduje meditaci (Přívětivá meditace)
+2110750100|        |option_prep_buy_skill_campfire|Kupování dovedností vyžaduje ohniště
+2110750101|        |option_prep_equip_skill_meditation|Vybavení dovedností vyžaduje meditaci (Přívětivá meditace)
+2110750102|        |option_prep_equip_skill_campfire|Vybavení dovedností vyžaduje ohniště
+2110750103|        |option_prep_equip_mutagen_meditation|Vybavení mutagenů vyžaduje meditaci (Přívětivá meditace)
+2110750104|        |option_prep_equip_mutagen_campfire|Vybavení mutagenů vyžaduje ohniště
+2110750105|        |option_prep_repair_meditation|Opravování vyžaduje meditaci (Přívětivá meditace)
+2110750106|        |option_prep_repair_campfire|Opravování vyžaduje ohniště
+2110750107|        |option_prep_upgrade_meditation|Vylepšování vyžaduje meditaci (Přívětivá meditace)
+2110750108|        |option_prep_upgrade_campfire|Vylepšování vyžaduje ohniště
+2110750109|        |prep_error_time_paused|Nemůžeš meditovat, dokud trvá pozastavení času úkolem
+2110750110|        |prep_error_horse_boat|Nemůžeš meditovat, dokud jsi na koni nebo v loďce
+2110750111|        |prep_error_action_disallowed|Meditace je momentálně blokována
+2110750112|        |prep_error_disallowed_now|Meditace teď není možná
+2110750113|        |prep_error_enemies_nearby|Nemůžeš meditovat, dokud jsou poblíž nepřátelé
+2110750114|        |prep_error_submerged|Nemůžeš meditovat, dokud jsi ve vodě
+2110750115|        |prep_error_nonallied_npcs|Nemůžeš meditovat v blízkosti nepřátelských nehratelných postav
+2110750116|        |prep_error_disallowed_settlement|Nemůžeš meditovat venku, dokud jsi v osadě
+2110750117|        |prep_error_disallowed_interior|Nemůžeš meditovat v interiérech budov
+2110750118|        |prep_error_no_campfire_found|Nemůžeš meditovat bez ohniště
+2110750119|        |prep_error_campfire_interior|Nemůžeš připravit ohniště v interiérech budov
+2110750120|        |prep_error_campfire_settlement|Nemůžeš připravit ohniště v osadách
+2110750121|        |prep_error_no_timber|Na přípravu ohniště nemáš dostatek řeziva
+2110750122|        |prep_error_meditation_required|Tato akce vyžaduje meditaci
+2110750123|        |prep_error_campfire_required|Tato akce vyžaduje ohniště
+2110750125|        |prep_error_undefined|Něco se pokazilo, kontaktuj autora módu Přípravy

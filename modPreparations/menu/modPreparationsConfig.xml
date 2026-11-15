@@ -1,0 +1,342 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- Preparations options (Options > Mods > Preparations), PREP-MENU: legacy 6.2's groups, ids, presets and
+     ranges unchanged. Read by scripts/local/prep/config/prepConfig.ws, which also holds each option's default. -->
+<UserConfig>
+   
+    <Group id="preparationsMeditation" displayName="Mods.mod_preparations.prep_meditation">
+		<PresetsArray>
+			<Preset id="0" displayName="prep_defaults">
+				<Entry varId="prepDisallowMeditation" value="true"/>
+				<Entry varId="prepDisallowCampFire" value="false"/>
+				<Entry varId="prepDisallowFireSource" value="false"/>
+				<Entry varId="prepDisallowLightSource" value="true"/>
+				<Entry varId="prepDisallowInterior" value="false"/>
+				<Entry varId="prepDisallowSettlement" value="false"/>
+				<Entry varId="prepDisallowNPCs" value="false"/>
+				<Entry varId="prepNpcDistance" value="20"/>
+			</Preset>
+			<Preset id="1" displayName="prep_friendly_meditation">
+				<Entry varId="prepDisallowMeditation" value="false"/>
+				<Entry varId="prepDisallowCampFire" value="false"/>
+				<Entry varId="prepDisallowFireSource" value="false"/>
+				<Entry varId="prepDisallowLightSource" value="true"/>
+				<Entry varId="prepDisallowInterior" value="false"/>
+				<Entry varId="prepDisallowSettlement" value="false"/>
+				<Entry varId="prepDisallowNPCs" value="false"/>
+				<Entry varId="prepNpcDistance" value="20"/>
+			</Preset>
+			<Preset id="2" displayName="prep_off">
+				<Entry varId="prepDisallowMeditation" value="false"/>
+				<Entry varId="prepDisallowCampFire" value="false"/>
+				<Entry varId="prepDisallowFireSource" value="false"/>
+				<Entry varId="prepDisallowLightSource" value="false"/>
+				<Entry varId="prepDisallowInterior" value="false"/>
+				<Entry varId="prepDisallowSettlement" value="false"/>
+				<Entry varId="prepDisallowNPCs" value="false"/>
+			</Preset>
+		</PresetsArray>
+        <VisibleVars>
+			<Var id="prepDisallowMeditation" displayName="prep_disallowMeditation" displayType="TOGGLE"/>
+			<Var id="prepDisallowCampFire" displayName="prep_disallowCampFire" displayType="TOGGLE"/>
+			<Var id="prepDisallowFireSource" displayName="prep_disallowFireSource" displayType="TOGGLE"/>
+			<Var id="prepDisallowLightSource" displayName="prep_disallowLightSource" displayType="TOGGLE"/>
+			<Var id="prepDisallowInterior" displayName="prep_disallowInterior" displayType="TOGGLE"/>
+			<Var id="prepDisallowSettlement" displayName="prep_disallowSettlement" displayType="TOGGLE"/>
+			<Var id="prepDisallowNPCs" displayName="prep_disallowNPCs" displayType="TOGGLE"/>
+            <Var id="prepNpcDistance" displayName="prep_npcDistance" displayType="SLIDER;0;100;100"/>
+        </VisibleVars>
+    </Group>
+
+    <Group id="preparationsFriendlyMeditation" displayName="Mods.mod_preparations.prep_friendly_meditation">
+		<PresetsArray>
+			<Preset id="0" displayName="prep_defaults">
+				<Entry varId="prepDisallowCampFireInInterior" value="false"/>
+				<Entry varId="prepDisallowCampFireInSettlement" value="false"/>
+				<Entry varId="prepTimberAmount" value="0"/>
+				<Entry varId="prepHardTimberAmount" value="0"/>
+			</Preset>
+			<Preset id="1" displayName="prep_friendly_meditation">
+				<Entry varId="prepDisallowCampFireInInterior" value="true"/>
+				<Entry varId="prepDisallowCampFireInSettlement" value="false"/>
+				<Entry varId="prepTimberAmount" value="1"/>
+				<Entry varId="prepHardTimberAmount" value="1"/>
+			</Preset>
+			<Preset id="2" displayName="prep_off">
+				<Entry varId="prepDisallowCampFireInInterior" value="false"/>
+				<Entry varId="prepDisallowCampFireInSettlement" value="false"/>
+				<Entry varId="prepTimberAmount" value="0"/>
+				<Entry varId="prepHardTimberAmount" value="0"/>
+			</Preset>
+		</PresetsArray>
+        <VisibleVars>
+			<Var id="prepDisallowCampFireInInterior" displayName="prep_disallowCampFireInInterior" displayType="TOGGLE"/>
+			<Var id="prepDisallowCampFireInSettlement" displayName="prep_disallowCampFireInSettlement" displayType="TOGGLE"/>
+            <Var id="prepTimberAmount" displayName="prep_timberAmount" displayType="SLIDER;0;10;10"/>
+            <Var id="prepHardTimberAmount" displayName="prep_hardTimberAmount" displayType="SLIDER;0;10;10"/>
+        </VisibleVars>
+    </Group>
+	
+    <Group id="preparationsAlchemy" displayName="Mods.mod_preparations.prep_alchemy">
+		<PresetsArray>
+			<Preset id="0" displayName="prep_defaults">
+				<Entry varId="prepAlchemyMeditation" value="false"/>
+				<Entry varId="prepAlchemyCampfire" value="true"/>
+				<Entry varId="prepDisableAutorefillQuest" value="false"/>
+				<Entry varId="prepRefillOne" value="false"/>
+				<Entry varId="prepMaxOilCharges" value="4"/>
+				<Entry varId="prepBombsRefillMode" value="1"/>
+				<Entry varId="prepOilsRefillMode" value="1"/>
+				<Entry varId="prepMutagensRefillMode" value="1"/>
+				<Entry varId="prepPotionsRefillMode" value="1"/>
+			</Preset>
+			<Preset id="1" displayName="prep_friendly_meditation">
+				<Entry varId="prepAlchemyMeditation" value="true"/>
+				<Entry varId="prepAlchemyCampfire" value="true"/>
+				<Entry varId="prepDisableAutorefillQuest" value="false"/>
+				<Entry varId="prepRefillOne" value="false"/>
+				<Entry varId="prepMaxOilCharges" value="4"/>
+				<Entry varId="prepBombsRefillMode" value="1"/>
+				<Entry varId="prepOilsRefillMode" value="1"/>
+				<Entry varId="prepMutagensRefillMode" value="1"/>
+				<Entry varId="prepPotionsRefillMode" value="1"/>
+			</Preset>
+			<Preset id="2" displayName="prep_off">
+				<Entry varId="prepAlchemyMeditation" value="false"/>
+				<Entry varId="prepAlchemyCampfire" value="false"/>
+				<Entry varId="prepDisableAutorefillQuest" value="false"/>
+				<Entry varId="prepMaxOilCharges" value="0"/>
+				<Entry varId="prepBombsRefillMode" value="0"/>
+				<Entry varId="prepOilsRefillMode" value="0"/>
+				<Entry varId="prepMutagensRefillMode" value="0"/>
+				<Entry varId="prepPotionsRefillMode" value="0"/>
+			</Preset>
+		</PresetsArray>
+        <VisibleVars>
+			<Var id="prepAlchemyMeditation" displayName="prep_alchemy_meditation" displayType="TOGGLE"/>
+			<Var id="prepAlchemyCampfire" displayName="prep_alchemy_campfire" displayType="TOGGLE"/>
+            <Var id="prepDisableAutorefillQuest" displayName="prep_disableAutorefillQuest" displayType="TOGGLE"/>
+            <Var id="prepRefillOne" displayName="prep_refillOne" displayType="TOGGLE"/>
+            <Var id="prepMaxOilCharges" displayName="prep_maxOilCharges" displayType="SLIDER;0;10;10"/>
+            <Var id="Virtual_prepBombsRefillMode" displayName="prep_bombsRefillMode" displayType="OPTIONS" >
+				<OptionsArray>
+					<Option id="0" displayName="prep_refillMode_Auto">
+						<Entry varId="prepBombsRefillMode" value="0"/>
+					</Option>
+					<Option id="1" displayName="prep_refillMode_TierBased">
+						<Entry varId="prepBombsRefillMode" value="1"/>
+					</Option>
+					<Option id="2" displayName="prep_refillMode_Saltpetre">
+						<Entry varId="prepBombsRefillMode" value="2"/>
+					</Option>
+					<Option id="3" displayName="prep_refillMode_Stammelfords_dust">
+						<Entry varId="prepBombsRefillMode" value="3"/>
+					</Option>
+					<Option id="4" displayName="prep_refillMode_Alchemists_powder">
+						<Entry varId="prepBombsRefillMode" value="4"/>
+					</Option>
+					<Option id="5" displayName="prep_refillMode_FullRecipe">
+						<Entry varId="prepBombsRefillMode" value="5"/>
+					</Option>
+					<Option id="6" displayName="prep_refillMode_BaseAndHerbs">
+						<Entry varId="prepBombsRefillMode" value="6"/>
+					</Option>
+				</OptionsArray>
+			</Var>
+            <Var id="Virtual_prepOilsRefillMode" displayName="prep_oilsRefillMode" displayType="OPTIONS" >
+				<OptionsArray>
+					<Option id="0" displayName="prep_refillMode_Auto">
+						<Entry varId="prepOilsRefillMode" value="0"/>
+					</Option>
+					<Option id="1" displayName="prep_refillMode_TierBased">
+						<Entry varId="prepOilsRefillMode" value="1"/>
+					</Option>
+					<Option id="2" displayName="prep_refillMode_Dog_tallow">
+						<Entry varId="prepOilsRefillMode" value="2"/>
+					</Option>
+					<Option id="3" displayName="prep_refillMode_Bear_fat">
+						<Entry varId="prepOilsRefillMode" value="3"/>
+					</Option>
+					<Option id="4" displayName="prep_refillMode_Alchemical_paste">
+						<Entry varId="prepOilsRefillMode" value="4"/>
+					</Option>
+					<Option id="5" displayName="prep_refillMode_FullRecipe">
+						<Entry varId="prepOilsRefillMode" value="5"/>
+					</Option>
+					<Option id="6" displayName="prep_refillMode_BaseAndHerbs">
+						<Entry varId="prepOilsRefillMode" value="6"/>
+					</Option>
+				</OptionsArray>
+			</Var>
+            <Var id="Virtual_prepMutagensRefillMode" displayName="prep_mutagensRefillMode" displayType="OPTIONS" >
+				<OptionsArray>
+					<Option id="0" displayName="prep_refillMode_Auto">
+						<Entry varId="prepMutagensRefillMode" value="0"/>
+					</Option>
+					<Option id="1" displayName="prep_refillMode_TierBased">
+						<Entry varId="prepMutagensRefillMode" value="1"/>
+					</Option>
+					<Option id="2" displayName="prep_refillMode_Dwarven_spirit">
+						<Entry varId="prepMutagensRefillMode" value="2"/>
+					</Option>
+					<Option id="3" displayName="prep_refillMode_Alcohest">
+						<Entry varId="prepMutagensRefillMode" value="3"/>
+					</Option>
+					<Option id="4" displayName="prep_refillMode_White_Gull">
+						<Entry varId="prepMutagensRefillMode" value="4"/>
+					</Option>
+					<Option id="5" displayName="prep_refillMode_FullRecipe">
+						<Entry varId="prepMutagensRefillMode" value="5"/>
+					</Option>
+					<Option id="6" displayName="prep_refillMode_BaseAndHerbs">
+						<Entry varId="prepMutagensRefillMode" value="6"/>
+					</Option>
+					<Option id="7" displayName="prep_refillMode_ExcludeMutagen">
+						<Entry varId="prepMutagensRefillMode" value="7"/>
+					</Option>
+				</OptionsArray>
+			</Var>
+            <Var id="Virtual_prepPotionsRefillMode" displayName="prep_potionsRefillMode" displayType="OPTIONS" >
+				<OptionsArray>
+					<Option id="0" displayName="prep_refillMode_Auto">
+						<Entry varId="prepPotionsRefillMode" value="0"/>
+					</Option>
+					<Option id="1" displayName="prep_refillMode_TierBased">
+						<Entry varId="prepPotionsRefillMode" value="1"/>
+					</Option>
+					<Option id="2" displayName="prep_refillMode_Dwarven_spirit">
+						<Entry varId="prepPotionsRefillMode" value="2"/>
+					</Option>
+					<Option id="3" displayName="prep_refillMode_Alcohest">
+						<Entry varId="prepPotionsRefillMode" value="3"/>
+					</Option>
+					<Option id="4" displayName="prep_refillMode_White_Gull">
+						<Entry varId="prepPotionsRefillMode" value="4"/>
+					</Option>
+					<Option id="5" displayName="prep_refillMode_FullRecipe">
+						<Entry varId="prepPotionsRefillMode" value="5"/>
+					</Option>
+					<Option id="6" displayName="prep_refillMode_BaseAndHerbs">
+						<Entry varId="prepPotionsRefillMode" value="6"/>
+					</Option>
+				</OptionsArray>
+			</Var>
+        </VisibleVars>
+    </Group>
+	
+    <Group id="preparationsCharacter" displayName="Mods.mod_preparations.prep_character">
+		<PresetsArray>
+			<Preset id="0" displayName="prep_defaults">
+				<Entry varId="prepBuySkillMeditation" value="false"/>
+				<Entry varId="prepBuySkillCampfire" value="true"/>
+				<Entry varId="prepEquipSkillMeditation" value="false"/>
+				<Entry varId="prepEquipSkillCampfire" value="true"/>
+				<Entry varId="prepEquipMutagenMeditation" value="false"/>
+				<Entry varId="prepEquipMutagenCampfire" value="true"/>
+				<Entry varId="prepDisableRegenFullHealth" value="true"/>
+				<Entry varId="prepDisableCleanupCharStatus" value="true"/>
+			</Preset>
+			<Preset id="1" displayName="prep_friendly_meditation">
+				<Entry varId="prepBuySkillMeditation" value="true"/>
+				<Entry varId="prepBuySkillCampfire" value="true"/>
+				<Entry varId="prepEquipSkillMeditation" value="true"/>
+				<Entry varId="prepEquipSkillCampfire" value="true"/>
+				<Entry varId="prepEquipMutagenMeditation" value="true"/>
+				<Entry varId="prepEquipMutagenCampfire" value="true"/>
+				<Entry varId="prepDisableRegenFullHealth" value="true"/>
+				<Entry varId="prepDisableCleanupCharStatus" value="true"/>
+			</Preset>
+			<Preset id="2" displayName="prep_off">
+				<Entry varId="prepBuySkillMeditation" value="false"/>
+				<Entry varId="prepBuySkillCampfire" value="false"/>
+				<Entry varId="prepEquipSkillMeditation" value="false"/>
+				<Entry varId="prepEquipSkillCampfire" value="false"/>
+				<Entry varId="prepEquipMutagenMeditation" value="false"/>
+				<Entry varId="prepEquipMutagenCampfire" value="false"/>
+				<Entry varId="prepDisableRegenFullHealth" value="false"/>
+				<Entry varId="prepDisableCleanupCharStatus" value="false"/>
+			</Preset>
+		</PresetsArray>
+        <VisibleVars>
+			<Var id="prepBuySkillMeditation" displayName="prep_buy_skill_meditation" displayType="TOGGLE"/>
+			<Var id="prepBuySkillCampfire" displayName="prep_buy_skill_campfire" displayType="TOGGLE"/>
+			<Var id="prepEquipSkillMeditation" displayName="prep_equip_skill_meditation" displayType="TOGGLE"/>
+			<Var id="prepEquipSkillCampfire" displayName="prep_equip_skill_campfire" displayType="TOGGLE"/>
+			<Var id="prepEquipMutagenMeditation" displayName="prep_equip_mutagen_meditation" displayType="TOGGLE"/>
+			<Var id="prepEquipMutagenCampfire" displayName="prep_equip_mutagen_campfire" displayType="TOGGLE"/>
+			<Var id="prepDisableRegenFullHealth" displayName="prep_disableRegenFullHealth" displayType="TOGGLE"/>
+			<Var id="prepDisableCleanupCharStatus" displayName="prep_disableCleanupCharStatus" displayType="TOGGLE"/>
+        </VisibleVars>
+    </Group>
+
+    <Group id="preparationsInventory" displayName="Mods.mod_preparations.prep_inventory">
+		<PresetsArray>
+			<Preset id="0" displayName="prep_defaults">
+				<Entry varId="prepRepairMeditation" value="false"/>
+				<Entry varId="prepRepairCampfire" value="true"/>
+				<Entry varId="prepUpgradeMeditation" value="false"/>
+				<Entry varId="prepUpgradeCampfire" value="true"/>
+				<Entry varId="prepDisallowOilsInCombat" value="true"/>
+				<Entry varId="prepDisallowEdiblesInCombat" value="true"/>
+				<Entry varId="prepBlockInventoryInCombat" value="false"/>
+			</Preset>
+			<Preset id="1" displayName="prep_friendly_meditation">
+				<Entry varId="prepRepairMeditation" value="true"/>
+				<Entry varId="prepRepairCampfire" value="true"/>
+				<Entry varId="prepUpgradeMeditation" value="true"/>
+				<Entry varId="prepUpgradeCampfire" value="true"/>
+				<Entry varId="prepDisallowOilsInCombat" value="true"/>
+				<Entry varId="prepDisallowEdiblesInCombat" value="true"/>
+				<Entry varId="prepBlockInventoryInCombat" value="false"/>
+			</Preset>
+			<Preset id="2" displayName="prep_off">
+				<Entry varId="prepRepairMeditation" value="false"/>
+				<Entry varId="prepRepairCampfire" value="false"/>
+				<Entry varId="prepUpgradeMeditation" value="false"/>
+				<Entry varId="prepUpgradeCampfire" value="false"/>
+				<Entry varId="prepDisallowOilsInCombat" value="false"/>
+				<Entry varId="prepDisallowEdiblesInCombat" value="false"/>
+				<Entry varId="prepBlockInventoryInCombat" value="false"/>
+			</Preset>
+		</PresetsArray>
+        <VisibleVars>
+		
+			<Var id="prepRepairMeditation" displayName="prep_repair_meditation" displayType="TOGGLE"/>
+			<Var id="prepRepairCampfire" displayName="prep_repair_campfire" displayType="TOGGLE"/>
+			<Var id="prepUpgradeMeditation" displayName="prep_upgrade_meditation" displayType="TOGGLE"/>
+			<Var id="prepUpgradeCampfire" displayName="prep_upgrade_campfire" displayType="TOGGLE"/>
+			<Var id="prepDisallowOilsInCombat" displayName="prep_disallowOilsInCombat" displayType="TOGGLE"/>
+			<Var id="prepDisallowEdiblesInCombat" displayName="prep_disallowEdiblesInCombat" displayType="TOGGLE"/>
+			<Var id="prepBlockInventoryInCombat" displayName="prep_blockInventoryInCombat" displayType="TOGGLE"/>
+        </VisibleVars>
+    </Group>
+
+    <Group id="preparationsTime" displayName="Mods.mod_preparations.prep_time">
+		<PresetsArray>
+			<Preset id="0" displayName="prep_defaults">
+				<Entry varId="prepTimeToCreateItemMins" value="15"/>
+				<Entry varId="prepTimeToRepairItemMins" value="15"/>
+				<Entry varId="prepTimeToUpgradeItemMins" value="15"/>
+				<Entry varId="prepTimeToBuySkillMins" value="15"/>
+				<Entry varId="prepTimeToEquipSkillMins" value="15"/>
+				<Entry varId="prepTimeToEquipMutagenMins" value="15"/>
+			</Preset>
+			<Preset id="1" displayName="prep_off">
+				<Entry varId="prepTimeToCreateItemMins" value="0"/>
+				<Entry varId="prepTimeToRepairItemMins" value="0"/>
+				<Entry varId="prepTimeToUpgradeItemMins" value="0"/>
+				<Entry varId="prepTimeToBuySkillMins" value="0"/>
+				<Entry varId="prepTimeToEquipSkillMins" value="0"/>
+				<Entry varId="prepTimeToEquipMutagenMins" value="0"/>
+			</Preset>
+		</PresetsArray>
+        <VisibleVars>
+            <Var id="prepTimeToCreateItemMins" displayName="prep_timeToCreateItemMins" displayType="SLIDER;0;120;120"/>
+            <Var id="prepTimeToRepairItemMins" displayName="prep_timeToRepairItemMins" displayType="SLIDER;0;120;120"/>
+            <Var id="prepTimeToUpgradeItemMins" displayName="prep_timeToUpgradeItemMins" displayType="SLIDER;0;120;120"/>
+            <Var id="prepTimeToBuySkillMins" displayName="prep_timeToBuySkillMins" displayType="SLIDER;0;120;120"/>
+            <Var id="prepTimeToEquipSkillMins" displayName="prep_timeToEquipSkillMins" displayType="SLIDER;0;120;120"/>
+            <Var id="prepTimeToEquipMutagenMins" displayName="prep_timeToEquipMutagenMins" displayType="SLIDER;0;120;120"/>
+        </VisibleVars>
+    </Group>
+	
+</UserConfig>
