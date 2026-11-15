@@ -50,11 +50,11 @@ Not carried: Friendly HUD's and Friendly Stash's code inside legacy's scripts (5
 - **Skill purchase time is charged on confirm** (PREP-TIME, PREP-SKILL; owner, 2026-11-14): in a wrapper of `handleBuySkillConfirmation` in both character menus, so the classic tree's confirmation popup and the new tree's direct upgrade both charge it, and a cancelled popup does not. Legacy charges when the classic popup opens, cancelled or not (a deviation, recorded when built).
 - **No replenish without meditating** (PREP-MED; owner, 2026-11-14): meditation is refused while waiting is blocked, as in legacy (`prep_error_action_disallowed`, "Meditation is blocked for now"). This closes 5.x's radial-menu shortcut that, only while waiting is blocked (quest moments, elevators, ...), restores Geralt and refills alchemy at once without time passing. **Verified** (scripted, waiting blocked by `BlockAction`).
 - **Charges in recipe names, with wrappers only** (PREP-REFILL; owner, 2026-11-14: no replacement of 5.x's long `PopulateData`): a `PopulateData` wrapper marks the name keys of held singleton items (keys shared by two recipes' items are left alone), and a class-less wrapper of the native `GetLocStringByKeyExt` appends legacy's ` | charges/max |` to those keys only while `PopulateData` runs. **Verified** (the held Swallow's name built as "Swallow | 1/3 |" in the open menu's list, plain everywhere else; the list not looked at on screen).
+- **5.x's auto-applied oils** (PREP-OIL; owner, 2026-11-14): each automatic application costs a jar charge, and it is refused in combat while "Disallow applying oils in combat" is on, like applying from the inventory.
+- **5.x's oil re-apply when brewing a stronger oil** (PREP-OIL; owner, 2026-11-14): costs the new jar a charge, like any application.
 
 ## Decisions to make
 
-- **5.x's auto-apply oils**: costs a jar charge per application and works in combat. Options: allowed (charges apply), refused in combat when "no oils in combat" is on, or the option ignored while oil charges are on.
-- **`CookItem`'s oil re-apply** (5.x): charge the new jar or not.
 - **Friendly Meditation preset**: legacy asks the player to apply it in every group; the port could detect FM (its option group reads non-empty) and say so, or apply it.
 
 ## Compatibility
