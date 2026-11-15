@@ -91,3 +91,6 @@
 2110750122|        |prep_error_meditation_required|This action requires meditation
 2110750123|        |prep_error_campfire_required|This action requires campfire
 2110750125|        |prep_error_undefined|Undefined error, contact Preparations mod author
+; PREP-TABLE: vanilla texts overridden with the vanilla id and key (the table's message and its description; legacy matched them by key hash)
+1207074|        |message_common_alchemy_table_buff_applied|Bomben, Öle und Tränke haben eine Aufladung erhalten
+1208865|        |panel_buff_alchemy_table_descr|Bomben, Öle und Tränke erhalten eine zusätzliche Aufladung

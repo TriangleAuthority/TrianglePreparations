@@ -318,6 +318,10 @@ class CModPreparationsConfig
 		oilsRefillBase = GetOilsRefillBase(oilsRefillMode);
 		mutagensRefillBase = GetMutagensRefillBase(mutagensRefillMode);
 		potionsRefillBase = GetPotionsRefillBase(potionsRefillMode);
+
+		// PREP-OIL: oils full again with charges off, none above the max
+		if(witcher)
+			witcher.inv.PrepCheckOilAmmo(OilsHaveAmmo());
 	}
 
 	public function GetBombsRefillBase(cfgVal : int) : name

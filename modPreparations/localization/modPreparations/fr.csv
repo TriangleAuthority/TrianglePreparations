@@ -90,3 +90,6 @@
 2110750122|        |prep_error_meditation_required|Cette action nécessite de méditer
 2110750123|        |prep_error_campfire_required|Cette action nécessite un feu de camp
 2110750125|        |prep_error_undefined|Erreur non définie, contactez l'auteur de Preparations Mod
+; PREP-TABLE: vanilla texts overridden with the vanilla id and key (the table's message and its description; legacy matched them by key hash)
+1207074|        |message_common_alchemy_table_buff_applied|Les bombes, huiles et potions ont gagné une charge additionnelle.
+1208865|        |panel_buff_alchemy_table_descr|Les bombes, huiles et potions gagnent une charge additionnelle.

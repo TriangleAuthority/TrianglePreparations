@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- Preparations: the alchemy table effect (PREP-TABLE; legacy 6.2 added these entries to effects_ep2.xml). -->
+<redxml>
+  <definitions>
+    <abilities>
+      <ability name="PrepAlchemyTableEffect">
+        <duration type="add" min="3600"/>
+      </ability>
+    </abilities>
+  </definitions>
+  <custom>
+    <effects>
+      <effect name_name="PrepAlchemyTableEffect" defaultAbilityName_name="PrepAlchemyTableEffect" showOnHUD="1" effectNameLocalisationKey_name="effect_alchemytable" iconType_name="icon_prep_alchemy_table" />
+    </effects>
+    <effect_icons>
+      <effect iconType_name="icon_prep_alchemy_table" path="icons\buffs\icon_house_buff_alchemy.png" />
+    </effect_icons>
+  </custom>
+</redxml>

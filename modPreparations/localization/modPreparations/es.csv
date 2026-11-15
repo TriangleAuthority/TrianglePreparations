@@ -91,3 +91,6 @@
 2110750122|        |prep_error_meditation_required|Esta acción requiere que medites
 2110750123|        |prep_error_campfire_required|Esta acción requiere que hagas una fogata
 2110750125|        |prep_error_undefined|Error sin definir, contacta al autor del mod
+; PREP-TABLE: vanilla texts overridden with the vanilla id and key (the table's message and its description; legacy matched them by key hash)
+1207074|        |message_common_alchemy_table_buff_applied|Se ha añadido una carga adicional a las bombas, aceites y pociones.
+1208865|        |panel_buff_alchemy_table_descr|Se ha añadido una carga adicional a las bombas, aceites y pociones.
