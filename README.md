@@ -41,6 +41,8 @@ The mod is save-safe, as in legacy: it can be installed or removed at any point 
    - A loose-script mod that edits the same function as this mod loses to it, whatever its priority.
 5. Do **not** let Script Merger Remastered 3.x merge this mod's compiled scripts into a merged mod: in tests of that feature, compiled mods lost some of their changes.
 
+**Mods that add effect types** (or other members of a game enum) need their numbers lined up when two compiled mods add them: the game numbers every mod's additions in load order, so one mod's numbers can shift and its effects stop working. Ghost Mode, Preparations and Friendly Meditation already line up: Friendly Meditation adds none, and Preparations declares Ghost Mode's effect types first, by the same names and in the same order, then its own (checked against Ghost Mode's current list). With another mod that adds effect types, run `python tools/enum_sync.py apply` from a [TriangleGhostMode](https://github.com/TriangleAuthority/TriangleGhostMode) checkout after installing your mods: it patches every installed compiled mod so all agree on the numbers. Run it again after installing, updating or removing such a mod.
+
 If two mods still clash in game, keep the one you prefer first in the load order, or do not combine them.
 
 ## Differences from the legacy mod
