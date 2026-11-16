@@ -83,7 +83,16 @@ Legacy's two mods talk through shared code: Preparations' `playerWitcher.ws` con
 | FM → Preparations | `spawnedCampFire` | FM's campfire counts as a fire for `HasCampfire` |
 | shared | `IsMeditating()`, `IsSkippingTime()`, `UpdateEffectsAccelerated` (defined in both mods' copies) | The "requires meditation" options mean FM's real-time meditation; `MeditationRestoring(0)` from FM's clock menu |
 
-**In 5.x the two blobs are compiled separately against vanilla** (Ghost Mode's open question on blob merging), so neither can name the other's fields or methods. Proposed interface (the current version, agreed with the FM design, is in TriangleFriendlyMeditation `docs/ghost-mode-compatibility.md`, "Preparations interaction"); first sketch: timers started by name (works at runtime if the timer exists; Preparations `@addMethod`s `CampFireErrorMessageTimer` and `CampFireResourcesTimer` under these names); FM's spawned campfire tagged (e.g. `fmed_campfire`) so `PrepHasCampfire` finds it whatever `prepDisallowCampFire` says; "can spawn now" and "autorefill on" as facts or a Preparations config value FM reads; no shared `@addField`/`@addMethod` names (whether two blobs may add the same name is unknown: prefix them). Whether a vanilla 5.x player can open the character or alchemy menu while in the Meditation state decides whether the "requires meditation" options mean anything without FM.
+**In 5.x the two blobs are compiled separately against vanilla**, so neither can name the other's fields or methods; they meet at runtime only. **The interface as built** (PREP-FMED, **verified** 2026-11-15; Preparations' side in `meditation/prepFriendlyMeditation.ws`, FM's in its `fire/fmFire.ws`):
+
+| Direction | Channel | What it carries |
+|---|---|---|
+| FM → Preparations → FM | FM sets the fact `fmed_campfire_query` and calls `CanMeditate()`; Preparations' wrapper writes `prep_fmed_campfire_ok` (2 yes, 1 no) from `PrepCanSpawnCampfire`; FM removes both facts (0 = no Preparations) | Whether FM may make its campfire now (no fire near, FM's option, interiors, settlements, timber) |
+| FM → Preparations | `AddTimer('PrepCampFireResourcesTimer')` once FM's fire is made; `AddTimer('PrepCampFireErrorMessageTimer')` when the meditation starts with the fire refused (only after Preparations answered) | Taking the timber; why no fire could be made (shown unless a fire is near anyway) |
+| FM → Preparations | FM's fire tagged `fmed_campfire` | Counts as a fire whatever `prepDisallowCampFire` says |
+| FM → Preparations | `GetVarValue('modFriendlyMeditation', 'fmedSpawnCampfire')`; `GetVarsNumByGroupName('modFriendlyMeditation') > 0` | FM's spawn option; FM installed (Preparations' defaults follow legacy's "Friendly Meditation" preset) |
+| shared | The state name `'Meditation'` | "Requires meditation" means FM's real-time meditation (FM's fast-forward stays in that state) |
+| FM → Preparations | `SingletonItemsRefillAmmo` (FM's hourly refill) | Filtered by Preparations' refill modes; legacy's `fmedAutorefillAlchemy` switch is not needed |
 
 ### Known gaps (2026-11-14)
 

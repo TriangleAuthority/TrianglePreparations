@@ -8,7 +8,8 @@
 //   preptest_fmed_nofire()          ~2 s later, with no Timber: no fire, Preparations said why
 //   preptest_fmed_fire()            ~8 s later, with Timber: FM's fire burns, 1 Timber taken, it counts as a fire
 //                                   even with "existing campfires do not count" on
-//   preptest_fmed_stop()            closes the clock: Geralt stands up
+//   preptest_fmed_stop()            stands Geralt up (MeditationForceAbort: closing 5.x's clock before an hour is
+//                                   chosen leaves a seated Geralt seated)
 //   preptest_fmed_after()           options read back
 
 @addField(W3PlayerWitcher)
@@ -118,14 +119,8 @@ exec function preptest_fmed_fire()
 
 exec function preptest_fmed_stop()
 {
-	var menu : CR4CommonMenu;
-
-	menu = theGame.GetGuiManager().GetCommonMenu();
-	if(menu)
-		menu.CloseMenu();
-	else
-		GetWitcherPlayer().MeditationForceAbort(true);
-	LogChannel('PREPTest', "INFO stop requested, clock was open " + (bool)menu);
+	GetWitcherPlayer().MeditationForceAbort(true);
+	LogChannel('PREPTest', "INFO stop requested");
 }
 
 exec function preptest_fmed_after()

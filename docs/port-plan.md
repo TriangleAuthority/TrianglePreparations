@@ -2,7 +2,7 @@
 
 ## Where the port stands
 
-**2026-11-14: slice 5 done.** The baselines and the legacy mod are committed ([repository.md](repository.md)); the legacy mod is described in [legacy-mod.md](legacy-mod.md) and compared with 5.x in [preparations-5.x.md](preparations-5.x.md) (read from the files, **unverified** in game where not stated). Slices 0 to 5 are **verified** in game with Ghost Mode installed (every feature but PREP-FMED, below); Ghost Mode's regression passes beside it in both trees (classic 1673/0, new 1698/0, panel 166/0 each). Next: slice 6 (PREP-FMED), once the Friendly Meditation port can spawn its campfire.
+**2026-11-15: all slices done.** Slice 6, PREP-FMED (**verified** 2026-11-15 with Ghost Mode and Friendly Meditation installed, by script): Friendly Meditation is detected and Preparations' options default to legacy's "Friendly Meditation" preset (an unset option takes it, a set one is kept, [deviation 10](deviations.md)); with FM's campfire on and no Timber, FM lights no fire and Preparations says "Not enough timber"; with Timber, FM's fire burns, one Timber is taken, and the fire counts as a fire even with "existing campfires do not count" on; Ghost Mode's regression passes with all three installed (classic 1673/0, new 1698/0, panel 166/0 each). Earlier (2026-11-14): The baselines and the legacy mod are committed ([repository.md](repository.md)); the legacy mod is described in [legacy-mod.md](legacy-mod.md) and compared with 5.x in [preparations-5.x.md](preparations-5.x.md) (read from the files, **unverified** in game where not stated). Slices 0 to 5 are **verified** in game with Ghost Mode installed (every feature but PREP-FMED, below); Ghost Mode's regression passes beside it in both trees (classic 1673/0, new 1698/0, panel 166/0 each). Not yet seen: FM's campfire refused in an interior or settlement (the test save is outdoors, away from settlements).
 
 ## Approach
 
@@ -41,7 +41,7 @@ Not carried: Friendly HUD's and Friendly Stash's code inside legacy's scripts (5
 3. **PREP-ALCH** and **PREP-REFILL** (done 2026-11-14): `scripts/local/prep/tests/prepTestsSlice3.ws` (`preptest_refill`, `preptest_alch_open`, `preptest_alch_menu`), all passing with Ghost Mode installed, with slices 1 and 2 again. Not checked yet: modes 2, 4 and 7, bombs, oils and decoctions (only Swallow), the exemptions, the refill cost list as drawn in the menu.
 4. **PREP-OIL** and **PREP-TABLE** (done 2026-11-14): `scripts/local/prep/tests/prepTestsSlice4.ws` (`preptest_oil`, `preptest_oil_combat`, `preptest_table`), all passing with Ghost Mode's test build installed, with slices 1 and 3 again, and Ghost Mode's regression in both trees. Not checked yet: the icon count, 5.x's automatic oils themselves, the bed and the quest, the HUD icon (`icon_house_buff_alchemy.png` may not exist in 5.x).
 5. **PREP-REST** and **PREP-FIX** (done 2026-11-14): `scripts/local/prep/tests/prepTestsSlice5.ws` (`preptest_rest`), passing with Ghost Mode's test build, with earlier slices again, and Ghost Mode's regression in both trees. Not checked yet: the bed, New Game+, how long a long time skip's 0.1 s loop takes (a 24-hour skip is about 58,000 effect updates in one frame).
-6. **PREP-FMED**, once the Friendly Meditation port can spawn its campfire.
+6. **PREP-FMED** (done 2026-11-15).
 
 ## Decisions made
 
@@ -53,7 +53,7 @@ Not carried: Friendly HUD's and Friendly Stash's code inside legacy's scripts (5
 - **5.x's auto-applied oils** (PREP-OIL; owner, 2026-11-14): each automatic application costs a jar charge, and it is refused in combat while "Disallow applying oils in combat" is on, like applying from the inventory.
 - **5.x's oil re-apply when brewing a stronger oil** (PREP-OIL; owner, 2026-11-14): costs the new jar a charge, like any application.
 - **The native-function wrapper is kept** (PREP-REFILL; owner, 2026-11-14): the charges in recipe names wrap the native `GetLocStringByKeyExt`, which TriangleGhostMode's rules allow only with the owner's agreement (a loose-script version cannot carry it). Agreed.
-- **Friendly Meditation's defaults apply automatically** (PREP-FMED; owner, 2026-11-14): legacy asked the player to apply the "Friendly Meditation" preset in every group by hand. The port detects Friendly Meditation (its option group reads non-empty) and gives Preparations' options that preset's values as their defaults: options the player never set take them when a save loads, options the player set are kept. Built with PREP-FMED (slice 6); a deviation, recorded when built.
+- **Friendly Meditation's defaults apply automatically** (PREP-FMED; owner, 2026-11-14): legacy asked the player to apply the "Friendly Meditation" preset in every group by hand. The port detects Friendly Meditation (its option group reads non-empty) and gives Preparations' options that preset's values as their defaults: options the player never set take them when a save loads, options the player set are kept. Built with PREP-FMED (slice 6, [deviation 10](deviations.md)).
 
 ## Decisions to make
 
