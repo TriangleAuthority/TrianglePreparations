@@ -71,6 +71,9 @@ function PrepHasCampfire() : bool
 		dist = 3.0;
 	if(prepOpenFireEnt && VecDistanceSquared2D(prepOpenFireEnt.GetWorldPosition(), GetWorldPosition()) <= dist * dist)
 		return true;
+	// Friendly Meditation's own campfire counts whatever the options say (legacy's spawnedCampFire; PREP-FMED)
+	if(PrepFMCampFireNear(dist))
+		return true;
 	if(!cfg.disallowCampFire)
 	{
 		FindGameplayEntitiesInRange(entities, this, dist, 1, , FLAG_ExcludePlayer, , 'W3Campfire');
@@ -171,6 +174,7 @@ function PrepMeditationError() : string
 @wrapMethod(W3PlayerWitcher)
 function CanMeditate() : bool
 {
+	PrepAnswerFMCampFireQuery();
 	prepMeditationRefusal = "";
 	if(!wrappedMethod())
 		return false;

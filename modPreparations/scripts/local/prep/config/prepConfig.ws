@@ -5,8 +5,51 @@
 // user.settings.part.txt), written when a save loads into options that were never set, and the reads fall
 // back to it while an option is empty.
 
-// Default value of a Preparations option ("" if unknown). Add new options here, to PrepOptionList and to the menu.
+// Friendly Meditation is installed: its options menu is (PREP-FMED). Read from the menu, so it does not depend on
+// which mod's start-up code runs first.
+function PrepFMInstalled() : bool
+{
+	return theGame.GetInGameConfigWrapper().GetVarsNumByGroupName('modFriendlyMeditation') > 0;
+}
+
+// Default value of a Preparations option ("" if unknown). With Friendly Meditation installed, the options that
+// legacy's "Friendly Meditation" preset sets differently take that preset's value (owner, 2026-11-14: legacy asked
+// the player to apply that preset in every group by hand).
 function PrepOptionDefault(group : name, option : name) : string
+{
+	var fm : string;
+
+	if(PrepFMInstalled())
+	{
+		fm = PrepFMOptionDefault(group, option);
+		if(fm != "")
+			return fm;
+	}
+	return PrepBaseOptionDefault(group, option);
+}
+
+// Legacy's "Friendly Meditation" preset where it differs from the "Defaults" preset ("" elsewhere).
+function PrepFMOptionDefault(group : name, option : name) : string
+{
+	switch(option)
+	{
+		case 'prepDisallowMeditation' :			return "false";
+		case 'prepDisallowCampFireInInterior' :		return "true";
+		case 'prepTimberAmount' :			return "1";
+		case 'prepHardTimberAmount' :			return "1";
+		case 'prepAlchemyMeditation' :			return "true";
+		case 'prepBuySkillMeditation' :			return "true";
+		case 'prepEquipSkillMeditation' :		return "true";
+		case 'prepEquipMutagenMeditation' :		return "true";
+		case 'prepRepairMeditation' :			return "true";
+		case 'prepUpgradeMeditation' :			return "true";
+	}
+	return "";
+}
+
+// Default value of a Preparations option without Friendly Meditation ("" if unknown). Add new options here, to
+// PrepOptionList and to the menu.
+function PrepBaseOptionDefault(group : name, option : name) : string
 {
 	switch(group)
 	{
@@ -442,6 +485,27 @@ class CModPreparationsConfig
 	{
 		return witcher.inv.GetItemQuantityByName('Timber') >= timberAmount
 			|| witcher.inv.GetItemQuantityByName('Hardened timber') >= hardTimberAmount;
+	}
+
+	// Legacy's RemoveResourcesForCampfire: Timber first, else Hardened timber.
+	public function RemoveResourcesForCampfire()
+	{
+		if(witcher.inv.GetItemQuantityByName('Timber') >= timberAmount)
+			witcher.inv.RemoveItemByName('Timber', timberAmount);
+		else if(witcher.inv.GetItemQuantityByName('Hardened timber') >= hardTimberAmount)
+			witcher.inv.RemoveItemByName('Hardened timber', hardTimberAmount);
+	}
+
+	// Legacy's GetSpawnCampfireError: why Friendly Meditation may not make its campfire here.
+	public function GetSpawnCampfireError() : string
+	{
+		if(disallowCampFireInInterior && witcher.IsInInterior())
+			return "prep_error_campfire_interior";
+		if(disallowCampFireInSettlement && witcher.IsInSettlement())
+			return "prep_error_campfire_settlement";
+		if(!HasResourcesForCampfire())
+			return "prep_error_no_timber";
+		return "prep_error_undefined";
 	}
 }
 
