@@ -492,6 +492,41 @@ def package(mod_dir: Path, out: Path, name: str, ref: str) -> Path:
     return zip_path
 
 
+def check_ghost_mode_mirror(ref: str, package: bool) -> None:
+    """Preparations' EEffectType extension starts with a copy of Ghost Mode's effect type names, in Ghost Mode's order
+    (prepTable.ws, docs/ghost-mode-compatibility.md): compare it with Ghost Mode's list on the master of a
+    TriangleGhostMode checkout next to this one (or TGM_TOOLS's parent). A difference stops a --package build and
+    warns otherwise; without a checkout there is nothing to compare (the in-game check still catches a clash)."""
+    import re
+    gm = Path(os.environ["TGM_TOOLS"]).parent if os.environ.get("TGM_TOOLS") else REPO.parent / "TriangleGhostMode"
+    gm_path = "modGhostMode/scripts/local/gm/effects/gmEffectTypes.ws"
+    try:
+        gm_src = subprocess.run(["git", "-C", str(gm), "show", f"master:{gm_path}"], capture_output=True, check=True).stdout.decode("utf-8")
+    except (subprocess.CalledProcessError, FileNotFoundError, NotADirectoryError):
+        print(f"Ghost Mode's effect types: no TriangleGhostMode checkout at {gm}, not compared")
+        return
+    mine = git("show", f"{ref}:{MOD}/scripts/local/prep/table/prepTable.ws").decode("utf-8")
+
+    def members(src: str) -> list[str]:
+        m = re.search(r"enum\s+EEffectType\s*\{(.*?)\}", src, re.S)
+        return re.findall(r"\b(EET_\w+)", re.sub(r"//[^\n]*", "", m.group(1))) if m else []
+
+    want = members(gm_src)
+    have = [n for n in members(mine) if n.startswith("EET_GM")]
+    if have == want:
+        print(f"Ghost Mode's effect types: Preparations' copy matches ({len(want)} names, {gm} master)")
+        return
+    missing = [n for n in want if n not in have]
+    extra = [n for n in have if n not in want]
+    msg = (f"Preparations' copy of Ghost Mode's effect types differs from {gm} master: missing {missing or 'none'}, "
+           f"not in Ghost Mode {extra or 'none'}" + ("" if missing or extra else ", order differs")
+           + f"; update the list in {MOD}/scripts/local/prep/table/prepTable.ws")
+    if package:
+        print("error: " + msg)
+        sys.exit(1)
+    print("warning: " + msg)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ref", help="branch or commit to build (required with no --scripts or --install-from)")
@@ -539,6 +574,7 @@ def main() -> None:
     args.redkit = args.redkit or paths.redkit_dir()
     if args.ref:
         warn_uncommitted(args.ref)
+        check_ghost_mode_mirror(args.ref, args.package)
 
     strings_dir, menus, sound_cache = None, [], None
     if args.scripts:
