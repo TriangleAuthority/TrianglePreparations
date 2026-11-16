@@ -91,6 +91,7 @@ Legacy's two mods talk through shared code: Preparations' `playerWitcher.ws` con
 | FM → Preparations | `AddTimer('PrepCampFireResourcesTimer')` once FM's fire is made; `AddTimer('PrepCampFireErrorMessageTimer')` when the meditation starts with the fire refused (only after Preparations answered) | Taking the timber; why no fire could be made (shown unless a fire is near anyway) |
 | FM → Preparations | FM's fire tagged `fmed_campfire` | Counts as a fire whatever `prepDisallowCampFire` says |
 | FM → Preparations | `GetVarValue('modFriendlyMeditation', 'fmedSpawnCampfire')`; `GetVarsNumByGroupName('modFriendlyMeditation') > 0` | FM's spawn option; FM installed (Preparations' defaults follow legacy's "Friendly Meditation" preset) |
+| Preparations → FM | `GetVarsNumByGroupName('preparationsMeditation') > 0` | Preparations installed: FM's defaults follow its legacy "Preparations" preset (campfire on, manual hotkey mode; owner, 2026-11-15) |
 | shared | The state name `'Meditation'` | "Requires meditation" means FM's real-time meditation (FM's fast-forward stays in that state) |
 | FM → Preparations | `SingletonItemsRefillAmmo` (FM's hourly refill) | Filtered by Preparations' refill modes; legacy's `fmedAutorefillAlchemy` switch is not needed |
 
