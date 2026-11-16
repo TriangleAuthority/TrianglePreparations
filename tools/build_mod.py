@@ -57,6 +57,8 @@ Each wcc_lite run takes a short OS file lock (wcc_lite writes shared REDkit file
 port 37000), so parallel builds wait their turn; the build runs at below-normal priority.
 
 See docs/development.md.
+
+Needs, not in this repository: REDkit (its wcc_lite; found by tools/paths.py through Steam or W3_REDKIT_DIR), to compile the scripts and pack files; the game install (5.x; found by tools/paths.py through Steam or W3_GAME_DIR), whose scripts the mod compiles against.
 """
 
 import argparse
@@ -69,10 +71,15 @@ from pathlib import Path
 
 import paths
 
-# The game slot is TriangleGhostMode's (one game install for both projects): its game_lock.py, from the
-# sibling checkout (or TGM_TOOLS), so both projects queue for the same slot and compiler lock.
+# NOT IN THIS REPOSITORY: the game slot is TriangleGhostMode's tools/game_lock.py (one game install for several
+# projects), found in a TriangleGhostMode checkout next to this one, or in the folder TGM_TOOLS names. With it, every
+# project queues for the same game slot and compiler lock. Without it (e.g. a clone of this repository alone),
+# building and --package work, and installing goes ahead without a slot (one player, nothing to share).
 sys.path.insert(0, os.environ.get("TGM_TOOLS") or str(Path(__file__).resolve().parents[2] / "TriangleGhostMode" / "tools"))
-import game_lock  # noqa: E402
+try:
+    import game_lock  # noqa: E402
+except ImportError:
+    game_lock = None
 import soundcache
 import w3strings
 from paths import documents_dir  # noqa: F401  (kept importable from here)
@@ -244,8 +251,12 @@ def wcc(redkit: Path, args: list[str], out: Path, log_name: str, what: str) -> N
     # that blocks the build (the project owner accepted it and approved passing the flag).
     # wcc_lite writes REDkit's wcc.log, script cache and temp\ and editoruser.settings, and listens on
     # port 37000: one run at a time across all checkouts (an OS file lock, freed if this process dies).
-    lock = game_lock.FileLock(game_lock.Env().state / "wcc.lock", timeout=3600, what="the compiler slot (another wcc_lite run holds it)",
-                              quiet=False)
+    if game_lock:
+        lock = game_lock.FileLock(game_lock.Env().state / "wcc.lock", timeout=3600, what="the compiler slot (another wcc_lite run holds it)",
+                                  quiet=False)
+    else:
+        import contextlib
+        lock = contextlib.nullcontext()
     with lock:
         result = subprocess.run([str(exe), *args, "-agreetoterms"], cwd=exe.parent, capture_output=True, text=True,
                                 errors="replace", timeout=600, creationflags=paths.BELOW_NORMAL)
@@ -396,8 +407,16 @@ def check_settings(name: str, enable: bool) -> None:
     print(f"{settings}: added [{name}] Enabled=1 Priority=100")
 
 
-def gate_install(args) -> "game_lock.Gate":
+def gate_install(args) -> "game_lock.Gate | None":
     """Installing changes the shared game: the holder's token (or --parent), and the game closed."""
+    if game_lock is None:
+        print("game slot: TriangleGhostMode's game_lock.py not found (see the top of this file), installing without it")
+        running = subprocess.run(["tasklist", "/FI", "IMAGENAME eq witcher3.exe", "/FO", "CSV", "/NH"],
+                                 capture_output=True, text=True).stdout
+        if "witcher3.exe" in running.lower():
+            print("error: the game is running; quit it first: scripts load only at game start")
+            sys.exit(1)
+        return None
     try:
         g = game_lock.gate(args.holder, args.parent, "build_mod.py install")
     except game_lock.Refused as e:
@@ -421,7 +440,8 @@ def install_from(args) -> None:
     install(mod_dir, args.game)
     marker = (args.game / "mods" / args.name / MARKER).read_text().splitlines()[0].strip()
     if args.name == "modGhostMode":
-        game_lock.record_install(g, marker)
+        if game_lock:
+            game_lock.record_install(g, marker)
     print(f"installed build: {marker}")
     check_settings(args.name, args.enable)
 
@@ -540,7 +560,8 @@ def main() -> None:
         gate = gate_install(args)  # again: the build took a while
         install(mod_dir, args.game)
         if args.name == "modGhostMode":
-            game_lock.record_install(gate, (args.game / "mods" / args.name / MARKER).read_text().splitlines()[0].strip())
+            if game_lock:
+                game_lock.record_install(gate, (args.game / "mods" / args.name / MARKER).read_text().splitlines()[0].strip())
         check_settings(args.name, args.enable)
 
 

@@ -28,6 +28,8 @@ Usage:
     python tools/w3strings.py encode <in.csv> <out.w3strings> [--version 164]
     python tools/w3strings.py decode <in.w3strings> <out.csv>
     python tools/w3strings.py --selftest     # decode and re-encode the game's own string tables
+
+Needs, not in this repository: the game install (5.x; found by tools/paths.py through Steam or W3_GAME_DIR), only for the commands that read the game's own string tables (content/content0/*.w3strings).
 """
 import argparse
 import struct

@@ -20,6 +20,8 @@ Usage:
 likewise becomes a CR4DefinitionsNGPlusDLCMounter, which loads New Game+ definitions (vanilla
 DLCs mount their abilities_plus\ and items_plus\ folders this way). A path ending in a
 backslash mounts every XML file in that folder.
+
+Needs, not in this repository: REDkit's own r4data/dlc/dlc8/dlc8.reddlc, the template (found by tools/paths.py through Steam or W3_REDKIT_DIR).
 """
 import argparse
 import struct

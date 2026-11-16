@@ -26,6 +26,8 @@ Usage:
     python tools/extract_vanilla.py <out_dir> [--utf8] [--game DIR] [--mod-files DIR]
 
 The legacy game copy used for the legacy baseline is described in docs/tools.md.
+
+Needs, not in this repository: a game install to extract from: the 5.x one (tools/paths.py) or the legacy 1.32 copy (--game).
 """
 import argparse
 import collections
