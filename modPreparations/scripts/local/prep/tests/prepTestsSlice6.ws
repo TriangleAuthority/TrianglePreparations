@@ -17,7 +17,7 @@ var prepTestTimber : int;
 exec function preptest_fmed_defaults()
 {
 	var cfg : CInGameConfigWrapper;
-	var saved : string;
+	var keepValue : string;
 	var bad : int;
 
 	cfg = theGame.GetInGameConfigWrapper();
@@ -31,14 +31,14 @@ exec function preptest_fmed_defaults()
 	bad += PrepTestCheck(PrepOptionDefault('preparationsInventory', 'prepRepairMeditation') == "true" && PrepOptionDefault('preparationsInventory', 'prepUpgradeMeditation') == "true", "default: repair and upgrade need meditation");
 	bad += PrepTestCheck(PrepOptionDefault('preparationsAlchemy', 'prepAlchemyCampfire') == "true" && PrepOptionDefault('preparationsMeditation', 'prepNpcDistance') == "20", "the other defaults unchanged");
 	// an option never set takes the FM preset's value when the defaults are applied; one set is kept
-	saved = cfg.GetVarValue('preparationsFriendlyMeditation', 'prepTimberAmount');
+	keepValue = cfg.GetVarValue('preparationsFriendlyMeditation', 'prepTimberAmount');
 	cfg.SetVarValue('preparationsFriendlyMeditation', 'prepTimberAmount', "");
 	PrepApplyDefaultOptions();
 	bad += PrepTestCheck(cfg.GetVarValue('preparationsFriendlyMeditation', 'prepTimberAmount') == "1", "unset Timber amount set to 1 (" + cfg.GetVarValue('preparationsFriendlyMeditation', 'prepTimberAmount') + ")");
 	cfg.SetVarValue('preparationsFriendlyMeditation', 'prepTimberAmount', "3");
 	PrepApplyDefaultOptions();
 	bad += PrepTestCheck(cfg.GetVarValue('preparationsFriendlyMeditation', 'prepTimberAmount') == "3", "a set Timber amount is kept");
-	cfg.SetVarValue('preparationsFriendlyMeditation', 'prepTimberAmount', saved);
+	cfg.SetVarValue('preparationsFriendlyMeditation', 'prepTimberAmount', keepValue);
 	LogChannel('PREPTest', "SUMMARY preptest_fmed_defaults " + bad + " failed");
 }
 
