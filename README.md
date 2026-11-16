@@ -67,3 +67,5 @@ The same layout as TriangleGhostMode and TriangleGwentImprovements: every branch
 ## Documentation
 
 See [docs/](docs/README.md). Start with [docs/port-plan.md](docs/port-plan.md) for where the port stands and what's next.
+
+Working with an AI coding agent such as Claude Code: [CLAUDE.md.public](CLAUDE.md.public) holds this project's directions for it; copy it to `CLAUDE.md` to use them.

@@ -1,3 +1,7 @@
 # Python bytecode
 __pycache__/
 build/
+
+# Local agent instructions (CLAUDE.md.public is the shared part)
+CLAUDE.md
+CLAUDE.local.md

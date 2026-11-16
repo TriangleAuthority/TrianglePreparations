@@ -1,3 +1,6 @@
+<!-- Directions for AI coding agents (e.g. Claude Code) working in this repository. To use them, copy this file to
+     CLAUDE.md (git-ignored), or put the line @CLAUDE.md.public into your own CLAUDE.md and add your own notes below it. -->
+
 # CLAUDE.md
 
 Porting the Witcher 3 mod Preparations 6.2 (by wghost81) from the legacy game (1.32) to game version 5.x.
@@ -6,7 +9,7 @@ Read [README.md](README.md) for the project's purpose, scope decisions and branc
 
 This project is a sibling of TriangleGhostMode (`../TriangleGhostMode`, the Ghost Mode port) and TriangleGwentImprovements (`../TriangleGwentImprovements`), and works the same way. Before writing mod code, read TriangleGhostMode's `docs/development.md`: how to make changes on 5.x (script annotations such as `@wrapMethod`/`@replaceMethod`, XML overrides with `on_conflict` through a DLC, DLC mounters), the build and compile check, and testing in game. Port in small steps, each verified in game.
 
-- **The game install is shared with TriangleGhostMode and TriangleGwentImprovements.** Never launch, install into or change the game without holding TriangleGhostMode's game slot (its `tools/game_lock.py`), back up the saves before a launch, and before releasing the slot put back what the owner plays (Ghost Mode and Gwent Improvements release builds; this mod is not part of the owner's install unless the owner says so). The procedure: [docs/tools.md](docs/tools.md#testing-in-game).
+- **Testing in game** uses TriangleGhostMode's game tools from a checkout next to this one: hold its game slot (`tools/game_lock.py`) before launching, installing into or changing the game, back up the saves before a launch, and put the regular install back before releasing the slot. The procedure: [docs/tools.md](docs/tools.md#testing-in-game).
 - **Both skill trees.** 5.x has the classic skill tree (behind a hidden setting) and a new one. Anything that touches skills is ported, and tested, for both, as in TriangleGhostMode ([its feature-mapping.md](https://github.com/TriangleAuthority/TriangleGhostMode/blob/master/docs/feature-mapping.md#two-skill-trees)).
 - **Ghost Mode compatibility** is a goal: prefer annotation forms that do not clash with Ghost Mode's (check its `master` for annotations on the same methods), keep this mod's names prefixed (`PREP`/`prep`), and keep string ids in the legacy mod's own range. See [docs/ghost-mode-compatibility.md](docs/ghost-mode-compatibility.md).
 - **Friendly Meditation** (`../TriangleFriendlyMeditation`) is ported alongside; keep the hooks between the two mods working with either installed alone or both.
