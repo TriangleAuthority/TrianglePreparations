@@ -12,6 +12,42 @@ Preparations works with vanilla meditation or with Friendly Meditation (same aut
 
 **Save-safe, as in legacy.** The legacy mod could be installed and removed at any point of a playthrough. The port keeps that unless a feature forces otherwise (recorded as a deviation).
 
+## Status
+
+All of the legacy mod's features are ported and tested in game, beside the Ghost Mode port, and with Friendly Meditation. Not yet seen in game: Friendly Meditation's campfire refused in an interior or a settlement. There is no packaged release yet.
+
+## Installing
+
+Needs The Witcher 3 game version 5.x (PC). Requirements of the legacy mod (Community Patch – Base, UPatch) do not apply: 5.x contains what it needed.
+
+1. **Get the mod folder** `modPreparations`: from a release once there is one, or build it from this repository with `python tools/build_mod.py --ref master --out build/release --release` (needs Python 3 and REDkit's script compiler and packer, see [docs/tools.md](docs/tools.md)); the folder is then `build/release/modPreparations`.
+2. **Copy the mod:** put the `modPreparations` folder into `<game>\mods\` (create `mods` if there is none; `<game>` is the folder that holds `bin` and `content`). Its gameplay data changes come with it, in `content\blob0.bundle`.
+3. **Copy the options menu:** copy `modPreparations\bin\config\r4game\user_config_matrix\pc\modPreparationsConfig.xml` into `<game>\bin\config\r4game\user_config_matrix\pc\`.
+4. Start the game: the options are under **Options → Mods → Preparations**. They start at the legacy defaults; with Friendly Meditation installed, at legacy's "Friendly Meditation" preset (meditation allowed away from fire, a campfire costs 1 Timber, alchemy, skills, mutagens, repairs and upgrades need meditation). Nothing needs to be applied by hand.
+
+The mod is save-safe, as in legacy: it can be installed or removed at any point of a playthrough. To remove it, delete the `modPreparations` folder from `<game>\mods\` and the menu file from step 3.
+
+## Using it with other mods (Script Merger)
+
+**With the Ghost Mode, Friendly Meditation and Gwent Improvements ports: nothing to merge.** They are built to run side by side as separate mods, in the default folder order (tested in game, with Ghost Mode's full regression run passing beside them).
+
+**With other mods:** Script Merger merges *loose* scripts (`.ws` files) that two mods both edited. This port ships compiled scripts instead (`content\precompiled.rsblob`, built with 5.x's script annotations), which Script Merger cannot merge. Use it to find conflicts, not to fix this mod's:
+
+1. Install all your mods first, this one included.
+2. Run Script Merger Remastered (the 5.x version of Script Merger, on Nexus Mods) and refresh the conflict list.
+3. Merge the conflicts it can merge between your *other* mods as usual.
+4. Conflicts that involve this mod are listed as "not mergeable": leave them unmerged. The game resolves them itself:
+   - Where two compiled mods replace the same function, the mod whose folder name sorts first wins. To change that, give the mod you want to win a lower `Priority` in `Documents\The Witcher 3\mods.settings` (a section `[modPreparations]` with `Priority=50`, for example; the default is 100).
+   - Where a mod only adds code around a function (most of this port's changes), both mods' additions run.
+   - A loose-script mod that edits the same function as this mod loses to it, whatever its priority.
+5. Do **not** let Script Merger Remastered 3.x merge this mod's compiled scripts into a merged mod: in tests of that feature, compiled mods lost some of their changes.
+
+If two mods still clash in game, keep the one you prefer first in the load order, or do not combine them.
+
+## Differences from the legacy mod
+
+Every difference from the legacy mod, with the reason and who decided it, is listed in [docs/deviations.md](docs/deviations.md).
+
 ## How this repository is organised
 
 The same layout as TriangleGhostMode and TriangleGwentImprovements: every branch starts from the same root commit, the legacy (1.32) game files, so every change is visible as a diff.

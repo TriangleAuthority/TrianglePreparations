@@ -36,7 +36,7 @@ State on 2026-11-13 (Ghost Mode's `master`), read from both repositories (**unve
 
 - As first planned, Preparations' six wrappers on Ghost Mode's replacements (the first six rows) would **never run** (hence the fixes below).
 - Ghost Mode's wrapper of `MeditationRestoring` runs around Preparations' replacement, but only at this order.
-- A lower `Priority` for `modPreparations` in `mods.settings` reverses this (verified; the startup crashes first blamed on it were ReShade's).
+- A lower `Priority` for `modPreparations` in `mods.settings` reverses this (verified; startup crashes first blamed on it turned out to have another cause).
 
 ### Combining cleanly without a patch (analysis, 2026-11-13)
 
