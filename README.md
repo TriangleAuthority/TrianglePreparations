@@ -68,4 +68,6 @@ The same layout as TriangleGhostMode and TriangleGwentImprovements: every branch
 
 See [docs/](docs/README.md). Start with [docs/port-plan.md](docs/port-plan.md) for where the port stands and what's next.
 
+Testing in game by script, and several AI agents sharing one game install, use TriangleGhostMode's tools: clone [TriangleGhostMode](https://github.com/TriangleAuthority/TriangleGhostMode) next to this repository and follow its [docs/setup.md](https://github.com/TriangleAuthority/TriangleGhostMode/blob/master/docs/setup.md).
+
 Working with an AI coding agent such as Claude Code: [CLAUDE.md.public](CLAUDE.md.public) holds this project's directions for it; copy it to `CLAUDE.md` to use them.
