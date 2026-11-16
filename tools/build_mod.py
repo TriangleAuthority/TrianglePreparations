@@ -41,6 +41,8 @@ Not handled (the script lists them and stops): anything else outside
 
 Usage:
     python tools/build_mod.py --ref prep/<slice> --out build/<slice>-1a2b3c4d         # build and compile into a folder
+    python tools/build_mod.py --ref master --out build/release --package
+                                                                     # a release zip, laid out like the game folder: extract it into the game to install
     python tools/build_mod.py --install-from build/wgt-1a2b3c4d --holder AREA:TOKEN
                                                                      # install that build (the game slot's holder)
     python tools/build_mod.py --ref prep/<slice> --out build/<slice> --install --holder AREA:TOKEN
@@ -444,6 +446,32 @@ def uninstall(args) -> None:
     print(f"uninstalled {target}")
 
 
+def package(mod_dir: Path, out: Path, name: str, ref: str) -> Path:
+    """Zip a release build laid out like the game folder, so installing it is extracting it into <game>:
+    mods/<name>/... (the mod) and bin/config/r4game/user_config_matrix/pc/*.xml (its options menu). Text files in
+    the ref's release/ folder (manual install steps, e.g. key binding lines) go next to the mod, in mods/<name>/.
+    Nothing is installed; the zip is for the player or for publishing."""
+    import zipfile
+    commit = git("rev-parse", "--short", ref).decode().strip()
+    zip_path = out / f"{name}-{commit}.zip"
+    if zip_path.exists():
+        zip_path.unlink()
+    count = 0
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+        for f in sorted(mod_dir.rglob("*")):
+            if not f.is_file() or f.name == MARKER:
+                continue
+            rel = f.relative_to(mod_dir)
+            z.write(f, rel.as_posix() if rel.parts[0] == "bin" else (Path("mods") / name / rel).as_posix())
+            count += 1
+        for p in git("ls-tree", "--name-only", ref, "release/").decode().split():
+            if p.endswith(".txt"):
+                z.writestr((Path("mods") / name / Path(p).name).as_posix(), git("show", f"{ref}:{p}"))
+                count += 1
+    print(f"packaged {count} files: {zip_path} (extract it into the game folder to install)")
+    return zip_path
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ref", help="branch or commit to build (required with no --scripts or --install-from)")
@@ -460,11 +488,16 @@ def main() -> None:
     ap.add_argument("--game", type=Path, help="game install directory (default: W3_GAME_DIR or Steam's, see tools/paths.py)")
     ap.add_argument("--redkit", type=Path, help="REDkit install directory, for wcc_lite (default: W3_REDKIT_DIR or Steam's)")
     ap.add_argument("--release", action="store_true", help="leave out the in-game test scripts (<mod>/scripts/local/prep/tests/): a build to play or publish")
+    ap.add_argument("--package", action="store_true", help="zip the build laid out like the game folder (mods/<name>, the menu under bin/...), ready to install by extracting it into the game folder or to publish; implies --release; installs nothing")
     ap.add_argument("--loose", action="store_true", help="ship loose scripts instead of precompiled.rsblob")
     ap.add_argument("--no-compile", action="store_true", help="with --loose: skip the wcc_lite compile check")
     args = ap.parse_args()
     if args.no_compile and not args.loose:
         ap.error("--no-compile needs --loose (the blob is the compiler's output)")
+    if args.package and (args.scripts or args.loose or args.install_from):
+        ap.error("--package zips a release build of a branch: no --scripts, --loose or --install-from")
+    if args.package:
+        args.release = True
     args.game = args.game or paths.game_dir()
     if args.uninstall:
         uninstall(args)
@@ -501,6 +534,8 @@ def main() -> None:
     source = str(args.scripts) if args.scripts else f"{args.ref} {git('rev-parse', args.ref).decode().strip()}"
     mod_dir = assemble(out, args.name, source, scripts_dir, None if args.loose else blob, bundle_dir, strings_dir,
                        args.ref, menus, sound_cache)
+    if args.package:
+        package(mod_dir, out, args.name, args.ref)
     if args.install:
         gate = gate_install(args)  # again: the build took a while
         install(mod_dir, args.game)

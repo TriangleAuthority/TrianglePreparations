@@ -20,12 +20,11 @@ All of the legacy mod's features are ported and tested in game, beside the Ghost
 
 Needs The Witcher 3 game version 5.x (PC). Requirements of the legacy mod (Community Patch – Base, UPatch) do not apply: 5.x contains what it needed.
 
-1. **Get the mod folder** `modPreparations`: from a release once there is one, or build it from this repository with `python tools/build_mod.py --ref master --out build/release --release` (needs Python 3 and REDkit's script compiler and packer, see [docs/tools.md](docs/tools.md)); the folder is then `build/release/modPreparations`.
-2. **Copy the mod:** put the `modPreparations` folder into `<game>\mods\` (create `mods` if there is none; `<game>` is the folder that holds `bin` and `content`). Its gameplay data changes come with it, in `content\blob0.bundle`.
-3. **Copy the options menu:** copy `modPreparations\bin\config\r4game\user_config_matrix\pc\modPreparationsConfig.xml` into `<game>\bin\config\r4game\user_config_matrix\pc\`.
-4. Start the game: the options are under **Options → Mods → Preparations**. They start at the legacy defaults; with Friendly Meditation installed, at legacy's "Friendly Meditation" preset (meditation allowed away from fire, a campfire costs 1 Timber, alchemy, skills, mutagens, repairs and upgrades need meditation). Nothing needs to be applied by hand.
+1. **Get the zip** `modPreparations-<version>.zip`: from a release once there is one, or build it from this repository with `python tools/build_mod.py --ref master --out build/release --package` (needs Python 3 and REDkit, see [docs/tools.md](docs/tools.md)); the zip is then in `build/release/`.
+2. **Extract it into the game folder** `<game>` (the folder that holds `bin` and `content`), keeping its folders: it puts the mod into `<game>\mods\modPreparations\` and its options menu into `<game>\bin\config\r4game\user_config_matrix\pc\modPreparationsConfig.xml`. Nothing else in the game changes.
+3. Start the game: the options are under **Options → Mods → Preparations**. They start at the legacy defaults; with Friendly Meditation installed, at legacy's "Friendly Meditation" preset (meditation allowed away from fire, a campfire costs 1 Timber, alchemy, skills, mutagens, repairs and upgrades need meditation). Nothing needs to be applied by hand.
 
-The mod is save-safe, as in legacy: it can be installed or removed at any point of a playthrough. To remove it, delete the `modPreparations` folder from `<game>\mods\` and the menu file from step 3.
+The mod is save-safe, as in legacy: it can be installed or removed at any point of a playthrough. To remove it, delete the `modPreparations` folder from `<game>\mods\` and the menu file `modPreparationsConfig.xml` from step 2.
 
 ## Using it with other mods (Script Merger)
 
